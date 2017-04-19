@@ -1,0 +1,16 @@
+[
+{
+  "modid": "facmod",
+  "name": "Faction Mod",
+  "description": "A mod which implements faction system",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["BrokenSwing"],
+  "credits": "The Forge, FML guys and the Minecraft Forge France team",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
