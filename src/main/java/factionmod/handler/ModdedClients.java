@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import factionmod.FactionMod;
 import factionmod.faction.Faction;
+import factionmod.network.PacketExperience;
 import factionmod.network.PacketFaction;
 
 /**
@@ -49,6 +50,20 @@ public class ModdedClients {
 		for(EntityPlayerMP player : moddedClients) {
 			if (faction.isMember(player.getUniqueID())) {
 				updateClient(player, compound);
+			}
+		}
+	}
+
+	/**
+	 * Sends to all modded clients the new values of experience and level.
+	 * 
+	 * @param faction
+	 *            The faction to update.
+	 */
+	public static void updateExperience(Faction faction) {
+		for(EntityPlayerMP player : moddedClients) {
+			if (faction.isMember(player.getUniqueID())) {
+				FactionMod.getNetwork().sendTo(new PacketExperience(faction.getExp(), faction.getLevel()), player);
 			}
 		}
 	}

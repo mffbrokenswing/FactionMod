@@ -10,6 +10,7 @@ import factionmod.handler.EventHandlerExperience;
 import factionmod.handler.EventHandlerFaction;
 import factionmod.handler.ModdedClients;
 import factionmod.manager.IChunkManager;
+import factionmod.manager.instanciation.ChunkManagerCreator;
 import factionmod.manager.instanciation.ZoneInstance;
 import factionmod.utils.DimensionalPosition;
 
@@ -46,7 +47,7 @@ public class FactionModAPI {
 			if (level > 0 && experience >= 0) {
 				faction.setExp(experience);
 				faction.setLevel(level);
-				ModdedClients.updateFaction(faction);
+				ModdedClients.updateExperience(faction);
 			}
 		}
 

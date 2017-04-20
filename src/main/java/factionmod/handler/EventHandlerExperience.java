@@ -67,7 +67,7 @@ public class EventHandlerExperience {
 	public static void addExp(Faction faction, int amount) {
 		if (amount > 0) {
 			faction.increaseExp(amount);
-			ModdedClients.updateFaction(faction);
+			ModdedClients.updateExperience(faction);
 		}
 	}
 
