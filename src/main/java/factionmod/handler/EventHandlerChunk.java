@@ -315,7 +315,7 @@ public class EventHandlerChunk {
 	 * @param position
 	 *            The position of the chunk
 	 */
-	public static void checkForChunkNameUpdate(Entity entity, DimensionalPosition position) {
+	private static void checkForChunkNameUpdate(Entity entity, DimensionalPosition position) {
 		UUID uuid = entity.getUniqueID();
 		ITextComponent message;
 		IChunkManager manager = getManagerFor(position);
@@ -338,7 +338,7 @@ public class EventHandlerChunk {
 	 * @param position
 	 *            The position of the chunk
 	 */
-	public static void checkForChunkNameUpdate(DimensionalPosition position) {
+	private static void checkForChunkNameUpdate(DimensionalPosition position) {
 		World world = ServerUtils.getServer().worldServerForDimension(position.getDimension());
 		Chunk chunk = world.getChunkFromChunkCoords(position.getPos().chunkXPos, position.getPos().chunkZPos);
 		ClassInheritanceMultiMap<Entity>[] list = chunk.getEntityLists();
