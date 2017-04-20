@@ -49,8 +49,12 @@ public class CommandWarZone extends CommandBase {
 					arguments += str + " ";
 				}
 				Pair<IChunkManager, ZoneInstance> pair = ChunkManagerCreator.createChunkHandler("war", arguments);
-				EventHandlerChunk.registerChunkManager(pair.first(), position, pair.second(), true);
-				sender.sendMessage(MessageHelper.info("A war zone was created."));
+				if (pair == null) {
+					sender.sendMessage(MessageHelper.warn("Can't create a safezone, this zone doesn't exist anymore. Contact the administrator of the server."));
+				} else {
+					EventHandlerChunk.registerChunkManager(pair.first(), position, pair.second(), true);
+					sender.sendMessage(MessageHelper.info("A war zone was created."));
+				}
 			}
 		} else if (args.length >= 1) {
 			if (args[0].equalsIgnoreCase("remove")) {
