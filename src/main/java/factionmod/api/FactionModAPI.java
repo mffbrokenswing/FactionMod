@@ -56,6 +56,17 @@ public class FactionModAPI {
 	public static class FactionAPI {
 
 		/**
+		 * Indicates if a player has a faction.
+		 * 
+		 * @param uuid
+		 *            The UUID of the player
+		 * @return true if the player has a faction
+		 */
+		public static boolean hasPlayerFaction(UUID uuid) {
+			return EventHandlerFaction.hasUserFaction(uuid);
+		}
+
+		/**
 		 * Returns the faction with the specified name. If any faction has this
 		 * name, it will return null.
 		 * 
