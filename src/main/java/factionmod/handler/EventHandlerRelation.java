@@ -16,6 +16,12 @@ import factionmod.enums.EnumRelationType;
 import factionmod.faction.Faction;
 import factionmod.faction.RelationShip;
 
+/**
+ * Handles the relations between the factions.
+ * 
+ * @author BrokenSwing
+ *
+ */
 @EventBusSubscriber(modid = FactionMod.MODID)
 public class EventHandlerRelation {
 

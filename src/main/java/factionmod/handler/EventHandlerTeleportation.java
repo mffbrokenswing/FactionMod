@@ -17,6 +17,12 @@ import factionmod.utils.MessageHelper;
 import factionmod.utils.ServerUtils;
 import factionmod.utils.TeleportationHelper;
 
+/**
+ * Handles the teleportations delays.
+ * 
+ * @author BrokenSwing
+ *
+ */
 @EventBusSubscriber(modid = FactionMod.MODID)
 public class EventHandlerTeleportation {
 
@@ -51,6 +57,11 @@ public class EventHandlerTeleportation {
 		}
 	}
 
+	/**
+	 * Used to cancel the teleportation when the player moves.
+	 * 
+	 * @param event
+	 */
 	@SubscribeEvent
 	public static void onPlayerMove(PlayerTickEvent event) {
 		synchronized (standingPositions) {
@@ -63,6 +74,11 @@ public class EventHandlerTeleportation {
 		}
 	}
 
+	/**
+	 * Used to cancel teleportation when the player takes damages.
+	 * 
+	 * @param event
+	 */
 	@SubscribeEvent
 	public static void onPlayerHurt(LivingHurtEvent event) {
 		if (event.getEntity() instanceof EntityPlayer) {

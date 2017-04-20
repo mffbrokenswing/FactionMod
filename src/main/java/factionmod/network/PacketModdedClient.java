@@ -6,6 +6,12 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * Packet sended by the client to inform the server he's modded.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class PacketModdedClient implements IMessage {
 
 	@Override

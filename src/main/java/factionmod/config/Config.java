@@ -26,7 +26,7 @@ import factionmod.manager.instanciation.ZoneInstance;
 import factionmod.utils.DimensionalPosition;
 
 /**
- * The config of the mod, it loads and saves the state of the mod.
+ * The configuration of the mod, it loads and saves the state of the mod.
  * 
  * @author BrokenSwing
  *
@@ -36,7 +36,7 @@ public class Config {
 	private static int	immunityLevel	= 5;
 
 	/**
-	 * A faction can't be attacked until it reached the immunity level
+	 * A faction can't be attacked until it reached the immunity level.
 	 * 
 	 * @return the immunity level
 	 */

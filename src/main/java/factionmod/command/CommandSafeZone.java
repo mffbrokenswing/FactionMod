@@ -15,6 +15,13 @@ import factionmod.manager.instanciation.ZoneInstance;
 import factionmod.utils.DimensionalPosition;
 import factionmod.utils.MessageHelper;
 
+/**
+ * This command is only executable by the operators. It creates a safezone where
+ * players can't take damages and affect the world.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class CommandSafeZone extends CommandBase {
 
 	@Override

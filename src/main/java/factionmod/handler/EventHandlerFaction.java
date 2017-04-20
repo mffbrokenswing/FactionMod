@@ -46,6 +46,13 @@ import factionmod.utils.MessageHelper;
 import factionmod.utils.ServerUtils;
 import factionmod.utils.TeleportationHelper;
 
+/**
+ * It handles the factions. You can process actions on faction through this
+ * class.
+ * 
+ * @author BrokenSwing
+ *
+ */
 @EventBusSubscriber(modid = FactionMod.MODID)
 public class EventHandlerFaction {
 

@@ -10,6 +10,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import factionmod.FactionMod;
 
+/**
+ * Handles the permissions of the admins. It also store them.
+ * 
+ * @author BrokenSwing
+ *
+ */
 @EventBusSubscriber(modid = FactionMod.MODID)
 public class EventHandlerAdmin {
 

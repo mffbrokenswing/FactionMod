@@ -8,6 +8,12 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * Updates the client.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class PacketFaction implements IMessage {
 
 	private boolean			hasFaction;
@@ -24,13 +30,13 @@ public class PacketFaction implements IMessage {
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		
+
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
 		buf.writeBoolean(this.hasFaction);
-		if(this.hasFaction) {
+		if (this.hasFaction) {
 			ByteBufUtils.writeTag(buf, this.faction);
 		}
 	}

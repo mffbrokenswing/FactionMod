@@ -8,7 +8,7 @@ import factionmod.manager.IChunkManager;
 
 /**
  * Used to instanciate an {@link IChunkManager} from the name of the
- * {@link Zone} an it's arguments.
+ * {@link Zone} an its arguments.
  * 
  * @author BrokenSwing
  *

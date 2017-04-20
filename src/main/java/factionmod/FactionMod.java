@@ -23,6 +23,12 @@ import factionmod.handler.EventHandlerFaction;
 import factionmod.handler.EventHandlerRelation;
 import factionmod.network.PacketRegistering;
 
+/**
+ * This is the main class of the Mod.
+ * 
+ * @author BrokenSwing
+ *
+ */
 @Mod(modid = FactionMod.MODID, useMetadata = true, serverSideOnly = true, acceptableRemoteVersions = "*")
 public class FactionMod {
 
@@ -32,14 +38,31 @@ public class FactionMod {
 	private static Logger				logger	= null;
 	private static SimpleNetworkWrapper	network;
 
+	/**
+	 * Returns the network of the mod. Its name is the same as the mod ID of the
+	 * mod.
+	 * 
+	 * @return the network
+	 */
 	public static SimpleNetworkWrapper getNetwork() {
 		return network;
 	}
 
+	/**
+	 * Returns the logger of the mod.
+	 * 
+	 * @return ht logger
+	 */
 	public static Logger getLogger() {
 		return logger;
 	}
 
+	/**
+	 * Indicates the path to the directory containing all configuration files of
+	 * the mod.
+	 * 
+	 * @return the path to the configuration directory
+	 */
 	public static String getConfigDir() {
 		return configDir + "/factionmod";
 	}
@@ -55,7 +78,7 @@ public class FactionMod {
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
 		Config.loadZones("zones.json");
-		network = NetworkRegistry.INSTANCE.newSimpleChannel("facmod");
+		network = NetworkRegistry.INSTANCE.newSimpleChannel(FactionMod.MODID);
 		PacketRegistering.registerPackets(network);
 	}
 

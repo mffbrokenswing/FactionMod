@@ -28,12 +28,27 @@ import factionmod.handler.EventHandlerChunk;
  */
 public interface IChunkManager {
 
+	/**
+	 * Returns the component sended to the player when entering in the chunk
+	 * managed by this instance.
+	 * 
+	 * @return the component
+	 */
 	public ITextComponent getName();
 
 	public void onBreakBlock(final BreakEvent event);
 
 	public void onPlaceBlock(final PlaceEvent event);
 
+	/**
+	 * This is called when blocks of the chunk explode. If you want to cancel
+	 * the blocks to explode, remove their positions from the list.
+	 * 
+	 * @param world
+	 *            The world the explosion happenned
+	 * @param blocks
+	 *            The positions of the blocks which exploded
+	 */
 	public void onBlocksExplode(final World world, final List<BlockPos> blocks);
 
 	public void onEntityHurt(final LivingHurtEvent event);
@@ -53,7 +68,7 @@ public interface IChunkManager {
 	public void onEntityUseItem(final LivingEntityUseItemEvent event);
 
 	public void onBucketFill(final FillBucketEvent event);
-	
+
 	public void onPlayerAttack(final AttackEntityEvent event);
 
 }

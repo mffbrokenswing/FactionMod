@@ -15,6 +15,13 @@ import factionmod.manager.instanciation.ZoneInstance;
 import factionmod.utils.DimensionalPosition;
 import factionmod.utils.MessageHelper;
 
+/**
+ * This command is only executable by the operators. It creates a warzone where
+ * players can't affect the world.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class CommandWarZone extends CommandBase {
 
 	@Override

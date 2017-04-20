@@ -11,6 +11,13 @@ import factionmod.handler.EventHandlerAdmin;
 import factionmod.utils.MessageHelper;
 import factionmod.utils.ServerUtils;
 
+/**
+ * This command is only executable by the operators. It allows to become an
+ * admin of the faction mod. Be an admin permit you to manage the mod.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class CommandAdmin extends CommandBase {
 
 	@Override

@@ -5,6 +5,12 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * Updates the experience of the faction on the client side.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class PacketExperience implements IMessage {
 
 	private int	exp;

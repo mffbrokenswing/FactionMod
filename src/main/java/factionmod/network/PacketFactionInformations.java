@@ -8,6 +8,12 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+/**
+ * Sends informations about a faction to the client.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class PacketFactionInformations implements IMessage {
 
 	private String	name;

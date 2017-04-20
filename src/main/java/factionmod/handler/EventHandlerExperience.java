@@ -16,6 +16,12 @@ import factionmod.faction.Faction;
 import factionmod.faction.Levels;
 import factionmod.utils.MessageHelper;
 
+/**
+ * It handles everything which is relative to the experience of the factions.
+ * 
+ * @author BrokenSwing
+ *
+ */
 @EventBusSubscriber(modid = FactionMod.MODID)
 public class EventHandlerExperience {
 

@@ -5,6 +5,12 @@ import com.google.gson.JsonPrimitive;
 
 import factionmod.enums.EnumRelationType;
 
+/**
+ * Represents the relation between two factions.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class RelationShip {
 
 	private EnumRelationType	type;

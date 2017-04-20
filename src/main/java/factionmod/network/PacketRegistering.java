@@ -3,6 +3,12 @@ package factionmod.network;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * Registers all the packets to the network.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class PacketRegistering {
 
 	public static void registerPackets(SimpleNetworkWrapper network) {

@@ -14,6 +14,13 @@ import factionmod.utils.ServerUtils;
  */
 public class UUIDHelper {
 
+	/**
+	 * Retrieves the {@link UUID} of a player from hs name.
+	 * 
+	 * @param playerName
+	 *            The name of the player
+	 * @return the UUID of the player
+	 */
 	public static UUID getUUIDOf(String playerName) {
 		GameProfile profile = ServerUtils.getServer().getPlayerProfileCache().getGameProfileForUsername(playerName);
 		if (profile != null) {
@@ -22,6 +29,13 @@ public class UUIDHelper {
 		return null;
 	}
 
+	/**
+	 * Retrieves the name of a player from his {@link UUID}.
+	 * 
+	 * @param uuid
+	 *            The UUID of the player
+	 * @return the name of the player
+	 */
 	public static String getNameOf(UUID uuid) {
 		GameProfile profile = ServerUtils.getServer().getPlayerProfileCache().getProfileByUUID(uuid);
 		if (profile != null) {

@@ -1,5 +1,11 @@
 package factionmod.enums;
 
+/**
+ * Enumerates all the types of relation which are possible between two faction.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public enum EnumRelationType {
 
 	ENEMY("Enemy", false, EnumEntityInteraction.ATTACK),

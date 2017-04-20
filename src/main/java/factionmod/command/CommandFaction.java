@@ -30,6 +30,13 @@ import factionmod.utils.DimensionalBlockPos;
 import factionmod.utils.DimensionalPosition;
 import factionmod.utils.MessageHelper;
 
+/**
+ * This command is executable by any player, it permits to use the faction
+ * system.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class CommandFaction extends CommandBase {
 
 	@Override
@@ -70,6 +77,7 @@ public class CommandFaction extends CommandBase {
 	 * <li>{@code /faction set-grade <name> <level> [permissions ...]}</li>
 	 * <li>{@code /faction promote <player> <grade>}</li>
 	 * <li>{@code /faction remove-grade <grade>}</li>
+	 * <li>{@code /faction set-relation <faction> <relation>}</li>
 	 * </ul>
 	 */
 	@Override
@@ -257,14 +265,6 @@ public class CommandFaction extends CommandBase {
 					}
 				}
 
-				// Giving experience
-				else if (args[0].equals("exp")) {
-					Faction f = EventHandlerFaction.getFaction(getFactionOf(player.getUniqueID()));
-					if (f != null) {
-						f.increaseExp(200);
-					}
-				}
-
 				else {
 					if (!EventHandlerFaction.hasUserFaction(player.getUniqueID())) {
 						throw new WrongUsageException("/faction <create | join | info>", new Object[0]);
@@ -331,7 +331,7 @@ public class CommandFaction extends CommandBase {
 		return new ArrayList<String>();
 	}
 
-	public void handleResponse(ActionResult<String> result, EntityPlayerMP player) {
+	private void handleResponse(ActionResult<String> result, EntityPlayerMP player) {
 		if (result.getType().equals(EnumActionResult.SUCCESS)) {
 			player.sendMessage(MessageHelper.info(result.getResult()));
 		} else {

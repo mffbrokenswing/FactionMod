@@ -3,7 +3,6 @@ package factionmod.manager;
 import java.util.List;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -50,11 +49,6 @@ public abstract class ChunkManager implements IChunkManager {
 
 	@Override
 	public void onEntityJoin(EntityJoinWorldEvent event) {}
-
-	@Override
-	public ITextComponent getName() {
-		return null;
-	}
 
 	@Override
 	public void onItemToss(ItemTossEvent event) {}

@@ -14,6 +14,12 @@ import factionmod.FactionMod;
 import factionmod.faction.Faction;
 import factionmod.network.PacketFaction;
 
+/**
+ * Handles the stuff relative to the clients which are modded.
+ * 
+ * @author BrokenSwing
+ *
+ */
 @EventBusSubscriber(modid = FactionMod.MODID)
 public class ModdedClients {
 
@@ -55,7 +61,7 @@ public class ModdedClients {
 	 */
 	public static void updateClient(UUID uuid) {
 		for(EntityPlayerMP player : moddedClients) {
-			if(player.getUniqueID().equals(uuid)) {
+			if (player.getUniqueID().equals(uuid)) {
 				updateClient(player);
 				return;
 			}

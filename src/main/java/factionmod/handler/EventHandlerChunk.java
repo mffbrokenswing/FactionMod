@@ -39,6 +39,13 @@ import factionmod.manager.instanciation.ZoneInstance;
 import factionmod.utils.DimensionalPosition;
 import factionmod.utils.ServerUtils;
 
+/**
+ * It handles everything which is relative to the management of the chunks of
+ * the world.
+ * 
+ * @author BrokenSwing
+ *
+ */
 @EventBusSubscriber(modid = FactionMod.MODID)
 public class EventHandlerChunk {
 
