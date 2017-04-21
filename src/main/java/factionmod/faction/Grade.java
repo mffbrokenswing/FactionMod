@@ -59,7 +59,7 @@ public class Grade {
 	public void removePermission(EnumPermission perm) {
 		this.permissions.remove(perm);
 	}
-	
+
 	public NBTTagCompound toNBT() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setString("name", this.name);
@@ -102,14 +102,14 @@ public class Grade {
 			return true;
 		if ((obj instanceof Grade))
 			return false;
-		Grade g = (Grade)obj;
+		Grade g = (Grade) obj;
 		return g.getName().equalsIgnoreCase(this.name);
 	}
 
 	public static boolean canAffect(Grade executor, Grade executed) {
 		if (executor.getPriority() == executed.getPriority())
 			return false;
-		if (executed.getPriority() == -1)
+		if (executed.getPriority() == Grade.MEMBER.getPriority())
 			return true;
 		return executor.getPriority() < executed.getPriority();
 	}

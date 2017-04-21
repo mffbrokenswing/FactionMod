@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import factionmod.FactionMod;
+import factionmod.config.ConfigLanguage;
 import factionmod.utils.MessageHelper;
 import factionmod.utils.ServerUtils;
 import factionmod.utils.TeleportationHelper;
@@ -91,7 +92,7 @@ public class EventHandlerTeleportation {
 	private static void sendPlayerMessage(UUID uuid, int remainingTime) {
 		EntityPlayer player = ServerUtils.getPlayer(uuid);
 		if (player != null) {
-			player.sendMessage(MessageHelper.info("You will be teleported in " + (remainingTime + 1) + " seconds."));
+			player.sendMessage(MessageHelper.info(String.format(ConfigLanguage.teleportionTimeRemaining, remainingTime + 1)));
 		}
 	}
 
@@ -127,7 +128,7 @@ public class EventHandlerTeleportation {
 			standingPositions.remove(uuid);
 			EntityPlayer player = ServerUtils.getPlayer(uuid);
 			if (player != null) {
-				player.sendMessage(MessageHelper.warn("Your teleportation was canceled."));
+				player.sendMessage(MessageHelper.warn(ConfigLanguage.teleportationCanceled));
 			}
 		}
 	}

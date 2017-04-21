@@ -32,7 +32,7 @@ public class ConfigExperience {
 	}
 
 	/**
-	 * Read the integer with the speficied name int he given JsonObject. If it
+	 * Reads the integer with the speficied name in the given JsonObject. If it
 	 * doesn't exist, it returns the default value.
 	 * 
 	 * @param name
@@ -40,7 +40,7 @@ public class ConfigExperience {
 	 * @param element
 	 *            The JsonObject
 	 * @param defaultValue
-	 *            The defalut value
+	 *            The default value
 	 * @return the readed value or the default value
 	 */
 	private static int getInt(String name, JsonObject element, int defaultValue) {

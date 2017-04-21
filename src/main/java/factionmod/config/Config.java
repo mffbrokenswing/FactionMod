@@ -207,6 +207,8 @@ public class Config {
 	public static void loadConfigFile() {
 		JsonElement element = getFile("configuration.json");
 		JsonObject expObj = new JsonObject();
+
+		JsonObject languageObj = new JsonObject();
 		if (element != null && element.isJsonObject()) {
 			JsonElement el;
 			JsonObject root = element.getAsJsonObject();
@@ -225,8 +227,15 @@ public class Config {
 					expObj = el.getAsJsonObject();
 				}
 			}
+			if (root.has("language")) {
+				el = root.get("language");
+				if (el.isJsonObject()) {
+					languageObj = el.getAsJsonObject();
+				}
+			}
 		}
 		ConfigExperience.loadFromJson(expObj);
+		ConfigLanguage.loadFromJson(languageObj);
 	}
 
 	/**

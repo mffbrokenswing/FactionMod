@@ -8,10 +8,10 @@ package factionmod.enums;
  */
 public enum EnumRelationType {
 
-	ENEMY("Enemy", false, EnumEntityInteraction.ATTACK),
-	ALLY("Ally", true, EnumWorldModification.BREAK_BLOCK, EnumWorldModification.PLACE_BLOCK, EnumWorldModification.PLACE_BLOCK, EnumEntityInteraction.TRADE),
-	COMMERCIAL("Commercial", true, EnumEntityInteraction.TRADE),
-	NEUTRAL("Neutral", true, EnumEntityInteraction.ATTACK);
+	ENEMY("enemy", false, EnumEntityInteraction.ATTACK),
+	ALLY("ally", true, EnumWorldModification.BREAK_BLOCK, EnumWorldModification.PLACE_BLOCK, EnumWorldModification.PLACE_BLOCK, EnumEntityInteraction.TRADE),
+	COMMERCIAL("commercial", true, EnumEntityInteraction.TRADE),
+	NEUTRAL("neutral", true, EnumEntityInteraction.ATTACK);
 
 	private String						displayName;
 	private IInteractionPermission[]	permissions;

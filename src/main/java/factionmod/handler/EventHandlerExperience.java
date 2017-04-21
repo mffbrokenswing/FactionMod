@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import factionmod.FactionMod;
 import factionmod.config.ConfigExperience;
+import factionmod.config.ConfigLanguage;
 import factionmod.enums.EnumRelationType;
 import factionmod.event.FactionLevelUpEvent;
 import factionmod.faction.Faction;
@@ -78,7 +79,7 @@ public class EventHandlerExperience {
 	 */
 	@SubscribeEvent
 	public static void onLevelUp(FactionLevelUpEvent event) {
-		EventHandlerFaction.broadcastToFaction(event.getFaction(), "Your faction reached the level " + event.getFaction().getLevel() + ". Now you can have " + Levels.getMaximumChunksForLevel(event.getFaction().getLevel()) + " chunks claimed.", MessageHelper.INFO);
+		EventHandlerFaction.broadcastToFaction(event.getFaction(), String.format(ConfigLanguage.onLevelUp, event.getFaction().getLevel(), Levels.getMaximumChunksForLevel(event.getFaction().getLevel())), MessageHelper.INFO);
 	}
 
 }
