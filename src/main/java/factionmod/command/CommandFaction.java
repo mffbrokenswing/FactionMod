@@ -305,7 +305,7 @@ public class CommandFaction extends CommandBase {
 			} else {
 				Faction faction = EventHandlerFaction.getFaction(getFactionOf(player.getUniqueID()));
 				if (args.length == 1) {
-					return AutoCompleter.complete(args[0], new String[] { "disband", "invite", "open", "leave", "kick", "claim", "unclaim", "sethome", "home", "set-grade", "remove-grade", "promote", "info" });
+					return AutoCompleter.complete(args[0], new String[] { "disband", "invite", "open", "leave", "kick", "claim", "unclaim", "sethome", "home", "set-grade", "remove-grade", "promote", "info", "chest" });
 				} else if (args.length == 2) {
 					if (args[0].equalsIgnoreCase("remove-grade")) {
 						List<Grade> grades = faction.getGrades();
