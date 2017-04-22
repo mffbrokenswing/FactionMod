@@ -35,7 +35,7 @@ public class FactionInventory implements IInventory {
 
 	@Override
 	public String getName() {
-		return name;
+		return name + " magic chest";
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class FactionInventory implements IInventory {
 
 	@Override
 	public ITextComponent getDisplayName() {
-		return new TextComponentString(name);
+		return new TextComponentString(this.getName());
 	}
 
 	@Override
