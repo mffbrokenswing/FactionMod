@@ -381,9 +381,11 @@ public class EventHandlerChunk {
 	 */
 	@SubscribeEvent
 	public static void onBucketFill(FillBucketEvent event) {
-		IChunkManager manager = getManagerFor(DimensionalPosition.from(event.getWorld(), event.getTarget().getBlockPos()));
-		if (manager != null) {
-			manager.onBucketFill(event);
+		if (event.getTarget() != null) {
+			IChunkManager manager = getManagerFor(DimensionalPosition.from(event.getWorld(), event.getTarget().getBlockPos()));
+			if (manager != null) {
+				manager.onBucketFill(event);
+			}
 		}
 	}
 
