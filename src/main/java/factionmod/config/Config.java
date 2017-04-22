@@ -33,16 +33,9 @@ import factionmod.utils.DimensionalPosition;
  */
 public class Config {
 
-	private static int	immunityLevel	= 5;
-
-	/**
-	 * A faction can't be attacked until it reached the immunity level.
-	 * 
-	 * @return the immunity level
-	 */
-	public static int getImmunityLevel() {
-		return immunityLevel;
-	}
+	public static int	immunityLevel;
+	public static int	factionDescriptionMaxLength;
+	public static int	factionNameMaxLength;
 
 	/**
 	 * Loads a list of {@link Zone} from a file.
@@ -212,15 +205,9 @@ public class Config {
 		if (element != null && element.isJsonObject()) {
 			JsonElement el;
 			JsonObject root = element.getAsJsonObject();
-			if (root.has("immunity_level")) {
-				el = root.get("immunity_level");
-				if (el.isJsonPrimitive()) {
-					JsonPrimitive prim = el.getAsJsonPrimitive();
-					if (prim.isNumber()) {
-						immunityLevel = prim.getAsInt();
-					}
-				}
-			}
+			immunityLevel = ConfigExperience.getInt("immunity_level", root, 5);
+			factionDescriptionMaxLength = ConfigExperience.getInt("factionDescriptionMaxLength", root, 50);
+			factionNameMaxLength = ConfigExperience.getInt("factionNameMaxLength", root, 15);
 			if (root.has("exp")) {
 				el = root.get("exp");
 				if (el.isJsonObject()) {

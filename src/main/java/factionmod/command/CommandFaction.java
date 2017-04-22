@@ -21,6 +21,8 @@ import com.google.common.collect.Lists;
 
 import factionmod.command.utils.AutoCompleter;
 import factionmod.command.utils.UUIDHelper;
+import factionmod.config.Config;
+import factionmod.config.ConfigLanguage;
 import factionmod.enums.EnumPermission;
 import factionmod.enums.EnumRelationType;
 import factionmod.faction.Faction;
@@ -95,20 +97,20 @@ public class CommandFaction extends CommandBase {
 							desc += args[i] + " ";
 						}
 						boolean descCutted = false;
-						if (desc.length() > 50) {
+						if (desc.length() > Config.factionDescriptionMaxLength) {
 							descCutted = true;
 							desc.substring(0, 50);
 						}
-						if (name.length() > 15) {
-							sender.sendMessage(MessageHelper.error("The maximum length of the name of the faction is 15."));
+						if (name.length() > Config.factionNameMaxLength) {
+							sender.sendMessage(MessageHelper.error(String.format(ConfigLanguage.factionNameLengthWarning, Config.factionNameMaxLength)));
 							return;
 						}
 						ActionResult<String> result = EventHandlerFaction.createFaction(name, desc, ((EntityPlayer) sender).getPersistentID());
 						if (result.getType().equals(EnumActionResult.SUCCESS)) {
 							if (descCutted) {
-								sender.sendMessage(MessageHelper.warn("The description has too many characters, it will be automatically reduced."));
+								sender.sendMessage(MessageHelper.warn(String.format(ConfigLanguage.factionDescriptionLengthWarning, Config.factionDescriptionMaxLength)));
 							}
-							sender.sendMessage(MessageHelper.info("The faction " + name + " now exists."));
+							sender.sendMessage(MessageHelper.info(result.getResult()));
 						} else {
 							sender.sendMessage(MessageHelper.error(result.getResult()));
 						}

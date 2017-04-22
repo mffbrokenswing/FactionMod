@@ -66,6 +66,9 @@ public class ConfigLanguage {
 	public static String			teleportionTimeRemaining;
 	public static String			teleportationCanceled;
 
+	public static String			factionNameLengthWarning;
+	public static String			factionDescriptionLengthWarning;
+
 	public static void loadFromJson(JsonObject obj) {
 		onLevelUp = getString("onLevelUp", obj, "Your faction reached the level %s. Now you can have %s chunks claimed.");
 		adminPrefix = getString("adminPrefix", obj, "[ADMIN-MOD]");
@@ -128,6 +131,9 @@ public class ConfigLanguage {
 
 		teleportionTimeRemaining = getString("teleportionTimeRemaining", obj, "You will be teleported in %s seconds.");
 		teleportationCanceled = getString("teleportationCanceled", obj, "Your teleportation was canceled.");
+
+		factionNameLengthWarning = getString("factionNameLengthWarning", obj, "The maximum length for the name of the faction is %s.");
+		factionDescriptionLengthWarning = getString("factionDescriptionLengthWarning", obj, "The description was truncated. The maximum length is %s.");
 	}
 
 	/**

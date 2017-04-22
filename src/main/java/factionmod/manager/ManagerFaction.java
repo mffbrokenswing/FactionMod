@@ -67,7 +67,7 @@ public class ManagerFaction extends ChunkManager {
 	@Override
 	public void onPlayerAttack(AttackEntityEvent event) {
 		if (event.getTarget() instanceof EntityPlayer) {
-			if (faction.getLevel() < Config.getImmunityLevel())
+			if (faction.getLevel() < Config.immunityLevel)
 				event.setCanceled(true);
 		}
 	}

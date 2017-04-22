@@ -43,7 +43,7 @@ public class ConfigExperience {
 	 *            The default value
 	 * @return the readed value or the default value
 	 */
-	private static int getInt(String name, JsonObject element, int defaultValue) {
+	public static int getInt(String name, JsonObject element, int defaultValue) {
 		if (element.has(name)) {
 			JsonElement el = element.get(name);
 			if (el.isJsonPrimitive()) {
