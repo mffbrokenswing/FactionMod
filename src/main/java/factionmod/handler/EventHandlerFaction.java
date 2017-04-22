@@ -35,6 +35,7 @@ import factionmod.config.ConfigLanguage;
 import factionmod.enums.EnumPermission;
 import factionmod.enums.EnumRelationType;
 import factionmod.event.CreateFactionEvent;
+import factionmod.event.FactionCreatedEvent;
 import factionmod.faction.Faction;
 import factionmod.faction.Grade;
 import factionmod.faction.Levels;
@@ -265,6 +266,7 @@ public class EventHandlerFaction {
 		addFaction(faction);
 		addUserToFaction(faction, owner);
 		ModdedClients.updateClient(owner);
+		MinecraftForge.EVENT_BUS.post(new FactionCreatedEvent(faction));
 		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.factionCreated, name));
 	}
 

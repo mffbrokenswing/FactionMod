@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
 
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -56,7 +54,6 @@ public class Faction {
 		this.name = name;
 		this.description = desc;
 		this.inventory = new FactionInventory(name);
-		this.inventory.setInventorySlotContents(0, new ItemStack(Items.APPLE));
 	}
 
 	/**
