@@ -114,10 +114,11 @@ public class FactionMod {
 		Config.saveChunkManagers();
 		Config.saveFactions();
 		Config.saveRelations();
+		InventoryData.save();
 		EventHandlerChunk.clearRegistry();
 		EventHandlerFaction.clearRegistry();
 		EventHandlerRelation.clearRegistry();
-		InventoryData.save();
+
 	}
 
 }

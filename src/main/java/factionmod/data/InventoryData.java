@@ -20,14 +20,14 @@ public class InventoryData extends WorldSavedData {
 		MapStorage storage = event.getServer().getEntityWorld().getMapStorage();
 		InventoryData data = (InventoryData) storage.getOrLoadData(InventoryData.class, NAME);
 		if (data == null) {
-			data = new InventoryData();
+			data = new InventoryData(NAME);
 			storage.setData(NAME, data);
 		}
 		SAVE = data;
 	}
 
-	public InventoryData() {
-		super(NAME);
+	public InventoryData(String name) {
+		super(name);
 	}
 
 	@Override
