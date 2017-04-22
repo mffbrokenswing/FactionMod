@@ -17,9 +17,11 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.ClickEvent.Action;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import akka.japi.Pair;
@@ -32,6 +34,7 @@ import factionmod.config.Config;
 import factionmod.config.ConfigLanguage;
 import factionmod.enums.EnumPermission;
 import factionmod.enums.EnumRelationType;
+import factionmod.event.CreateFactionEvent;
 import factionmod.faction.Faction;
 import factionmod.faction.Grade;
 import factionmod.faction.Levels;
@@ -254,6 +257,10 @@ public class EventHandlerFaction {
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.alreadyInAFaction);
 		if (doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionAlreadyExisting, name));
+		CreateFactionEvent event = new CreateFactionEvent(name, owner, desc);
+		MinecraftForge.EVENT_BUS.post(event);
+		if (event.getResult() == Result.DENY)
+			return new ActionResult<String>(EnumActionResult.FAIL, event.getMessage());
 		Faction faction = new Faction(name, desc, new Member(owner, Grade.OWNER));
 		addFaction(faction);
 		addUserToFaction(faction, owner);
