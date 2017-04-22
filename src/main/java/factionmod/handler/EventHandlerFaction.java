@@ -164,7 +164,7 @@ public class EventHandlerFaction {
 			event.setDisplayname(ConfigLanguage.adminPrefixColor.toString() + ConfigLanguage.adminPrefix + " " + TextFormatting.RESET.toString() + event.getDisplayname());
 		}
 		if (hasUserFaction(event.getEntityPlayer().getPersistentID())) {
-			String factionName = getFactionOf(event.getEntityPlayer().getUniqueID());
+			String factionName = getFaction(getFactionOf(event.getEntityPlayer().getUniqueID())).getName();
 			event.setDisplayname("[" + factionName + "] " + event.getDisplayname());
 		}
 	}
