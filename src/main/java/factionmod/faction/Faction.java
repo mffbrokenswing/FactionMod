@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -19,6 +21,7 @@ import factionmod.command.utils.UUIDHelper;
 import factionmod.enums.EnumRelationType;
 import factionmod.event.FactionLevelUpEvent;
 import factionmod.handler.EventHandlerExperience;
+import factionmod.inventory.FactionInventory;
 import factionmod.utils.DimensionalBlockPos;
 import factionmod.utils.DimensionalPosition;
 
@@ -36,6 +39,7 @@ public class Faction {
 	private DimensionalBlockPos						homePos		= null;
 	private final ArrayList<Grade>					grades		= new ArrayList<Grade>();
 	private final ArrayList<RelationShip>			relations	= new ArrayList<RelationShip>();
+	private final FactionInventory					inventory;
 
 	private final String							name;
 	private String									description;
@@ -51,6 +55,17 @@ public class Faction {
 	public Faction(String name, String desc) {
 		this.name = name;
 		this.description = desc;
+		this.inventory = new FactionInventory(name);
+		this.inventory.setInventorySlotContents(0, new ItemStack(Items.APPLE));
+	}
+
+	/**
+	 * Returns the inventory of the faction
+	 * 
+	 * @return the inventory
+	 */
+	public FactionInventory getInventory() {
+		return this.inventory;
 	}
 
 	/**

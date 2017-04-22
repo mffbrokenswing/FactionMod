@@ -80,6 +80,7 @@ public class CommandFaction extends CommandBase {
 	 * <li>{@code /faction promote <player> <grade>}</li>
 	 * <li>{@code /faction remove-grade <grade>}</li>
 	 * <li>{@code /faction set-relation <faction> <relation>}</li>
+	 * <li>{@code /faction chest}</li>
 	 * </ul>
 	 */
 	@Override
@@ -265,6 +266,12 @@ public class CommandFaction extends CommandBase {
 					} else {
 						throw new WrongUsageException("/faction set-relation <faction> <relation>", new Object[0]);
 					}
+				}
+
+				// Faction chest displaying
+				else if (args[0].equalsIgnoreCase("chest")) {
+					ActionResult<String> result = EventHandlerFaction.showInventory(getFactionOf(player.getUniqueID()), player.getUniqueID());
+					handleResponse(result, player);
 				}
 
 				else {

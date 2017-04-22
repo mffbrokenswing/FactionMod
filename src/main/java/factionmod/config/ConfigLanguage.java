@@ -54,6 +54,7 @@ public class ConfigLanguage {
 	public static String			relationProposed;
 	public static String			relationSent;
 	public static String			relationAccepted;
+	public static String			chestShowed;
 
 	public static String			description;
 	public static String			members;
@@ -120,6 +121,7 @@ public class ConfigLanguage {
 		relationProposed = getString("relationProposed", obj, "The relation %s was proposed to your faction by the faction %s.");
 		relationSent = getString("relationSent", obj, "You sent a request to the faction %s to the relation %s.");
 		relationAccepted = getString("relationAccepted", obj, "You accepted the relation %s with the faction %s.");
+		chestShowed = getString("chestShowed", obj, "Chest of the faction %s displayed.");
 
 		description = getString("description", obj, "Description");
 		members = getString("members", obj, "Members");

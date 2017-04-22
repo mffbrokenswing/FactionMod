@@ -14,7 +14,8 @@ public enum EnumPermission {
 	CLAIM_CHUNK("Claim a chunk"),
 	SET_HOME("Set the home"),
 	PROMOTE("Promote a player"),
-	CREATE_RELATION("Create relation with other factions");
+	CREATE_RELATION("Create relation with other factions"),
+	SHOW_CHEST("Show the chest of the faction");
 
 	private String	displayName;
 

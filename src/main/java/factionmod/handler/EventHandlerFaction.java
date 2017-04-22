@@ -764,6 +764,7 @@ public class EventHandlerFaction {
 	 * @return the result of the action : FAIL or SUCCESS with an associated
 	 *         message
 	 */
+	// TODO Complete messages
 	public static ActionResult<String> createRelation(String faction1, String faction2, UUID member, EnumRelationType type) {
 		if (!hasUserFaction(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
@@ -800,6 +801,23 @@ public class EventHandlerFaction {
 		EventHandlerRelation.setPending(factionOne, factionTwo, type);
 		broadcastToFaction(factionTwo, String.format(ConfigLanguage.relationProposed, type.getDisplayName(), factionOne.getName()), MessageHelper.INFO);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.relationSent, factionTwo.getName(), type.getDisplayName()));
+	}
+
+	public static ActionResult<String> showInventory(String name, UUID member) {
+		if (!hasUserFaction(member))
+			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
+		if (!doesFactionExist(name))
+			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
+		Faction faction = getFaction(name);
+		if (!faction.isMember(member))
+			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
+		if (!faction.getMember(member).getGrade().hasPermission(EnumPermission.SHOW_CHEST))
+			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
+		EntityPlayerMP player = ServerUtils.getPlayer(member);
+		if (player != null) {
+			player.displayGUIChest(faction.getInventory());
+		}
+		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.chestShowed, faction.getName()));
 	}
 
 }
