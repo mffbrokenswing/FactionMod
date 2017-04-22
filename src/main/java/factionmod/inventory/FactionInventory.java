@@ -2,10 +2,12 @@ package factionmod.inventory;
 
 import java.util.ListIterator;
 
+import factionmod.data.InventoryData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -18,6 +20,17 @@ public class FactionInventory implements IInventory {
 
 	public FactionInventory(String name) {
 		this.name = name;
+	}
+
+	public NBTTagCompound toNBT() {
+		NBTTagCompound nbt = new NBTTagCompound();
+		ItemStackHelper.saveAllItems(nbt, this.stacks);
+		return nbt;
+	}
+
+	public void fromNBT(NBTTagCompound nbt) {
+		this.stacks = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		ItemStackHelper.loadAllItems(nbt, this.stacks);
 	}
 
 	@Override
@@ -57,11 +70,13 @@ public class FactionInventory implements IInventory {
 
 	@Override
 	public ItemStack decrStackSize(int index, int count) {
+		this.markDirty();
 		return ItemStackHelper.getAndSplit(stacks, index, count);
 	}
 
 	@Override
 	public ItemStack removeStackFromSlot(int index) {
+		this.markDirty();
 		return ItemStackHelper.getAndRemove(stacks, index);
 	}
 
@@ -70,6 +85,7 @@ public class FactionInventory implements IInventory {
 		this.stacks.set(index, stack);
 		if (stack.getCount() > this.getInventoryStackLimit())
 			stack.setCount(this.getInventoryStackLimit());
+		this.markDirty();
 	}
 
 	@Override
@@ -78,7 +94,9 @@ public class FactionInventory implements IInventory {
 	}
 
 	@Override
-	public void markDirty() {}
+	public void markDirty() {
+		InventoryData.save();
+	}
 
 	@Override
 	public boolean isUsableByPlayer(EntityPlayer player) {

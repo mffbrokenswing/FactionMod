@@ -18,6 +18,7 @@ import factionmod.command.CommandFaction;
 import factionmod.command.CommandSafeZone;
 import factionmod.command.CommandWarZone;
 import factionmod.config.Config;
+import factionmod.data.InventoryData;
 import factionmod.handler.EventHandlerChunk;
 import factionmod.handler.EventHandlerFaction;
 import factionmod.handler.EventHandlerRelation;
@@ -105,6 +106,7 @@ public class FactionMod {
 		Config.loadFactions();
 		Config.loadChunkManagers();
 		Config.loadRelations();
+		InventoryData.load(event);
 	}
 
 	@EventHandler
@@ -115,6 +117,7 @@ public class FactionMod {
 		EventHandlerChunk.clearRegistry();
 		EventHandlerFaction.clearRegistry();
 		EventHandlerRelation.clearRegistry();
+		InventoryData.save();
 	}
 
 }
