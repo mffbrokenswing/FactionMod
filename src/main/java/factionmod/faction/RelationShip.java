@@ -43,7 +43,7 @@ public class RelationShip {
 		JsonObject obj = new JsonObject();
 		obj.add("type", new JsonPrimitive(this.type.name()));
 		obj.add("faction1", new JsonPrimitive(this.faction1));
-		obj.add("faction1", new JsonPrimitive(this.faction2));
+		obj.add("faction2", new JsonPrimitive(this.faction2));
 		return obj;
 	}
 
