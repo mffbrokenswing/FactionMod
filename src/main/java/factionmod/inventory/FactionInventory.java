@@ -2,8 +2,9 @@ package factionmod.inventory;
 
 import java.util.ListIterator;
 
-import factionmod.data.InventoryData;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
@@ -11,8 +12,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.IInteractionObject;
+import factionmod.data.InventoryData;
 
-public class FactionInventory implements IInventory {
+public class FactionInventory implements IInventory, IInteractionObject {
 
 	private NonNullList<ItemStack>	stacks	= NonNullList.withSize(27, ItemStack.EMPTY);
 
@@ -130,6 +133,16 @@ public class FactionInventory implements IInventory {
 	@Override
 	public void clear() {
 		this.stacks.clear();
+	}
+
+	@Override
+	public Container createContainer(InventoryPlayer playerInventory, EntityPlayer player) {
+		return new FactionContainer(playerInventory, this, player);
+	}
+
+	@Override
+	public String getGuiID() {
+		return "minecraft:container";
 	}
 
 }

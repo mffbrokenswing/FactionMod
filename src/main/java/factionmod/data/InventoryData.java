@@ -20,6 +20,7 @@ public class InventoryData extends WorldSavedData {
 		MapStorage storage = event.getServer().getEntityWorld().getMapStorage();
 		InventoryData data = (InventoryData) storage.getOrLoadData(InventoryData.class, NAME);
 		if (data == null) {
+			System.out.println("New storage");
 			data = new InventoryData(NAME);
 			storage.setData(NAME, data);
 		}
@@ -32,9 +33,12 @@ public class InventoryData extends WorldSavedData {
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
+		System.out.println(nbt.getSize() + " tags to read");
 		for(Faction faction : EventHandlerFaction.getFactions().values()) {
-			if (nbt.hasKey(faction.getName())) {
-				faction.getInventory().fromNBT(nbt.getCompoundTag(faction.getName()));
+			System.out.println("Search " + faction.getName());
+			if (nbt.hasKey(faction.getName().toLowerCase())) {
+				System.out.println("Found " + faction.getName());
+				faction.getInventory().fromNBT(nbt.getCompoundTag(faction.getName().toLowerCase()));
 			}
 		}
 	}
@@ -42,8 +46,10 @@ public class InventoryData extends WorldSavedData {
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		for(Faction faction : EventHandlerFaction.getFactions().values()) {
-			compound.setTag(faction.getName(), faction.getInventory().toNBT());
+			System.out.println("Write " + faction.getName());
+			compound.setTag(faction.getName().toLowerCase(), faction.getInventory().toNBT());
 		}
+		System.out.println(compound.getSize() + " tags wrote");
 		return compound;
 	}
 
