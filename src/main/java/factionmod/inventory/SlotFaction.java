@@ -1,9 +1,9 @@
 package factionmod.inventory;
 
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import factionmod.config.ConfigFactionInventory;
 
 public class SlotFaction extends Slot {
 
@@ -13,7 +13,7 @@ public class SlotFaction extends Slot {
 
 	@Override
 	public boolean isItemValid(ItemStack stack) {
-		return stack.getItem() != Items.APPLE;
+		return ConfigFactionInventory.isItemValid(stack.getItem());
 	}
 
 }

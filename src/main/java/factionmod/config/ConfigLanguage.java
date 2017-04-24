@@ -150,7 +150,7 @@ public class ConfigLanguage {
 	 *            The default value
 	 * @return the readed value or the default value
 	 */
-	private static String getString(String name, JsonObject element, String defaultValue) {
+	public static String getString(String name, JsonObject element, String defaultValue) {
 		if (element.has(name)) {
 			JsonElement el = element.get(name);
 			if (el.isJsonPrimitive()) {

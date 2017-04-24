@@ -202,6 +202,7 @@ public class Config {
 		JsonObject expObj = new JsonObject();
 
 		JsonObject languageObj = new JsonObject();
+		JsonArray chestArray = new JsonArray();
 		if (element != null && element.isJsonObject()) {
 			JsonElement el;
 			JsonObject root = element.getAsJsonObject();
@@ -220,9 +221,16 @@ public class Config {
 					languageObj = el.getAsJsonObject();
 				}
 			}
+			if (root.has("unvalidItems")) {
+				el = root.get("unvalidItems");
+				if (el.isJsonArray()) {
+					chestArray = el.getAsJsonArray();
+				}
+			}
 		}
 		ConfigExperience.loadFromJson(expObj);
 		ConfigLanguage.loadFromJson(languageObj);
+		ConfigFactionInventory.load(chestArray);
 	}
 
 	/**
