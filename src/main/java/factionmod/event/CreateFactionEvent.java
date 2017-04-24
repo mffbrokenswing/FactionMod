@@ -2,20 +2,19 @@ package factionmod.event;
 
 import java.util.UUID;
 
-import factionmod.config.ConfigLanguage;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.Event.HasResult;
+import factionmod.config.ConfigLanguage;
 
 /**
  * Event called when a player tries to create a faction. The disponibility of
  * the name is already checked and the player is certified not being in a
- * faction. Set result to {@link Result#DENY} will prevent the creation of the
- * faction.
+ * faction. Cancel this event will prevent the creation of the faction.
  * 
  * @author BrokenSwing
  *
  */
-@HasResult
+@Cancelable
 public class CreateFactionEvent extends Event {
 
 	private final String	name;
@@ -68,7 +67,7 @@ public class CreateFactionEvent extends Event {
 
 	/**
 	 * Sets the message returned by the fonction which creates the faction. This
-	 * message is returned only if the result is {@link Result#DENY}.
+	 * message is returned only if the event is canceled.
 	 * 
 	 * @param message
 	 *            The message

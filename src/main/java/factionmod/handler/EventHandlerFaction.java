@@ -21,7 +21,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import akka.japi.Pair;
@@ -259,8 +258,7 @@ public class EventHandlerFaction {
 		if (doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionAlreadyExisting, name));
 		CreateFactionEvent event = new CreateFactionEvent(name, owner, desc);
-		MinecraftForge.EVENT_BUS.post(event);
-		if (event.getResult() == Result.DENY)
+		if (MinecraftForge.EVENT_BUS.post(event))
 			return new ActionResult<String>(EnumActionResult.FAIL, event.getMessage());
 		Faction faction = new Faction(name, desc, new Member(owner, Grade.OWNER));
 		addFaction(faction);
