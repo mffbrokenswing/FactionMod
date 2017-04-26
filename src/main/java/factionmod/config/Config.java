@@ -16,14 +16,13 @@ import com.google.gson.JsonPrimitive;
 import factionmod.FactionMod;
 import factionmod.faction.Faction;
 import factionmod.faction.Member;
-import factionmod.faction.RelationShip;
 import factionmod.handler.EventHandlerChunk;
 import factionmod.handler.EventHandlerFaction;
-import factionmod.handler.EventHandlerRelation;
 import factionmod.manager.IChunkManager;
 import factionmod.manager.instanciation.Zone;
 import factionmod.manager.instanciation.ZoneInstance;
 import factionmod.utils.DimensionalPosition;
+import factionmod.utils.ServerUtils;
 
 /**
  * The configuration of the mod, it loads and saves the state of the mod.
@@ -44,6 +43,8 @@ public class Config {
 	 *            The name of the file
 	 */
 	public static final void loadZones(String fileName) {
+		ServerUtils.getProfiler().startSection("loadZones");
+
 		Zone z;
 		JsonElement file = getFile(fileName);
 		if (file != null) {
@@ -67,12 +68,16 @@ public class Config {
 				}
 			}
 		}
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	/**
 	 * Saves the chunk managers to a file.
 	 */
 	public static void saveChunkManagers() {
+		ServerUtils.getProfiler().startSection("saveChunkManagers");
+
 		JsonArray root = new JsonArray();
 		for(Entry<DimensionalPosition, ZoneInstance> entry : EventHandlerChunk.getZonesInstances().entrySet()) {
 			JsonObject obj = new JsonObject();
@@ -81,12 +86,16 @@ public class Config {
 			root.add(obj);
 		}
 		writeFile("managers.json", root.toString());
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	/**
 	 * Loads chunk managers from a file.
 	 */
 	public static void loadChunkManagers() {
+		ServerUtils.getProfiler().startSection("loadChunkManagers");
+
 		HashMap<DimensionalPosition, ZoneInstance> map = new HashMap<DimensionalPosition, ZoneInstance>();
 
 		JsonElement element = getFile("managers.json");
@@ -125,23 +134,31 @@ public class Config {
 				}
 			}
 		}
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	/**
 	 * Saves the factions to a file.
 	 */
 	public static void saveFactions() {
+		ServerUtils.getProfiler().startSection("saveFactions");
+
 		JsonArray root = new JsonArray();
 		for(Entry<String, Faction> entry : EventHandlerFaction.getFactions().entrySet()) {
 			root.add(entry.getValue().toJson());
 		}
 		writeFile("factions.json", root.toString());
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	/**
 	 * Loads the differents factions from the config file.
 	 */
 	public static void loadFactions() {
+		ServerUtils.getProfiler().startSection("loadFactions");
+
 		JsonElement file = getFile("factions.json");
 		if (file != null) {
 			JsonArray root = file.getAsJsonArray();
@@ -154,50 +171,16 @@ public class Config {
 				}
 			}
 		}
-	}
 
-	/**
-	 * Saves the relations between the factions.
-	 */
-	public static void saveRelations() {
-		JsonObject object = new JsonObject();
-		JsonArray array = new JsonArray();
-		for(RelationShip relation : EventHandlerRelation.getRelations()) {
-			array.add(relation.toJson());
-		}
-		object.add("relations", array);
-		JsonArray arr = new JsonArray();
-		for(RelationShip relation : EventHandlerRelation.getPendingRelations()) {
-			arr.add(relation.toJson());
-		}
-		object.add("pending-relations", arr);
-		writeFile("relations.json", object.toString());
-	}
-
-	/**
-	 * Loads the differents relations between the factions.
-	 */
-	public static void loadRelations() {
-		JsonElement element = getFile("relations.json");
-		if (element != null) {
-			if (element.isJsonObject()) {
-				JsonObject obj = element.getAsJsonObject();
-				JsonArray array = obj.get("relations").getAsJsonArray();
-				for(int i = 0; i < array.size(); i++) {
-					EventHandlerRelation.setRelation(RelationShip.fromJson(array.get(i).getAsJsonObject()), false);
-				}
-				JsonArray arr = obj.get("pending-relations").getAsJsonArray();
-				for(int i = 0; i < arr.size(); i++) {
-					EventHandlerRelation.setRelation(RelationShip.fromJson(arr.get(i).getAsJsonObject()), true);
-				}
-			}
-		}
+		ServerUtils.getProfiler().endSection();
 	}
 
 	/**
 	 * Loads all the parameters from the configuration file.
 	 */
 	public static void loadConfigFile() {
+		ServerUtils.getProfiler().startSection("loadConfiguration");
+
 		JsonElement element = getFile("configuration.json");
 		JsonObject expObj = new JsonObject();
 
@@ -231,6 +214,8 @@ public class Config {
 		ConfigExperience.loadFromJson(expObj);
 		ConfigLanguage.loadFromJson(languageObj);
 		ConfigFactionInventory.load(chestArray);
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	/**
@@ -287,6 +272,7 @@ public class Config {
 			dir.mkdirs();
 			File file = new File(FactionMod.getConfigDir() + "/zones.json");
 			if (!file.exists()) {
+				ServerUtils.getProfiler().startSection("generateDefaultZonesFile");
 				JsonArray root = new JsonArray();
 				JsonObject safeZone = new JsonObject();
 				safeZone.add("name", new JsonPrimitive("safe"));
@@ -307,6 +293,7 @@ public class Config {
 				root.add(factionZone);
 
 				writeFile("zones.json", root.toString());
+				ServerUtils.getProfiler().endSection();
 			}
 		}
 	}

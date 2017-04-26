@@ -32,14 +32,12 @@ import factionmod.command.utils.UUIDHelper;
 import factionmod.config.Config;
 import factionmod.config.ConfigLanguage;
 import factionmod.enums.EnumPermission;
-import factionmod.enums.EnumRelationType;
 import factionmod.event.CreateFactionEvent;
 import factionmod.event.FactionCreatedEvent;
 import factionmod.faction.Faction;
 import factionmod.faction.Grade;
 import factionmod.faction.Levels;
 import factionmod.faction.Member;
-import factionmod.faction.RelationShip;
 import factionmod.manager.IChunkManager;
 import factionmod.manager.ManagerFaction;
 import factionmod.manager.instanciation.ChunkManagerCreator;
@@ -109,7 +107,7 @@ public class EventHandlerFaction {
 	 * @return true if the faction exists, else false
 	 */
 	public static boolean doesFactionExist(String factionName) {
-		return factions.keySet().contains(factionName.toLowerCase());
+		return !factionName.isEmpty() && factions.keySet().contains(factionName.toLowerCase());
 	}
 
 	/**
@@ -279,20 +277,26 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> removeFaction(String name, UUID owner) {
-		if (!hasUserFaction(owner))
+		boolean admin = EventHandlerAdmin.isAdmin(owner);
+		if (!admin && !hasUserFaction(owner))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
-		if (!faction.isMember(owner))
+		if (!admin && !faction.isMember(owner))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
-		if (!(faction.getMember(owner).getGrade() == Grade.OWNER))
+		if (!admin && !(faction.getMember(owner).getGrade() == Grade.OWNER))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notOwner);
 		List<Member> members = Lists.newArrayList(faction.getMembers());
-		Member own = faction.getOwner();
-		faction.removeMember(own.getUUID());
-		ModdedClients.updateClient(own.getUUID());
-		broadcastToFaction(faction, ConfigLanguage.factionRemovedByOwner, MessageHelper.WARN);
+		if (!admin) {
+			Member own = faction.getMember(owner);
+			faction.removeMember(own.getUUID());
+		}
+		if (!admin) {
+			broadcastToFaction(faction, ConfigLanguage.factionRemovedByOwner, MessageHelper.WARN);
+		} else {
+			broadcastToFaction(faction, String.format(ConfigLanguage.factionRemovedBy, UUIDHelper.getNameOf(owner)), MessageHelper.WARN);
+		}
 		for(Member m : members) {
 			removeUser(m.getUUID());
 			ModdedClients.updateClient(m.getUUID());
@@ -318,17 +322,18 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> inviteUserToFaction(String name, UUID member, UUID newMember) {
-		if (!hasUserFaction(member))
+		boolean admin = EventHandlerAdmin.isAdmin(member);
+		if (!admin && !hasUserFaction(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		if (hasUserFaction(newMember))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.playerAlreadyInAFaction);
 		Faction faction = getFaction(name);
-		if (!faction.isMember(member))
+		if (!admin && !faction.isMember(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
 		Member m = faction.getMember(member);
-		if (!m.hasPermission(EnumPermission.INVITE_USER))
+		if (!admin && !m.hasPermission(EnumPermission.INVITE_USER))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		boolean invited = faction.toogleInvitation(newMember);
 		if (invited) {
@@ -358,20 +363,21 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> removeUserFromFaction(String name, UUID member, UUID toRemove) {
-		if (!hasUserFaction(member))
+		boolean admin = EventHandlerAdmin.isAdmin(member);
+		if (!admin && !hasUserFaction(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
-		if (!faction.isMember(member))
+		if (!admin && !faction.isMember(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
 		if (!faction.isMember(toRemove))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.playerNotAMember, faction.getName()));
 		Member m = faction.getMember(member);
-		if (!m.hasPermission(EnumPermission.REMOVE_USER))
+		if (!admin && !m.hasPermission(EnumPermission.REMOVE_USER))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		Member mRemove = faction.getMember(toRemove);
-		if (!Grade.canAffect(m.getGrade(), mRemove.getGrade()))
+		if (!admin && !Grade.canAffect(m.getGrade(), mRemove.getGrade()))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		faction.removeMember(toRemove);
 		removeUser(toRemove);
@@ -400,15 +406,16 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> changeDescriptionOfFaction(String name, String desc, UUID member) {
-		if (!hasUserFaction(member))
+		boolean admin = EventHandlerAdmin.isAdmin(member);
+		if (!admin && !hasUserFaction(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
-		if (!faction.isMember(member))
+		if (!admin && !faction.isMember(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
 		Member m = faction.getMember(member);
-		if (!m.hasPermission(EnumPermission.CHANGE_DESCRIPTION))
+		if (!admin && !m.hasPermission(EnumPermission.CHANGE_DESCRIPTION))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		faction.setDesc(desc);
 		ModdedClients.updateFaction(faction);
@@ -426,12 +433,13 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> joinFaction(String name, UUID uuid) {
+		boolean admin = EventHandlerAdmin.isAdmin(uuid);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
 		if (faction.isMember(uuid))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.alreadyInAFaction);
-		if (faction.isOpened() || faction.isInvited(uuid)) {
+		if (admin || faction.isOpened() || faction.isInvited(uuid)) {
 			broadcastToFaction(faction, String.format(ConfigLanguage.playerJoinedFaction, UUIDHelper.getNameOf(uuid)), MessageHelper.INFO);
 			faction.addMember(uuid);
 			addUserToFaction(faction, uuid);
@@ -483,14 +491,15 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> claimChunk(String name, UUID member, DimensionalPosition position) {
-		if (!hasUserFaction(member))
+		boolean admin = EventHandlerAdmin.isAdmin(member);
+		if (!admin && !hasUserFaction(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
-		if (!faction.isMember(member))
+		if (!admin && !faction.isMember(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
-		if (!faction.getMember(member).hasPermission(EnumPermission.CLAIM_CHUNK))
+		if (!admin && !faction.getMember(member).hasPermission(EnumPermission.CLAIM_CHUNK))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		IChunkManager manager = EventHandlerChunk.getManagerFor(position);
 		if (manager != null)
@@ -500,6 +509,7 @@ public class EventHandlerFaction {
 		Pair<IChunkManager, ZoneInstance> pair = ChunkManagerCreator.createChunkHandler("faction", faction.getName());
 		EventHandlerChunk.registerChunkManager(pair.first(), position, pair.second(), true);
 		faction.addChunk(position);
+		ModdedClients.updateFaction(faction);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, ConfigLanguage.chunkClaimed);
 	}
 
@@ -521,12 +531,13 @@ public class EventHandlerFaction {
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.chunkNotClaimed);
 		ManagerFaction m = (ManagerFaction) manager;
 		Faction faction = m.getFaction();
-		if (!faction.isMember(member) && !isAdmin)
+		if (!isAdmin && !faction.isMember(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
-		if (!faction.getMember(member).hasPermission(EnumPermission.CLAIM_CHUNK) && !isAdmin)
+		if (!isAdmin && !faction.getMember(member).hasPermission(EnumPermission.CLAIM_CHUNK))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		EventHandlerChunk.unregisterChunkManager(position, true);
 		faction.removeChunk(position);
+		ModdedClients.updateFaction(faction);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, ConfigLanguage.chunkUnclaimed);
 	}
 
@@ -544,14 +555,15 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> setHome(String name, UUID member, DimensionalBlockPos position) {
-		if (!hasUserFaction(member))
+		boolean admin = EventHandlerAdmin.isAdmin(member);
+		if (!admin && !hasUserFaction(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
-		if (!faction.isMember(member))
+		if (!admin && !faction.isMember(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
-		if (!faction.getMember(member).hasPermission(EnumPermission.SET_HOME))
+		if (!admin && !faction.getMember(member).hasPermission(EnumPermission.SET_HOME))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		if (!faction.getChunks().contains(position.toDimensionnalPosition()))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.chunkNotClaimed);
@@ -571,14 +583,15 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> open(String name, UUID member) {
-		if (!hasUserFaction(member))
+		boolean admin = EventHandlerAdmin.isAdmin(member);
+		if (!admin && !hasUserFaction(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
-		if (!faction.isMember(member))
+		if (!admin && !faction.isMember(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
-		if (!faction.getMember(member).hasPermission(EnumPermission.INVITE_USER))
+		if (!admin && !faction.getMember(member).hasPermission(EnumPermission.INVITE_USER))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		faction.setOpened(!faction.isOpened());
 		ModdedClients.updateFaction(faction);
@@ -619,13 +632,14 @@ public class EventHandlerFaction {
 	 * @return the result of the action : FAIL or SUCCESS with an associated
 	 *         message
 	 */
-	public static ActionResult<String> goToHome(String name, EntityPlayer player) {
-		if (!hasUserFaction(player.getUniqueID()))
+	public static ActionResult<String> goToHome(String name, EntityPlayerMP player) {
+		boolean admin = EventHandlerAdmin.isAdmin(player);
+		if (!admin && !hasUserFaction(player.getUniqueID()))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
-		if (!faction.isMember(player.getUniqueID()))
+		if (!admin && !faction.isMember(player.getUniqueID()))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
 		DimensionalBlockPos pos = faction.getHome();
 		if (pos == null)
@@ -650,15 +664,16 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> setGrade(String factionName, UUID executor, Grade grade) {
-		if (!hasUserFaction(executor))
+		boolean admin = EventHandlerAdmin.isAdmin(executor);
+		if (!admin && !hasUserFaction(executor))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(factionName))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, factionName));
 		Faction faction = getFaction(factionName);
-		if (!faction.isMember(executor))
+		if (!admin && !faction.isMember(executor))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
 		Member member = faction.getMember(executor);
-		if (member.getGrade() != Grade.OWNER)
+		if (!admin && member.getGrade() != Grade.OWNER)
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		if (grade.getName().equalsIgnoreCase(Grade.OWNER.getName()) || grade.getName().equalsIgnoreCase(Grade.MEMBER.getName()))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAvailableName, grade.getName()));
@@ -690,20 +705,21 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> promote(String name, UUID executor, UUID executed, String gradeName) {
-		if (!hasUserFaction(executor))
+		boolean admin = EventHandlerAdmin.isAdmin(executor);
+		if (!admin && !hasUserFaction(executor))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
-		if (!faction.isMember(executor))
+		if (!admin && !faction.isMember(executor))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.noLongerAMember, faction.getName()));
 		if (!faction.isMember(executed))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.playerNotAMember, faction.getName()));
-		if (!faction.getMember(executor).hasPermission(EnumPermission.PROMOTE))
+		if (!admin && !faction.getMember(executor).hasPermission(EnumPermission.PROMOTE))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		Member mExecutor = faction.getMember(executor);
 		Member mExecuted = faction.getMember(executed);
-		if (!Grade.canAffect(mExecutor.getGrade(), mExecuted.getGrade()))
+		if (!admin && !Grade.canAffect(mExecutor.getGrade(), mExecuted.getGrade()))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		Grade grade = null;
 		if (Grade.MEMBER.getName().equalsIgnoreCase(gradeName)) {
@@ -737,15 +753,16 @@ public class EventHandlerFaction {
 	 *         message
 	 */
 	public static ActionResult<String> removeGrade(String factionName, UUID owner, String gradeName) {
-		if (!hasUserFaction(owner))
+		boolean admin = EventHandlerAdmin.isAdmin(owner);
+		if (!admin && !hasUserFaction(owner))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(factionName))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, factionName));
 		Faction faction = getFaction(factionName);
-		if (!faction.isMember(owner))
+		if (!admin && !faction.isMember(owner))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
 		Member member = faction.getMember(owner);
-		if (member.getGrade() != Grade.OWNER)
+		if (!admin && member.getGrade() != Grade.OWNER)
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		Grade g = faction.getGrade(gradeName);
 		if (g == null)
@@ -756,75 +773,32 @@ public class EventHandlerFaction {
 	}
 
 	/**
-	 * Creates a relations between to factions.
+	 * Shows the inventory of the specified faction if the specified member has
+	 * the permission {@link EnumPermission#SHOW_CHEST}.
 	 * 
-	 * @param faction
-	 *            The name of the faction which wants to create the relation.
-	 * @param faction2
-	 *            The name of the faction which will be in relation with the
-	 *            first one
+	 * @param name
+	 *            The name of the faction
 	 * @param member
-	 *            The UUID of the member of the first faction who executes the
-	 *            command
-	 * @param type
-	 *            The type of relation wanted
+	 *            The UUID of the member
 	 * @return the result of the action : FAIL or SUCCESS with an associated
 	 *         message
 	 */
-	// TODO Complete messages
-	public static ActionResult<String> createRelation(String faction1, String faction2, UUID member, EnumRelationType type) {
-		if (!hasUserFaction(member))
-			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
-		if (!doesFactionExist(faction1))
-			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, faction1));
-		Faction factionOne = getFaction(faction1);
-		if (!factionOne.isMember(member))
-			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, factionOne.getName()));
-		Member m = factionOne.getMember(member);
-		if (!m.getGrade().hasPermission(EnumPermission.CREATE_RELATION))
-			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
-		if (!doesFactionExist(faction2))
-			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, faction2));
-		if (!type.isResponseNeeded()) {
-			Faction factionTwo = getFaction(faction2);
-			EventHandlerRelation.setRelation(factionOne, factionTwo, type);
-			broadcastToFaction(factionTwo, String.format(ConfigLanguage.relationCreated, type.getDisplayName(), factionOne.getName()), MessageHelper.INFO);
-			broadcastToFaction(factionOne, String.format(ConfigLanguage.relationCreated, type.getDisplayName(), factionTwo.getName()), MessageHelper.INFO);
-			return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.relationCreated, type.getDisplayName(), factionTwo.getName()));
-		}
-		Faction factionTwo = getFaction(faction2);
-		RelationShip relation = EventHandlerRelation.getPending(factionOne, factionTwo);
-		if (relation != null) {
-			if (relation.getType() != type || relation.getSecondFaction().equalsIgnoreCase(factionOne.getName())) {
-				EventHandlerRelation.setPending(factionOne, factionTwo, type);
-				broadcastToFaction(factionTwo, String.format(ConfigLanguage.relationProposed, type.getDisplayName(), factionOne.getName()), MessageHelper.INFO);
-				return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.relationSent, factionTwo.getName(), type.getDisplayName()));
-			}
-			EventHandlerRelation.setRelation(factionOne, factionTwo, type);
-			broadcastToFaction(factionTwo, String.format(ConfigLanguage.relationCreated, type.getDisplayName(), factionOne.getName()), MessageHelper.INFO);
-			broadcastToFaction(factionOne, String.format(ConfigLanguage.relationCreated, type.getDisplayName(), factionTwo.getName()), MessageHelper.INFO);
-			return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.relationAccepted, type.getDisplayName(), factionTwo.getName()));
-		}
-		EventHandlerRelation.setPending(factionOne, factionTwo, type);
-		broadcastToFaction(factionTwo, String.format(ConfigLanguage.relationProposed, type.getDisplayName(), factionOne.getName()), MessageHelper.INFO);
-		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.relationSent, factionTwo.getName(), type.getDisplayName()));
-	}
-
 	public static ActionResult<String> showInventory(String name, UUID member) {
-		if (!hasUserFaction(member))
+		boolean admin = EventHandlerAdmin.isAdmin(member);
+		if (!admin && !hasUserFaction(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notInAFaction);
 		if (!doesFactionExist(name))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.factionNotExisting, name));
 		Faction faction = getFaction(name);
-		if (!faction.isMember(member))
+		if (!admin && !faction.isMember(member))
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
-		if (!faction.getMember(member).getGrade().hasPermission(EnumPermission.SHOW_CHEST))
+		if (!admin && !faction.getMember(member).getGrade().hasPermission(EnumPermission.SHOW_CHEST))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		EntityPlayerMP player = ServerUtils.getPlayer(member);
 		if (player != null) {
 			player.displayGUIChest(faction.getInventory());
 		}
-		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.chestShowed, faction.getName()));
+		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.chestShown, faction.getName()));
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import factionmod.manager.IChunkManager;
+import factionmod.utils.ServerUtils;
 
 /**
  * Reprensents a type of {@link IChunkManager}. A zone should be added through a
@@ -46,15 +47,23 @@ public class Zone {
 	private Class<?>		clazz;
 
 	public Zone(String name, String className) throws Exception {
+		ServerUtils.getProfiler().startSection("zoneCreation");
+
 		this.name = name;
 		this.clazz = Class.forName(className);
 		ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>();
 		Class<?> superClass = this.clazz;
+
+		ServerUtils.getProfiler().startSection("interfacesParsing");
+
 		do {
 			for(Class<?> c : superClass.getInterfaces()) {
 				interfaces.add(c);
 			}
 		} while ((superClass = superClass.getSuperclass()) != null);
+
+		ServerUtils.getProfiler().endSection();
+
 		if (!interfaces.contains(IChunkManager.class)) {
 			throw new Exception("The class " + this.clazz.getName() + " doesn't implements " + IChunkManager.class.getName() + ".");
 		}
@@ -62,24 +71,36 @@ public class Zone {
 			throw new Exception("The class " + this.clazz.getName() + " has multiple constructors.");
 		}
 		this.standalone = false;
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	public Zone(String name, String className, String instanceField) throws Exception {
+		ServerUtils.getProfiler().startSection("zoneCreation");
+
 		this.name = name;
 		Class<?> c = Class.forName(className);
 		Field f = c.getField(instanceField);
 		ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>();
 		Class<?> superClass = f.getType();
+
+		ServerUtils.getProfiler().startSection("interfacesParsing");
+
 		do {
 			for(Class<?> cl : superClass.getInterfaces()) {
 				interfaces.add(cl);
 			}
 		} while ((superClass = superClass.getSuperclass()) != null);
+
+		ServerUtils.getProfiler().endSection();
+
 		if (!interfaces.contains(IChunkManager.class)) {
 			throw new Exception("The class " + f.getType().getName() + " doesn't implements " + IChunkManager.class.getName() + ".");
 		}
 		this.instance = (IChunkManager) f.get(null);
 		this.standalone = true;
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	public String getName() {

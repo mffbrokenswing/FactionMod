@@ -4,6 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import factionmod.utils.ServerUtils;
+
 /**
  * It's the configuration of the experience earned when doing specific actions.
  * 
@@ -25,10 +27,14 @@ public class ConfigExperience {
 	 *            The JsonObject
 	 */
 	public static void loadFromJson(JsonObject element) {
+		ServerUtils.getProfiler().startSection("experience");
+
 		killDragon = getInt("kill_dragon", element, 2000);
 		killWitherSkeleton = getInt("kill_wither_skeleton", element, 3);
 		killWither = getInt("kill_wither", element, 400);
 		killEnemy = getInt("kill_enemy", element, 7);
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	/**

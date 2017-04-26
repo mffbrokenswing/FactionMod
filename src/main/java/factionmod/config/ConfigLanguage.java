@@ -6,6 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import factionmod.utils.ServerUtils;
+
 public class ConfigLanguage {
 
 	public static String			onLevelUp;
@@ -13,11 +15,13 @@ public class ConfigLanguage {
 	public static TextFormatting	adminPrefixColor;
 	public static String			alreadyInAFaction;
 	public static String			factionAlreadyExisting;
+	public static String			factionNameDisponible;
 	public static String			factionNotExisting;
 	public static String			factionCreated;
 	public static String			notInAFaction;
 	public static String			notOwner;
 	public static String			factionRemovedByOwner;
+	public static String			factionRemovedBy;
 	public static String			factionRemoved;
 	public static String			playerAlreadyInAFaction;
 	public static String			notAMember;
@@ -50,11 +54,7 @@ public class ConfigLanguage {
 	public static String			promoted;
 	public static String			playerPromoted;
 	public static String			gradeRemoved;
-	public static String			relationCreated;
-	public static String			relationProposed;
-	public static String			relationSent;
-	public static String			relationAccepted;
-	public static String			chestShowed;
+	public static String			chestShown;
 
 	public static String			description;
 	public static String			members;
@@ -70,7 +70,14 @@ public class ConfigLanguage {
 	public static String			factionNameLengthWarning;
 	public static String			factionDescriptionLengthWarning;
 
+	public static String			noLongerAdmin;
+	public static String			nowAdmin;
+	public static String			playerNowAdmin;
+	public static String			playerNoLongerAdmin;
+
 	public static void loadFromJson(JsonObject obj) {
+		ServerUtils.getProfiler().startSection("language");
+
 		onLevelUp = getString("onLevelUp", obj, "Your faction reached the level %s. Now you can have %s chunks claimed.");
 		adminPrefix = getString("adminPrefix", obj, "[ADMIN-MOD]");
 		String colorName = getString("adminPrefixColor", obj, "RED");
@@ -80,11 +87,13 @@ public class ConfigLanguage {
 		adminPrefixColor = color;
 		alreadyInAFaction = getString("alreadyInAFaction", obj, "You're already in a faction.");
 		factionAlreadyExisting = getString("factionAlreadyExisting", obj, "The faction %s already exists.");
+		factionNameDisponible = getString("factionNameDisponible", obj, "The name %s is unused.");
 		factionNotExisting = getString("factionNotExisting", obj, "The faction %s doesn't exist.");
 		factionCreated = getString("factionCreated", obj, "The faction %s was created.");
 		notInAFaction = getString("notInAFaction", obj, "You're not in a faction.");
 		notOwner = getString("notOwner", obj, "You're not the owner of this faction.");
 		factionRemovedByOwner = getString("factionRemovedByOwner", obj, "The faction was removed by the owner.");
+		factionRemovedBy = getString("factionRemovedBy", obj, "The faction was removed by %s.");
 		factionRemoved = getString("factionRemoved", obj, "The faction %s was removed.");
 		playerAlreadyInAFaction = getString("playerAlreadyInAFaction", obj, "This player is already in a faction.");
 		notAMember = getString("notAMember", obj, "You're not a member of the faction %s.");
@@ -117,11 +126,7 @@ public class ConfigLanguage {
 		promoted = getString("promoted", obj, "You were promoted to %s.");
 		playerPromoted = getString("playerPromoted", obj, "The player %s was promoted to %s.");
 		gradeRemoved = getString("gradeRemoved", obj, "The grade %s was removed.");
-		relationCreated = getString("relationCreated", obj, "The relation %s was created with the faction %s.");
-		relationProposed = getString("relationProposed", obj, "The relation %s was proposed to your faction by the faction %s.");
-		relationSent = getString("relationSent", obj, "You sent a request to the faction %s to the relation %s.");
-		relationAccepted = getString("relationAccepted", obj, "You accepted the relation %s with the faction %s.");
-		chestShowed = getString("chestShowed", obj, "Chest of the faction %s displayed.");
+		chestShown = getString("chestShown", obj, "Chest of the faction %s displayed.");
 
 		description = getString("description", obj, "Description");
 		members = getString("members", obj, "Members");
@@ -136,6 +141,13 @@ public class ConfigLanguage {
 
 		factionNameLengthWarning = getString("factionNameLengthWarning", obj, "The maximum length for the name of the faction is %s.");
 		factionDescriptionLengthWarning = getString("factionDescriptionLengthWarning", obj, "The description was truncated. The maximum length is %s.");
+
+		noLongerAdmin = getString("noLongerAdmin", obj, "You're no longer admin");
+		nowAdmin = getString("nowAdmin", obj, "You're now admin. This status will be removed if you disconnect.");
+		playerNowAdmin = getString("playerNowAdmin", obj, "The player %s is now admin.");
+		playerNoLongerAdmin = getString("playerNoLongerAdmin", obj, "The player %s is no longer admin.");
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	/**

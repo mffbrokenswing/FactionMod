@@ -3,10 +3,17 @@ package factionmod.data;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.storage.MapStorage;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.common.DimensionManager;
 import factionmod.faction.Faction;
 import factionmod.handler.EventHandlerFaction;
+import factionmod.utils.ServerUtils;
 
+/**
+ * This class is used to save the inventories of the faction.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class InventoryData extends WorldSavedData {
 
 	public static final String		NAME	= "FACTION-INVENTORIES";
@@ -16,15 +23,20 @@ public class InventoryData extends WorldSavedData {
 		SAVE.markDirty();
 	}
 
-	public static void load(FMLServerStartingEvent event) {
-		MapStorage storage = event.getServer().getEntityWorld().getMapStorage();
-		InventoryData data = (InventoryData) storage.getOrLoadData(InventoryData.class, NAME);
-		if (data == null) {
-			System.out.println("New storage");
-			data = new InventoryData(NAME);
-			storage.setData(NAME, data);
+	public static void load() {
+		ServerUtils.getProfiler().startSection("loadInventories");
+
+		if (DimensionManager.getWorlds().length > 0) {
+			MapStorage storage = DimensionManager.getWorlds()[0].getMapStorage();
+			InventoryData data = (InventoryData) storage.getOrLoadData(InventoryData.class, NAME);
+			if (data == null) {
+				data = new InventoryData(NAME);
+				storage.setData(NAME, data);
+			}
+			SAVE = data;
 		}
-		SAVE = data;
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	public InventoryData(String name) {
@@ -33,11 +45,8 @@ public class InventoryData extends WorldSavedData {
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
-		System.out.println(nbt.getSize() + " tags to read");
 		for(Faction faction : EventHandlerFaction.getFactions().values()) {
-			System.out.println("Search " + faction.getName());
 			if (nbt.hasKey(faction.getName().toLowerCase())) {
-				System.out.println("Found " + faction.getName());
 				faction.getInventory().fromNBT(nbt.getCompoundTag(faction.getName().toLowerCase()));
 			}
 		}
@@ -46,10 +55,8 @@ public class InventoryData extends WorldSavedData {
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		for(Faction faction : EventHandlerFaction.getFactions().values()) {
-			System.out.println("Write " + faction.getName());
 			compound.setTag(faction.getName().toLowerCase(), faction.getInventory().toNBT());
 		}
-		System.out.println(compound.getSize() + " tags wrote");
 		return compound;
 	}
 

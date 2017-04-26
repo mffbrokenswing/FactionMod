@@ -11,7 +11,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import factionmod.FactionMod;
 import factionmod.config.ConfigExperience;
 import factionmod.config.ConfigLanguage;
-import factionmod.enums.EnumRelationType;
 import factionmod.event.FactionLevelUpEvent;
 import factionmod.faction.Faction;
 import factionmod.faction.Levels;
@@ -42,9 +41,7 @@ public class EventHandlerExperience {
 			Entity target = event.getEntity();
 			if (target instanceof EntityPlayerMP) {
 				if (EventHandlerFaction.hasUserFaction(target.getUniqueID())) {
-					if (faction.getRelationWith(EventHandlerFaction.getFactionOf(target.getUniqueID())).getType() == EnumRelationType.ENEMY) {
-						addExp(faction, ConfigExperience.killEnemy);
-					}
+					addExp(faction, ConfigExperience.killEnemy);
 				}
 			} else if (target instanceof EntityWitherSkeleton) {
 				addExp(faction, ConfigExperience.killWitherSkeleton);

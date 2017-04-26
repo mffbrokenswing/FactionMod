@@ -3,7 +3,6 @@ package factionmod.faction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.UUID;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,7 +15,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import factionmod.command.utils.UUIDHelper;
-import factionmod.enums.EnumRelationType;
 import factionmod.event.FactionLevelUpEvent;
 import factionmod.handler.EventHandlerExperience;
 import factionmod.inventory.FactionInventory;
@@ -36,7 +34,6 @@ public class Faction {
 	private final ArrayList<DimensionalPosition>	chunks		= new ArrayList<DimensionalPosition>();
 	private DimensionalBlockPos						homePos		= null;
 	private final ArrayList<Grade>					grades		= new ArrayList<Grade>();
-	private final ArrayList<RelationShip>			relations	= new ArrayList<RelationShip>();
 	private final FactionInventory					inventory;
 
 	private final String							name;
@@ -63,56 +60,6 @@ public class Faction {
 	 */
 	public FactionInventory getInventory() {
 		return this.inventory;
-	}
-
-	/**
-	 * Adds a relation between to factions
-	 * 
-	 * @param relation
-	 */
-	public void addRelation(RelationShip relation) {
-		RelationShip newRelation;
-		if (relation.getFirstFaction().equalsIgnoreCase(this.name)) {
-			newRelation = relation.swapFactions();
-		} else {
-			newRelation = relation;
-		}
-		RelationShip s = getRelationWith(newRelation.getFirstFaction());
-		if (s != null)
-			relations.remove(s);
-		relations.add(relation);
-	}
-
-	/**
-	 * Removes a relation with a faction.
-	 * 
-	 * @param faction
-	 *            The name of the faction
-	 */
-	public void removeRelation(String faction) {
-		ListIterator<RelationShip> it = relations.listIterator();
-		while (it.hasNext()) {
-			if (it.next().getFirstFaction().equalsIgnoreCase(faction)) {
-				it.remove();
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Returns the relation with the specified faction. Returns null if the
-	 * factions haven't any relation.
-	 * 
-	 * @param factionName
-	 *            The name of the faction
-	 * @return the relation or null
-	 */
-	public RelationShip getRelationWith(String factionName) {
-		for(RelationShip relation : relations) {
-			if (relation.getFirstFaction().equalsIgnoreCase(factionName))
-				return relation;
-		}
-		return new RelationShip(EnumRelationType.NEUTRAL, factionName, this.name);
 	}
 
 	/**
@@ -590,15 +537,6 @@ public class Faction {
 			iList.appendTag(new NBTTagString(UUIDHelper.getNameOf(uuid)));
 		}
 		nbt.setTag("invitations", iList);
-
-		NBTTagList rList = new NBTTagList();
-		for(RelationShip relation : this.relations) {
-			NBTTagCompound rnbt = new NBTTagCompound();
-			rnbt.setString("faction", relation.getFirstFaction());
-			rnbt.setString("type", relation.getType().name());
-			rList.appendTag(rnbt);
-		}
-		nbt.setTag("relations", rList);
 
 		if (this.homePos != null) {
 			nbt.setTag("home", this.homePos.toNBT());

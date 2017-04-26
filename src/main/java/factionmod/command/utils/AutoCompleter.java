@@ -2,6 +2,8 @@ package factionmod.command.utils;
 
 import java.util.ArrayList;
 
+import factionmod.faction.Faction;
+import factionmod.handler.EventHandlerFaction;
 import factionmod.utils.ServerUtils;
 
 /**
@@ -39,7 +41,7 @@ public class AutoCompleter {
 	 *            The start of the name
 	 * @param objects
 	 *            The objects to test
-	 * @return The names of the objects which start with the specified name
+	 * @return the names of the objects which start with the specified name
 	 */
 	public static ArrayList<String> complete(String name, Object[] objects) {
 		ArrayList<String> ret = new ArrayList<String>();
@@ -49,6 +51,23 @@ public class AutoCompleter {
 			}
 		}
 		return ret;
+	}
+
+	/**
+	 * Returns all the name of the factions starting with the specified name.
+	 * 
+	 * @param factionName
+	 *            The name
+	 * @return all the names starting with the specified name
+	 */
+	public static ArrayList<String> completeFactions(String factionName) {
+		ArrayList<String> names = new ArrayList<String>();
+		for(Faction faction : EventHandlerFaction.getFactions().values()) {
+			if (faction.getName().toLowerCase().startsWith(factionName.toLowerCase())) {
+				names.add(faction.getName());
+			}
+		}
+		return names;
 	}
 
 }

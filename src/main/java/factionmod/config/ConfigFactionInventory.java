@@ -11,6 +11,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import factionmod.utils.ServerUtils;
+
 /**
  * This class contains the configuration relative to the faction chest.
  * 
@@ -32,6 +34,8 @@ public class ConfigFactionInventory {
 	 *            The JsonArray
 	 */
 	public static void load(JsonArray list) {
+		ServerUtils.getProfiler().startSection("inventory");
+
 		IForgeRegistry<Item> registry = GameRegistry.findRegistry(Item.class);
 		for(int i = 0; i < list.size(); i++) {
 			JsonElement el = list.get(i);
@@ -50,6 +54,8 @@ public class ConfigFactionInventory {
 				}
 			}
 		}
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 }

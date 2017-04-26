@@ -72,6 +72,14 @@ public class Grade {
 		return nbt;
 	}
 
+	public String getPermissionsAsString() {
+		String str = "";
+		for(EnumPermission perm : permissions) {
+			str += perm.name();
+		}
+		return str;
+	}
+
 	public JsonObject toJson() {
 		JsonObject obj = new JsonObject();
 		obj.add("name", new JsonPrimitive(this.name));

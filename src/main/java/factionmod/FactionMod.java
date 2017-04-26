@@ -19,10 +19,8 @@ import factionmod.command.CommandSafeZone;
 import factionmod.command.CommandWarZone;
 import factionmod.config.Config;
 import factionmod.data.InventoryData;
-import factionmod.handler.EventHandlerChunk;
-import factionmod.handler.EventHandlerFaction;
-import factionmod.handler.EventHandlerRelation;
 import factionmod.network.PacketRegistering;
+import factionmod.utils.ServerUtils;
 
 /**
  * This is the main class of the Mod.
@@ -72,53 +70,84 @@ public class FactionMod {
 	public void preInit(FMLPreInitializationEvent event) {
 		logger = event.getModLog();
 		configDir = event.getSuggestedConfigurationFile().getParentFile().getAbsolutePath();
+		ServerUtils.init(); // Can't profile before
+
+		ServerUtils.getProfiler().startSection(MODID);
+
 		Config.initDirectory();
 		Config.loadConfigFile();
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
+		ServerUtils.getProfiler().startSection(MODID);
+		ServerUtils.getProfiler().startSection("configuration");
+
 		Config.loadZones("zones.json");
+
+		ServerUtils.getProfiler().endSection();
+
 		network = NetworkRegistry.INSTANCE.newSimpleChannel(FactionMod.MODID);
 		PacketRegistering.registerPackets(network);
+
+		ServerUtils.getProfiler().endSection();
 	}
 
 	@EventHandler
 	public void onIMCMessage(IMCEvent event) {
+		ServerUtils.getProfiler().startSection(MODID);
+		ServerUtils.getProfiler().startSection("IMCMessagesHandling");
+
 		for(IMCMessage message : event.getMessages()) {
 			if (message.isStringMessage()) {
 				String fileName = message.getStringValue();
 				if (!fileName.contains("\\") && !fileName.contains("/")) {
+					ServerUtils.getProfiler().startSection("configuration");
 					Config.loadZones(fileName);
+					ServerUtils.getProfiler().endSection();
 				} else {
 					FactionMod.getLogger().warn("The file containing the zones have to be directly in the config directory.");
 				}
 			}
 		}
+
+		ServerUtils.getProfiler().endSection();
+		ServerUtils.getProfiler().endSection();
 	}
 
 	@EventHandler
 	public void onServerStarting(FMLServerStartingEvent event) {
+		ServerUtils.getProfiler().startSection(MODID);
+		ServerUtils.getProfiler().startSection("commandsRegistering");
+
 		event.registerServerCommand(new CommandSafeZone());
 		event.registerServerCommand(new CommandWarZone());
 		event.registerServerCommand(new CommandFaction());
 		event.registerServerCommand(new CommandAdmin());
+
+		ServerUtils.getProfiler().endStartSection("configuration");
+
 		Config.loadFactions();
 		Config.loadChunkManagers();
-		Config.loadRelations();
-		InventoryData.load(event);
+		InventoryData.load();
+
+		ServerUtils.getProfiler().endSection();
+		ServerUtils.getProfiler().endSection();
 	}
 
 	@EventHandler
 	public void onServerStopping(FMLServerStoppingEvent event) {
+		ServerUtils.getProfiler().startSection(MODID);
+		ServerUtils.getProfiler().startSection("configuration");
+
 		Config.saveChunkManagers();
 		Config.saveFactions();
-		Config.saveRelations();
 		InventoryData.save();
-		EventHandlerChunk.clearRegistry();
-		EventHandlerFaction.clearRegistry();
-		EventHandlerRelation.clearRegistry();
 
+		ServerUtils.getProfiler().endSection();
+		ServerUtils.getProfiler().endSection();
 	}
 
 }
