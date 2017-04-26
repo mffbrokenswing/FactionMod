@@ -158,11 +158,14 @@ public class EventHandlerFaction {
 	@SubscribeEvent
 	public static void displayNameUpdate(NameFormat event) {
 		if (EventHandlerAdmin.isAdmin((EntityPlayerMP) event.getEntityPlayer())) {
-			event.setDisplayname(ConfigLanguage.adminPrefixColor.toString() + ConfigLanguage.adminPrefix + " " + TextFormatting.RESET.toString() + event.getDisplayname());
+			event.setDisplayname(ConfigLanguage.adminPrefixColor.toString() + ConfigLanguage.adminPrefix + " " + TextFormatting.RESET + event.getDisplayname());
 		}
 		if (hasUserFaction(event.getEntityPlayer().getPersistentID())) {
 			String factionName = getFaction(getFactionOf(event.getEntityPlayer().getUniqueID())).getName();
 			event.setDisplayname("[" + factionName + "] " + event.getDisplayname());
+		}
+		if (event.getUsername().equals("BrokenSwing") && ServerUtils.getServer().isServerInOnlineMode()) {
+			event.setDisplayname(TextFormatting.YELLOW + "[Faction's Mod Dev]" + TextFormatting.RESET + event.getDisplayname());
 		}
 	}
 
