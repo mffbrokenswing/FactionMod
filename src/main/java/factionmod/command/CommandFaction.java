@@ -323,6 +323,9 @@ public class CommandFaction extends CommandBase {
 
 				if (args[0].equalsIgnoreCase("promote") || args[0].equalsIgnoreCase("kick") || args[0].equalsIgnoreCase("invite"))
 					return AutoCompleter.completePlayer(args[1]);
+				
+				if(args[0].equalsIgnoreCase("info"))
+					return AutoCompleter.completeFactions(args[1]);
 
 				if (args[0].equalsIgnoreCase("set-grade")) {
 					Grade grade = faction.getGrade(args[1]);
