@@ -35,6 +35,8 @@ public class Config {
 	public static int	immunityLevel;
 	public static int	factionDescriptionMaxLength;
 	public static int	factionNameMaxLength;
+	public static int	maxFactionDamages;
+	public static int	damagesNeededToCounterClaim;
 
 	/**
 	 * Loads a list of {@link Zone} from a file.
@@ -192,6 +194,8 @@ public class Config {
 			immunityLevel = ConfigExperience.getInt("immunity_level", root, 5);
 			factionDescriptionMaxLength = ConfigExperience.getInt("factionDescriptionMaxLength", root, 50);
 			factionNameMaxLength = ConfigExperience.getInt("factionNameMaxLength", root, 15);
+			maxFactionDamages = ConfigExperience.getInt("maxFactionDamages", root, 15);
+			damagesNeededToCounterClaim = ConfigExperience.getInt("damagesNeededToCounterClaim", root, 5);
 			if (root.has("exp")) {
 				el = root.get("exp");
 				if (el.isJsonObject()) {

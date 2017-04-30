@@ -26,9 +26,12 @@ public class FactionModAPI {
 		 *            The faction
 		 * @param amount
 		 *            The amount of experience
+		 * @param The
+		 *            UUID of the player who made the faction win the
+		 *            experience, can be null
 		 */
-		public static void addExperience(Faction faction, int amount) {
-			EventHandlerExperience.addExp(faction, amount);
+		public static void addExperience(Faction faction, int amount, UUID member) {
+			EventHandlerExperience.addExp(faction, amount, member);
 		}
 
 		/**

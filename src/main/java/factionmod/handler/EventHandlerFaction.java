@@ -165,7 +165,7 @@ public class EventHandlerFaction {
 			event.setDisplayname("[" + factionName + "] " + event.getDisplayname());
 		}
 		if (event.getUsername().equals("BrokenSwing") && ServerUtils.getServer().isServerInOnlineMode()) {
-			event.setDisplayname(TextFormatting.YELLOW + "[Faction's Mod Dev]" + TextFormatting.RESET + event.getDisplayname());
+			event.setDisplayname(TextFormatting.YELLOW + "[Faction's Mod Dev] " + TextFormatting.RESET + event.getDisplayname());
 		}
 	}
 
@@ -534,12 +534,16 @@ public class EventHandlerFaction {
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.chunkNotClaimed);
 		ManagerFaction m = (ManagerFaction) manager;
 		Faction faction = m.getFaction();
-		if (!isAdmin && !faction.isMember(member))
+		boolean isMember = faction.isMember(member);
+		boolean overClaim = faction.getDamages() >= Config.damagesNeededToCounterClaim && isChunkAtEdge(position);
+		if (!isAdmin && !overClaim && !isMember)
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
-		if (!isAdmin && !faction.getMember(member).hasPermission(EnumPermission.CLAIM_CHUNK))
+		if (!isAdmin && isMember && !faction.getMember(member).hasPermission(EnumPermission.CLAIM_CHUNK))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		EventHandlerChunk.unregisterChunkManager(position, true);
 		faction.removeChunk(position);
+		if (overClaim)
+			faction.decreaseDamages(Config.damagesNeededToCounterClaim);
 		ModdedClients.updateFaction(faction);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, ConfigLanguage.chunkUnclaimed);
 	}
@@ -622,6 +626,7 @@ public class EventHandlerFaction {
 		list.add(ConfigLanguage.experience + " : " + faction.getExp() + "/" + Levels.getExpNeededForLevel(faction.getLevel() + 1));
 		list.add("Chunks : " + faction.getChunks().size() + "/" + Levels.getMaximumChunksForLevel(faction.getLevel()));
 		list.add(ConfigLanguage.opened + " : " + (faction.isOpened() ? ConfigLanguage.yes : ConfigLanguage.no));
+		list.add(ConfigLanguage.damages + " : " + faction.getDamages());
 		return new ActionResult<List<String>>(EnumActionResult.SUCCESS, list);
 	}
 
@@ -804,4 +809,27 @@ public class EventHandlerFaction {
 		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.chestShown, faction.getName()));
 	}
 
+	private static boolean isChunkAtEdge(DimensionalPosition position) {
+		IChunkManager manager = EventHandlerChunk.getManagerFor(position);
+		if (manager instanceof ManagerFaction) {
+			ManagerFaction fManager = (ManagerFaction) manager;
+			int i = 0;
+			int x = position.getPos().chunkXPos;
+			int z = position.getPos().chunkZPos;
+			for(DimensionalPosition pos : fManager.getFaction().getChunks()) {
+				if (pos.getDimension() == position.getDimension()) {
+					int x2 = pos.getPos().chunkXPos;
+					int z2 = pos.getPos().chunkZPos;
+					if (x2 == x)
+						if (z2 == z - 1 || z2 == z + 1)
+							i++;
+					if (z2 == z)
+						if (x2 == x - 1 || x2 == x + 1)
+							i++;
+				}
+			}
+			return i < 4;
+		}
+		return false;
+	}
 }

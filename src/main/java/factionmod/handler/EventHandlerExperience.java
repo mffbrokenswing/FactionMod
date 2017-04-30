@@ -1,5 +1,7 @@
 package factionmod.handler;
 
+import java.util.UUID;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityWither;
@@ -9,6 +11,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import factionmod.FactionMod;
+import factionmod.api.FactionModAPI.FactionAPI;
 import factionmod.config.ConfigExperience;
 import factionmod.config.ConfigLanguage;
 import factionmod.event.FactionLevelUpEvent;
@@ -41,14 +44,15 @@ public class EventHandlerExperience {
 			Entity target = event.getEntity();
 			if (target instanceof EntityPlayerMP) {
 				if (EventHandlerFaction.hasUserFaction(target.getUniqueID())) {
-					addExp(faction, ConfigExperience.killEnemy);
+					FactionAPI.getFactionOf(target.getUniqueID()).damageFaction(1);
+					addExp(faction, ConfigExperience.killEnemy, player.getUniqueID());
 				}
 			} else if (target instanceof EntityWitherSkeleton) {
-				addExp(faction, ConfigExperience.killWitherSkeleton);
+				addExp(faction, ConfigExperience.killWitherSkeleton, player.getUniqueID());
 			} else if (target instanceof EntityWither) {
-				addExp(faction, ConfigExperience.killWither);
+				addExp(faction, ConfigExperience.killWither, player.getUniqueID());
 			} else if (target instanceof EntityDragon) {
-				addExp(faction, ConfigExperience.killDragon);
+				addExp(faction, ConfigExperience.killDragon, player.getUniqueID());
 			}
 		}
 	}
@@ -61,10 +65,12 @@ public class EventHandlerExperience {
 	 *            The faction
 	 * @param amount
 	 *            The amount of experience to add
+	 * @param member
+	 *            The UUID of the player who made the faction win the experience
 	 */
-	public static void addExp(Faction faction, int amount) {
+	public static void addExp(Faction faction, int amount, UUID member) {
 		if (amount > 0) {
-			faction.increaseExp(amount);
+			faction.increaseExp(amount, member);
 			ModdedClients.updateExperience(faction);
 		}
 	}

@@ -15,6 +15,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import factionmod.command.utils.UUIDHelper;
+import factionmod.config.Config;
 import factionmod.event.FactionLevelUpEvent;
 import factionmod.handler.EventHandlerExperience;
 import factionmod.inventory.FactionInventory;
@@ -41,6 +42,7 @@ public class Faction {
 	private boolean									opened		= false;
 	private int										level		= 1;
 	private int										exp			= 0;
+	private int										damages		= 0;
 
 	public Faction(String name, String desc, Member owner) {
 		this(name, desc);
@@ -72,6 +74,49 @@ public class Faction {
 	}
 
 	/**
+	 * Damages the faction.
+	 * 
+	 * @param damage
+	 *            The amount of damage
+	 */
+	public void damageFaction(int damage) {
+		if (damage <= 0)
+			return;
+		this.damages += damage;
+		if (damages > Config.maxFactionDamages)
+			damages = Config.maxFactionDamages;
+	}
+
+	/**
+	 * Returns the damages of the faction.
+	 * 
+	 * @return
+	 */
+	public int getDamages() {
+		return this.damages;
+	}
+
+	/**
+	 * Decreases the damages of the faction.
+	 * 
+	 * @param count
+	 *            The amount to decrease
+	 */
+	public void decreaseDamages(int count) {
+		this.damages -= count;
+		if (this.damages < 0) {
+			this.damages = 0;
+		}
+	}
+
+	/**
+	 * Sets the damages to 0.
+	 */
+	public void resetDamages() {
+		this.damages = 0;
+	}
+
+	/**
 	 * Adds a grade to the faction.
 	 * 
 	 * @param grade
@@ -80,6 +125,11 @@ public class Faction {
 	public void addGrade(Grade grade) {
 		Grade g = getGrade(grade.getName());
 		if (g != null) {
+			for(Member m : members) {
+				if (m.getGrade().equals(g)) {
+					m.setGrade(grade);
+				}
+			}
 			grades.remove(g);
 		}
 		grades.add(grade);
@@ -136,7 +186,7 @@ public class Faction {
 	 */
 	public void setLevel(int level) {
 		this.level = level;
-		this.increaseExp(0);
+		this.increaseExp(0, null);
 	}
 
 	/**
@@ -158,7 +208,7 @@ public class Faction {
 	 */
 	public void setExp(int exp) {
 		this.exp = exp;
-		this.increaseExp(0);
+		this.increaseExp(0, null);
 	}
 
 	/**
@@ -171,17 +221,24 @@ public class Faction {
 	 * 
 	 * @param exp
 	 *            The amount of experience to add
+	 * @param member
+	 *            The UUID of the member who made the faction win the experience
 	 */
-	public void increaseExp(int exp) {
+	public void increaseExp(int exp, UUID member) {
 		if (exp <= 0)
 			return;
+		if (member != null) {
+			Member m = getMember(member);
+			if (m != null)
+				m.addExperience(exp);
+		}
 		this.exp += exp;
 		int neededXp = Levels.getExpNeededForLevel(this.level + 1);
 		if (this.exp >= neededXp) {
 			this.level++;
 			MinecraftForge.EVENT_BUS.post(new FactionLevelUpEvent(this));
 			this.exp -= neededXp;
-			this.increaseExp(0);
+			this.increaseExp(0, member);
 		}
 	}
 
@@ -439,6 +496,7 @@ public class Faction {
 		obj.add("opened", new JsonPrimitive(this.opened));
 		obj.add("level", new JsonPrimitive(this.level));
 		obj.add("exp", new JsonPrimitive(this.exp));
+		obj.add("damages", new JsonPrimitive(this.damages));
 
 		JsonArray mList = new JsonArray();
 		for(Member m : members) {
@@ -476,6 +534,7 @@ public class Faction {
 		faction.setOpened(obj.get("opened").getAsBoolean());
 		faction.setLevel(obj.get("level").getAsInt());
 		faction.setExp(obj.get("exp").getAsInt());
+		faction.damageFaction(obj.get("damages").getAsInt());
 
 		JsonArray gList = obj.get("grades").getAsJsonArray();
 		for(int i = 0; i < gList.size(); i++) {
@@ -519,6 +578,7 @@ public class Faction {
 		nbt.setInteger("level", this.level);
 		nbt.setInteger("exp", this.exp);
 		nbt.setInteger("chunksCount", this.chunks.size());
+		nbt.setInteger("damages", this.damages);
 
 		NBTTagList gList = new NBTTagList();
 		for(Grade grade : this.grades) {

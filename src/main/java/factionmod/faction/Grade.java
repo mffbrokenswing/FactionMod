@@ -105,13 +105,28 @@ public class Grade {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		if (obj == this)
+		if (this == obj)
 			return true;
-		if ((obj instanceof Grade))
+		if (obj == null)
 			return false;
-		Grade g = (Grade) obj;
-		return g.getName().equalsIgnoreCase(this.name);
+		if (getClass() != obj.getClass())
+			return false;
+		Grade other = (Grade) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
 	}
 
 	public static boolean canAffect(Grade executor, Grade executed) {

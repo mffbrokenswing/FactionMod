@@ -61,6 +61,7 @@ public class ConfigLanguage {
 	public static String			level;
 	public static String			experience;
 	public static String			opened;
+	public static String			damages;
 	public static String			yes;
 	public static String			no;
 
@@ -133,6 +134,7 @@ public class ConfigLanguage {
 		level = getString("level", obj, "Level");
 		experience = getString("experience", obj, "Experience");
 		opened = getString("opened", obj, "Opened");
+		damages = getString("damages", obj, "Damages");
 		yes = getString("yes", obj, "yes");
 		no = getString("no", obj, "no");
 
