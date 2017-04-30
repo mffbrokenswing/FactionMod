@@ -1,0 +1,81 @@
+package factionmod.event;
+
+import java.util.UUID;
+
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import factionmod.config.ConfigLanguage;
+import factionmod.faction.Faction;
+import factionmod.utils.DimensionalPosition;
+
+/**
+ * This event is fired when a player claims a chunk for a chunk. Cancel this
+ * event will prevent the claim.
+ * 
+ * @author BrokenSwing
+ *
+ */
+@Cancelable
+public class ClaimChunkEvent extends Event {
+
+	private final Faction				faction;
+	private final UUID					playerUUID;
+	private final DimensionalPosition	position;
+	private String						message;
+
+	public ClaimChunkEvent(Faction faction, UUID playerUUID, DimensionalPosition position) {
+		this.faction = faction;
+		this.playerUUID = playerUUID;
+		this.position = position;
+		this.message = ConfigLanguage.missingPermission;
+	}
+
+	/**
+	 * Indicates which message will be displayed to the player if the event is
+	 * canceled.
+	 * 
+	 * @return the message
+	 */
+	public String getMessage() {
+		return message;
+	}
+
+	/**
+	 * Sets the message which will be displayed to the layer if the event is
+	 * canceled.
+	 * 
+	 * @param message
+	 *            The new message
+	 */
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	/**
+	 * Returns the concerned faction, the faction whih will own the chunk.
+	 * 
+	 * @return the faction
+	 */
+	public Faction getFaction() {
+		return faction;
+	}
+
+	/**
+	 * Returns the UUID of the player who tries to claim the chunk.
+	 * 
+	 * @return the UUID of the player
+	 */
+	public UUID getPlayerUUID() {
+		return playerUUID;
+	}
+
+	/**
+	 * Indicates the position of the chunk.
+	 * 
+	 * @return the position
+	 */
+	public DimensionalPosition getPosition() {
+		return position;
+	}
+
+}

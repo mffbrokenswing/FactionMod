@@ -1,5 +1,6 @@
 package factionmod.handler;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,8 +33,17 @@ import factionmod.command.utils.UUIDHelper;
 import factionmod.config.Config;
 import factionmod.config.ConfigLanguage;
 import factionmod.enums.EnumPermission;
+import factionmod.event.ClaimChunkEvent;
 import factionmod.event.CreateFactionEvent;
+import factionmod.event.DescriptionChangedEvent;
 import factionmod.event.FactionCreatedEvent;
+import factionmod.event.FactionDisbandedEvent;
+import factionmod.event.FactionInfoEvent;
+import factionmod.event.HomeTeleportationEvent;
+import factionmod.event.JoinFactionEvent;
+import factionmod.event.LeaveFactionEvent;
+import factionmod.event.SetHomeEvent;
+import factionmod.event.UnclaimChunkEvent;
 import factionmod.faction.Faction;
 import factionmod.faction.Grade;
 import factionmod.faction.Levels;
@@ -265,7 +275,7 @@ public class EventHandlerFaction {
 		addFaction(faction);
 		addUserToFaction(faction, owner);
 		ModdedClients.updateClient(owner);
-		MinecraftForge.EVENT_BUS.post(new FactionCreatedEvent(faction));
+		MinecraftForge.EVENT_BUS.post(new FactionCreatedEvent(faction, owner));
 		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.factionCreated, name));
 	}
 
@@ -290,6 +300,7 @@ public class EventHandlerFaction {
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.notAMember, faction.getName()));
 		if (!admin && !(faction.getMember(owner).getGrade() == Grade.OWNER))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.notOwner);
+		MinecraftForge.EVENT_BUS.post(new FactionDisbandedEvent.Pre(faction, owner));
 		List<Member> members = Lists.newArrayList(faction.getMembers());
 		if (!admin) {
 			Member own = faction.getMember(owner);
@@ -308,6 +319,7 @@ public class EventHandlerFaction {
 		for(DimensionalPosition position : faction.getChunks()) {
 			EventHandlerChunk.unregisterChunkManager(position, true);
 		}
+		MinecraftForge.EVENT_BUS.post(new FactionDisbandedEvent.Post(faction, owner));
 		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.factionRemoved, faction.getName()));
 	}
 
@@ -389,6 +401,7 @@ public class EventHandlerFaction {
 			ModdedClients.updateClient(player);
 			player.sendMessage(MessageHelper.error(String.format(ConfigLanguage.noLongerAMember, faction.getName())));
 		}
+		MinecraftForge.EVENT_BUS.post(new LeaveFactionEvent(faction, toRemove));
 		ModdedClients.updateFaction(faction);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.playerNoLongerAMember, UUIDHelper.getNameOf(toRemove), faction.getName()));
 	}
@@ -420,7 +433,9 @@ public class EventHandlerFaction {
 		Member m = faction.getMember(member);
 		if (!admin && !m.hasPermission(EnumPermission.CHANGE_DESCRIPTION))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
-		faction.setDesc(desc);
+		DescriptionChangedEvent event = new DescriptionChangedEvent(faction, member, desc);
+		MinecraftForge.EVENT_BUS.post(event);
+		faction.setDesc(event.getNewDescription());
 		ModdedClients.updateFaction(faction);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, ConfigLanguage.descriptionChanged);
 	}
@@ -443,6 +458,9 @@ public class EventHandlerFaction {
 		if (faction.isMember(uuid))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.alreadyInAFaction);
 		if (admin || faction.isOpened() || faction.isInvited(uuid)) {
+			JoinFactionEvent event = new JoinFactionEvent(faction, uuid);
+			if (MinecraftForge.EVENT_BUS.post(event))
+				return new ActionResult<String>(EnumActionResult.FAIL, event.getMessage());
 			broadcastToFaction(faction, String.format(ConfigLanguage.playerJoinedFaction, UUIDHelper.getNameOf(uuid)), MessageHelper.INFO);
 			faction.addMember(uuid);
 			addUserToFaction(faction, uuid);
@@ -477,6 +495,7 @@ public class EventHandlerFaction {
 		removeUser(member);
 		ModdedClients.updateFaction(faction);
 		broadcastToFaction(faction, String.format(ConfigLanguage.playerNoLongerAMember, UUIDHelper.getNameOf(member), faction.getName()), MessageHelper.INFO);
+		MinecraftForge.EVENT_BUS.post(new LeaveFactionEvent(faction, member));
 		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.noLongerAMember, faction.getName()));
 	}
 
@@ -509,6 +528,9 @@ public class EventHandlerFaction {
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.canNotClaim);
 		if (faction.getChunks().size() >= Levels.getMaximumChunksForLevel(faction.getLevel()))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.maxChunksCountReached);
+		ClaimChunkEvent event = new ClaimChunkEvent(faction, member, position);
+		if (MinecraftForge.EVENT_BUS.post(event))
+			return new ActionResult<String>(EnumActionResult.FAIL, event.getMessage());
 		Pair<IChunkManager, ZoneInstance> pair = ChunkManagerCreator.createChunkHandler("faction", faction.getName());
 		EventHandlerChunk.registerChunkManager(pair.first(), position, pair.second(), true);
 		faction.addChunk(position);
@@ -544,6 +566,7 @@ public class EventHandlerFaction {
 		faction.removeChunk(position);
 		if (overClaim)
 			faction.decreaseDamages(Config.damagesNeededToCounterClaim);
+		MinecraftForge.EVENT_BUS.post(new UnclaimChunkEvent(faction, member, position));
 		ModdedClients.updateFaction(faction);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, ConfigLanguage.chunkUnclaimed);
 	}
@@ -574,6 +597,9 @@ public class EventHandlerFaction {
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.missingPermission);
 		if (!faction.getChunks().contains(position.toDimensionnalPosition()))
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.chunkNotClaimed);
+		SetHomeEvent event = new SetHomeEvent(faction, member, position);
+		if (MinecraftForge.EVENT_BUS.post(event))
+			return new ActionResult<String>(EnumActionResult.FAIL, event.getMessage());
 		faction.setHome(position);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, ConfigLanguage.homeChanged);
 	}
@@ -616,7 +642,7 @@ public class EventHandlerFaction {
 	public static ActionResult<List<String>> getInformationsAbout(String name) {
 		if (!doesFactionExist(name))
 			return new ActionResult<List<String>>(EnumActionResult.FAIL, Lists.newArrayList(String.format(ConfigLanguage.factionNotExisting, name)));
-		List<String> list = Lists.newArrayList();
+		ArrayList<String> list = new ArrayList<String>();
 		Faction faction = getFaction(name);
 		list.add("****** " + faction.getName() + " ******");
 		if (!faction.getDesc().isEmpty())
@@ -627,7 +653,9 @@ public class EventHandlerFaction {
 		list.add("Chunks : " + faction.getChunks().size() + "/" + Levels.getMaximumChunksForLevel(faction.getLevel()));
 		list.add(ConfigLanguage.opened + " : " + (faction.isOpened() ? ConfigLanguage.yes : ConfigLanguage.no));
 		list.add(ConfigLanguage.damages + " : " + faction.getDamages());
-		return new ActionResult<List<String>>(EnumActionResult.SUCCESS, list);
+		FactionInfoEvent event = new FactionInfoEvent(faction, list);
+		MinecraftForge.EVENT_BUS.post(event);
+		return new ActionResult<List<String>>(EnumActionResult.SUCCESS, event.getInformations());
 	}
 
 	/**
@@ -654,7 +682,10 @@ public class EventHandlerFaction {
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.hasNotHome, faction.getName()));
 		if (player.getEntityWorld().provider.getDimension() != pos.getDimension())
 			return new ActionResult<String>(EnumActionResult.FAIL, ConfigLanguage.wrongDimension);
-		TeleportationHelper.teleport(player, pos.getPosition(), 10);
+		HomeTeleportationEvent event = new HomeTeleportationEvent(faction, player);
+		if (MinecraftForge.EVENT_BUS.post(event))
+			return new ActionResult<String>(EnumActionResult.FAIL, event.getMessage());
+		TeleportationHelper.teleport(player, pos.getPosition(), Config.teleportationDelay);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.willBeTeleportedToHome, faction.getName()));
 	}
 
