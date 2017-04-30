@@ -37,6 +37,7 @@ public class Config {
 	public static int	factionNameMaxLength;
 	public static int	maxFactionDamages;
 	public static int	damagesNeededToCounterClaim;
+	public static int	teleportationDelay;
 
 	/**
 	 * Loads a list of {@link Zone} from a file.
@@ -196,6 +197,7 @@ public class Config {
 			factionNameMaxLength = ConfigExperience.getInt("factionNameMaxLength", root, 15);
 			maxFactionDamages = ConfigExperience.getInt("maxFactionDamages", root, 15);
 			damagesNeededToCounterClaim = ConfigExperience.getInt("damagesNeededToCounterClaim", root, 5);
+			teleportationDelay = ConfigExperience.getInt("teleportationDelay", root, 10);
 			if (root.has("exp")) {
 				el = root.get("exp");
 				if (el.isJsonObject()) {
