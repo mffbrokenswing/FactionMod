@@ -124,7 +124,7 @@ public class CommandFaction extends CommandBase {
 				boolean descCutted = false;
 				if (desc.length() > Config.factionDescriptionMaxLength) {
 					descCutted = true;
-					desc.substring(0, 50);
+					desc.substring(0, Config.factionDescriptionMaxLength);
 				}
 				if (name.length() > Config.factionNameMaxLength) {
 					sender.sendMessage(MessageHelper.error(String.format(ConfigLanguage.factionNameLengthWarning, Config.factionNameMaxLength)));
@@ -323,8 +323,8 @@ public class CommandFaction extends CommandBase {
 
 				if (args[0].equalsIgnoreCase("promote") || args[0].equalsIgnoreCase("kick") || args[0].equalsIgnoreCase("invite"))
 					return AutoCompleter.completePlayer(args[1]);
-				
-				if(args[0].equalsIgnoreCase("info"))
+
+				if (args[0].equalsIgnoreCase("info"))
 					return AutoCompleter.completeFactions(args[1]);
 
 				if (args[0].equalsIgnoreCase("set-grade")) {
