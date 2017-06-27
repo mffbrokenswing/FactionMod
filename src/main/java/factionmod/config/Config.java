@@ -112,7 +112,7 @@ public class Config {
                 ZoneInstance instance = ZoneInstance.fromJson(obj.get("value").getAsJsonObject());
                 map.put(pos, instance);
             }
-            
+
             for(Entry<DimensionalPosition, ZoneInstance> entry : map.entrySet()) {
                 DimensionalPosition pos = entry.getKey();
                 ZoneInstance instance = entry.getValue();
@@ -303,6 +303,10 @@ public class Config {
 
                 writeFile("zones.json", root.toString());
                 ServerUtils.getProfiler().endSection();
+            }
+            file = new File(FactionMod.getConfigDir(), "configuration.json");
+            if (!file.exists()) {
+                writeFile("configuration.json", new JsonObject().toString());
             }
         }
     }
