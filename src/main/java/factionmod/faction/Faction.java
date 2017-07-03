@@ -225,7 +225,7 @@ public class Faction {
 	 *            The UUID of the member who made the faction win the experience
 	 */
 	public void increaseExp(int exp, UUID member) {
-		if (exp <= 0)
+		if (exp < 0)
 			return;
 		if (member != null) {
 			Member m = getMember(member);
