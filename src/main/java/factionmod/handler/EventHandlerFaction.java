@@ -39,6 +39,7 @@ import factionmod.event.DescriptionChangedEvent;
 import factionmod.event.FactionCreatedEvent;
 import factionmod.event.FactionDisbandedEvent;
 import factionmod.event.FactionInfoEvent;
+import factionmod.event.GradeChangeEvent;
 import factionmod.event.HomeTeleportationEvent;
 import factionmod.event.JoinFactionEvent;
 import factionmod.event.LeaveFactionEvent;
@@ -768,11 +769,13 @@ public class EventHandlerFaction {
 		}
 		if (grade == null)
 			return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLanguage.gradeNotExisting, gradeName));
+		Grade previousGrade = mExecuted.getGrade();
 		mExecuted.setGrade(grade);
 		EntityPlayer player = ServerUtils.getPlayer(executed);
 		if (player != null) {
 			player.sendMessage(MessageHelper.info(String.format(ConfigLanguage.promoted, grade.getName().toLowerCase())));
 		}
+		MinecraftForge.EVENT_BUS.post(new GradeChangeEvent(faction, executed, previousGrade, grade));
 		ModdedClients.updateFaction(faction);
 		return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLanguage.playerPromoted, UUIDHelper.getNameOf(executed), grade.getName()));
 	}

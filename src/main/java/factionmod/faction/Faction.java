@@ -17,6 +17,7 @@ import com.google.gson.JsonPrimitive;
 import factionmod.command.utils.UUIDHelper;
 import factionmod.config.Config;
 import factionmod.event.FactionLevelUpEvent;
+import factionmod.event.GradeChangeEvent;
 import factionmod.handler.EventHandlerExperience;
 import factionmod.inventory.FactionInventory;
 import factionmod.utils.DimensionalBlockPos;
@@ -161,6 +162,7 @@ public class Faction {
 	public void removeGrade(Grade grade) {
 		for(Member m : members) {
 			if (m.getGrade().equals(grade)) {
+			    MinecraftForge.EVENT_BUS.post(new GradeChangeEvent(this, m.getUUID(), m.getGrade(), grade));
 				m.setGrade(Grade.MEMBER);
 			}
 		}
