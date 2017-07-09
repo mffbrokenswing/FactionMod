@@ -2,12 +2,11 @@ package factionmod.utils;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * Represents a {@link ChunkPos} in a specified dimension.
@@ -15,83 +14,87 @@ import com.google.gson.JsonPrimitive;
  * @author BrokenSwing
  *
  */
-public class DimensionalPosition {
+public class DimensionalPosition implements INBTSerializable<NBTTagCompound> {
 
-	private ChunkPos	pos;
-	private int			dimension;
+    private ChunkPos pos;
+    private int      dimension;
 
-	public DimensionalPosition(ChunkPos pos, int dimension) {
-		this.pos = new ChunkPos(pos.chunkXPos, pos.chunkZPos);
-		this.dimension = dimension;
-	}
+    public DimensionalPosition(NBTTagCompound nbt) {
+        this.deserializeNBT(nbt);
+    }
 
-	public ChunkPos getPos() {
-		return pos;
-	}
+    public DimensionalPosition(ChunkPos pos, int dimension) {
+        this.pos = new ChunkPos(pos.chunkXPos, pos.chunkZPos);
+        this.dimension = dimension;
+    }
 
-	public int getDimension() {
-		return dimension;
-	}
+    public ChunkPos getPos() {
+        return pos;
+    }
 
-	@Override
-	public String toString() {
-		return "[Dim:" + this.dimension + " ChunkPos:" + this.pos.toString() + "]";
-	}
+    public int getDimension() {
+        return dimension;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + dimension;
-		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
-		return result;
-	}
+    @Override
+    public String toString() {
+        return "[Dim:" + this.dimension + " ChunkPos:" + this.pos.toString() + "]";
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DimensionalPosition other = (DimensionalPosition) obj;
-		if (dimension != other.dimension)
-			return false;
-		if (pos == null) {
-			if (other.pos != null)
-				return false;
-		} else if (!pos.equals(other.pos))
-			return false;
-		return true;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + dimension;
+        result = prime * result + ((pos == null) ? 0 : pos.hashCode());
+        return result;
+    }
 
-	public JsonObject toJson() {
-		JsonObject obj = new JsonObject();
-		obj.add("dim", new JsonPrimitive(this.dimension));
-		obj.add("x", new JsonPrimitive(this.pos.chunkXPos));
-		obj.add("y", new JsonPrimitive(this.pos.chunkZPos));
-		return obj;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DimensionalPosition other = (DimensionalPosition) obj;
+        if (dimension != other.dimension)
+            return false;
+        if (pos == null) {
+            if (other.pos != null)
+                return false;
+        } else if (!pos.equals(other.pos))
+            return false;
+        return true;
+    }
 
-	public static DimensionalPosition fromJson(JsonObject obj) {
-		int dimension = obj.get("dim").getAsInt();
-		int chunkX = obj.get("x").getAsInt();
-		int chunkZ = obj.get("y").getAsInt();
-		return new DimensionalPosition(new ChunkPos(chunkX, chunkZ), dimension);
-	}
+    public static DimensionalPosition from(World world, BlockPos pos) {
+        ChunkPos chunkPos = world.getChunkFromBlockCoords(pos).getPos();
+        return new DimensionalPosition(chunkPos, world.provider.getDimension());
+    }
 
-	public static DimensionalPosition from(World world, BlockPos pos) {
-		ChunkPos chunkPos = world.getChunkFromBlockCoords(pos).getPos();
-		return new DimensionalPosition(chunkPos, world.provider.getDimension());
-	}
+    public static DimensionalPosition from(Entity entity) {
+        return from(entity.getEntityWorld(), entity.getPosition());
+    }
 
-	public static DimensionalPosition from(Entity entity) {
-		return from(entity.getEntityWorld(), entity.getPosition());
-	}
+    public static DimensionalPosition from(ICommandSender sender) {
+        return from(sender.getEntityWorld(), sender.getPosition());
+    }
 
-	public static DimensionalPosition from(ICommandSender sender) {
-		return from(sender.getEntityWorld(), sender.getPosition());
-	}
+    @Override
+    public NBTTagCompound serializeNBT() {
+        NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setInteger("x", this.pos.chunkXPos);
+        nbt.setInteger("z", this.pos.chunkZPos);
+        nbt.setInteger("dim", this.dimension);
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound nbt) {
+        this.pos = new ChunkPos(nbt.getInteger("x"), nbt.getInteger("z"));
+        this.dimension = nbt.getInteger("dim");
+    }
 
 }

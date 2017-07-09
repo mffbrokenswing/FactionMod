@@ -1,11 +1,11 @@
 package factionmod.event;
 
+import factionmod.config.ConfigLang;
+import factionmod.faction.Faction;
+import factionmod.utils.DimensionalBlockPos;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import factionmod.config.ConfigLanguage;
-import factionmod.faction.Faction;
-import factionmod.utils.DimensionalBlockPos;
 
 /**
  * This event is fired when a player is requesting to teleport to the home of a
@@ -24,7 +24,7 @@ public class HomeTeleportationEvent extends Event {
 	public HomeTeleportationEvent(Faction faction, EntityPlayerMP player) {
 		this.faction = faction;
 		this.player = player;
-		this.message = ConfigLanguage.missingPermission;
+		this.message = ConfigLang.translate("player.self.permission.hasnt");
 	}
 
 	/**

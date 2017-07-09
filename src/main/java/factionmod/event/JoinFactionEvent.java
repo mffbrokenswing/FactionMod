@@ -2,10 +2,10 @@ package factionmod.event;
 
 import java.util.UUID;
 
+import factionmod.config.ConfigLang;
+import factionmod.faction.Faction;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import factionmod.config.ConfigLanguage;
-import factionmod.faction.Faction;
 
 /**
  * This event is fired when a player tries to join a faction. Cancel this event
@@ -24,7 +24,7 @@ public class JoinFactionEvent extends Event {
 	public JoinFactionEvent(Faction faction, UUID playerUUID) {
 		this.faction = faction;
 		this.playerUUID = playerUUID;
-		this.message = ConfigLanguage.missingPermission;
+		this.message = ConfigLang.translate("player.self.permission.hasnt");
 	}
 
 	/**

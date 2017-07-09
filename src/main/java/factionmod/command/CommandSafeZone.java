@@ -6,6 +6,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.server.permission.PermissionAPI;
 import akka.japi.Pair;
 import factionmod.handler.EventHandlerChunk;
 import factionmod.manager.IChunkManager;
@@ -24,54 +25,61 @@ import factionmod.utils.MessageHelper;
  */
 public class CommandSafeZone extends CommandBase {
 
-	@Override
-	public String getName() {
-		return "safezone";
-	}
+    @Override
+    public String getName() {
+        return "safezone";
+    }
 
-	@Override
-	public String getUsage(ICommandSender sender) {
-		return "/safezone [remove]";
-	}
+    @Override
+    public String getUsage(ICommandSender sender) {
+        return "/safezone [remove]";
+    }
 
-	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		if (!(sender instanceof EntityPlayerMP))
-			throw new WrongUsageException("You have to be a player", new Object[0]);
+    @Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+        if (sender instanceof EntityPlayerMP)
+            return PermissionAPI.hasPermission((EntityPlayerMP) sender, "factionmod.command.safezone");
+        return true;
+    }
 
-		DimensionalPosition position = DimensionalPosition.from(sender);
-		if (args.length == 0) {
-			if (EventHandlerChunk.getManagerFor(position) != null) {
-				sender.sendMessage(MessageHelper.error("A chunk manager is already set to this chunk."));
-			} else {
-				String arguments = "";
-				for(String str : args) {
-					arguments += str + " ";
-				}
-				Pair<IChunkManager, ZoneInstance> pair = ChunkManagerCreator.createChunkHandler("safe", arguments);
-				if (pair == null) {
-					sender.sendMessage(MessageHelper.warn("Can't create a safezone, this zone doesn't exist anymore. Contact the administrator of the server."));
-				} else {
-					EventHandlerChunk.registerChunkManager(pair.first(), position, pair.second(), true);
-					sender.sendMessage(MessageHelper.info("A safe zone was created."));
-				}
-			}
-		} else if (args.length >= 1) {
-			if (args[0].equalsIgnoreCase("remove")) {
-				IChunkManager manager = EventHandlerChunk.getManagerFor(position);
-				if (manager == null)
-					sender.sendMessage(MessageHelper.info("Nothing to remove here."));
-				else if (!(manager instanceof ManagerSafeZone))
-					sender.sendMessage(MessageHelper.error("This chunk is not a safezone"));
-				else {
-					EventHandlerChunk.unregisterChunkManager(position, true);
-					sender.sendMessage(MessageHelper.info("Safe zone removed."));
-				}
+    @Override
+    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+        if (!(sender instanceof EntityPlayerMP))
+            throw new WrongUsageException("You have to be a player", new Object[0]);
 
-			} else {
-				throw new WrongUsageException("/safezone [remove]", new Object[0]);
-			}
-		}
-	}
+        DimensionalPosition position = DimensionalPosition.from(sender);
+        if (args.length == 0) {
+            if (EventHandlerChunk.getManagerFor(position) != null) {
+                sender.sendMessage(MessageHelper.error("A chunk manager is already set to this chunk."));
+            } else {
+                String arguments = "";
+                for(String str : args) {
+                    arguments += str + " ";
+                }
+                Pair<IChunkManager, ZoneInstance> pair = ChunkManagerCreator.createChunkHandler("safe", arguments);
+                if (pair == null) {
+                    sender.sendMessage(MessageHelper.warn("Can't create a safezone, this zone doesn't exist anymore. Contact the administrator of the server."));
+                } else {
+                    EventHandlerChunk.registerChunkManager(pair.first(), position, pair.second(), true);
+                    sender.sendMessage(MessageHelper.info("A safe zone was created."));
+                }
+            }
+        } else if (args.length >= 1) {
+            if (args[0].equalsIgnoreCase("remove")) {
+                IChunkManager manager = EventHandlerChunk.getManagerFor(position);
+                if (manager == null)
+                    sender.sendMessage(MessageHelper.info("Nothing to remove here."));
+                else if (!(manager instanceof ManagerSafeZone))
+                    sender.sendMessage(MessageHelper.error("This chunk is not a safezone"));
+                else {
+                    EventHandlerChunk.unregisterChunkManager(position, true);
+                    sender.sendMessage(MessageHelper.info("Safe zone removed."));
+                }
+
+            } else {
+                throw new WrongUsageException("/safezone [remove]", new Object[0]);
+            }
+        }
+    }
 
 }

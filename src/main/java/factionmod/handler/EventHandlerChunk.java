@@ -1,11 +1,20 @@
 package factionmod.handler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import factionmod.FactionMod;
+import factionmod.data.FactionModDatas;
+import factionmod.manager.IChunkManager;
+import factionmod.manager.instanciation.Zone;
+import factionmod.manager.instanciation.ZoneInstance;
+import factionmod.utils.DimensionalPosition;
+import factionmod.utils.ServerUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ClassInheritanceMultiMap;
@@ -32,12 +41,6 @@ import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
-import factionmod.FactionMod;
-import factionmod.manager.IChunkManager;
-import factionmod.manager.instanciation.Zone;
-import factionmod.manager.instanciation.ZoneInstance;
-import factionmod.utils.DimensionalPosition;
-import factionmod.utils.ServerUtils;
 
 /**
  * It handles everything which is relative to the management of the chunks of
@@ -101,6 +104,7 @@ public class EventHandlerChunk {
 		zoneInstances.put(pos, instance);
 		if (refreshPlayers)
 			checkForChunkNameUpdate(pos);
+		FactionModDatas.save();
 	}
 
 	/**
@@ -116,17 +120,11 @@ public class EventHandlerChunk {
 		zoneInstances.remove(pos);
 		if (refreshPlayers)
 			checkForChunkNameUpdate(pos);
+		FactionModDatas.save();
 	}
 
-	public static void clearRegistry() {
-		managers.clear();
-		zoneInstances.clear();
-		zoneMapping.clear();
-		chunkNamesCache.clear();
-	}
-
-	public static HashMap<DimensionalPosition, ZoneInstance> getZonesInstances() {
-		return zoneInstances;
+	public static Map<DimensionalPosition, ZoneInstance> getZonesInstances() {
+		return Collections.unmodifiableMap(zoneInstances);
 	}
 
 	/**

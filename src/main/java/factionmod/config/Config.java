@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map.Entry;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -14,14 +12,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
 import factionmod.FactionMod;
-import factionmod.faction.Faction;
-import factionmod.faction.Member;
 import factionmod.handler.EventHandlerChunk;
-import factionmod.handler.EventHandlerFaction;
-import factionmod.manager.IChunkManager;
 import factionmod.manager.instanciation.Zone;
-import factionmod.manager.instanciation.ZoneInstance;
-import factionmod.utils.DimensionalPosition;
 import factionmod.utils.ServerUtils;
 
 /**
@@ -76,123 +68,20 @@ public class Config {
     }
 
     /**
-     * Saves the chunk managers to a file.
-     */
-    public static void saveChunkManagers() {
-        ServerUtils.getProfiler().startSection("saveChunkManagers");
-
-        JsonArray root = new JsonArray();
-        for(Entry<DimensionalPosition, ZoneInstance> entry : EventHandlerChunk.getZonesInstances().entrySet()) {
-            JsonObject obj = new JsonObject();
-            obj.add("key", entry.getKey().toJson());
-            obj.add("value", entry.getValue().toJson());
-            root.add(obj);
-        }
-        writeFile("managers.json", root.toString());
-
-        ServerUtils.getProfiler().endSection();
-    }
-
-    /**
-     * Loads chunk managers from a file.
-     */
-    public static void loadChunkManagers() {
-        ServerUtils.getProfiler().startSection("loadChunkManagers");
-
-        HashMap<DimensionalPosition, ZoneInstance> map = new HashMap<DimensionalPosition, ZoneInstance>();
-
-        JsonElement element = getFile("managers.json");
-        if (element != null) {
-
-            JsonArray root = element.getAsJsonArray();
-
-            for(int i = 0; i < root.size(); i++) {
-                JsonObject obj = root.get(i).getAsJsonObject();
-                DimensionalPosition pos = DimensionalPosition.fromJson(obj.get("key").getAsJsonObject());
-                ZoneInstance instance = ZoneInstance.fromJson(obj.get("value").getAsJsonObject());
-                map.put(pos, instance);
-            }
-
-            for(Entry<DimensionalPosition, ZoneInstance> entry : map.entrySet()) {
-                DimensionalPosition pos = entry.getKey();
-                ZoneInstance instance = entry.getValue();
-                final Zone zone = EventHandlerChunk.getZone(instance.getZoneName());
-                if (zone != null) {
-                    IChunkManager manager;
-                    if (zone.isStandAlone()) {
-                        manager = zone.getInstance();
-                    } else {
-                        try {
-                            manager = zone.createInstance(instance.getArgs());
-                        } catch (Exception e) {
-                            String listArgs = "";
-                            for(String str : instance.getArgs()) {
-                                listArgs += str + " ";
-                            }
-                            FactionMod.getLogger().warn("Cannot instanciate the zone " + zone.getName() + " with args : " + listArgs);
-                            e.printStackTrace();
-                            continue;
-                        }
-                    }
-                    EventHandlerChunk.registerChunkManager(manager, pos, instance, false);
-                } else {
-                    FactionMod.getLogger().warn("Removed chunk manager at " + pos.toString() + " because the zone associated with it doens't exist.");
-                }
-            }
-        }
-
-        ServerUtils.getProfiler().endSection();
-    }
-
-    /**
-     * Saves the factions to a file.
-     */
-    public static void saveFactions() {
-        ServerUtils.getProfiler().startSection("saveFactions");
-
-        JsonArray root = new JsonArray();
-        for(Entry<String, Faction> entry : EventHandlerFaction.getFactions().entrySet()) {
-            root.add(entry.getValue().toJson());
-        }
-        writeFile("factions.json", root.toString());
-
-        ServerUtils.getProfiler().endSection();
-    }
-
-    /**
-     * Loads the differents factions from the config file.
-     */
-    public static void loadFactions() {
-        ServerUtils.getProfiler().startSection("loadFactions");
-
-        JsonElement file = getFile("factions.json");
-        if (file != null) {
-            JsonArray root = file.getAsJsonArray();
-            for(int i = 0; i < root.size(); i++) {
-                JsonObject entry = root.get(i).getAsJsonObject();
-                Faction faction = Faction.fromJson(entry);
-                EventHandlerFaction.addFaction(faction);
-                for(Member m : faction.getMembers()) {
-                    EventHandlerFaction.addUserToFaction(faction, m.getUUID());
-                }
-            }
-        }
-
-        ServerUtils.getProfiler().endSection();
-    }
-
-    /**
      * Loads all the parameters from the configuration file.
      */
     public static void loadConfigFile() {
         ServerUtils.getProfiler().startSection("loadConfiguration");
 
         JsonElement element = getFile("configuration.json");
+        if(element == null)
+            element = new JsonObject();
+        
         JsonObject expObj = new JsonObject();
-
         JsonObject languageObj = new JsonObject();
         JsonArray chestArray = new JsonArray();
-        if (element != null && element.isJsonObject()) {
+        
+        if (element.isJsonObject()) {
             JsonElement el;
             JsonObject root = element.getAsJsonObject();
             immunityLevel = ConfigExperience.getInt("immunity_level", root, 5);
@@ -221,7 +110,7 @@ public class Config {
             }
         }
         ConfigExperience.loadFromJson(expObj);
-        ConfigLanguage.loadFromJson(languageObj);
+        ConfigLang.loadFromJson(languageObj);
         ConfigFactionInventory.load(chestArray);
 
         ServerUtils.getProfiler().endSection();

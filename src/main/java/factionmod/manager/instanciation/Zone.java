@@ -2,11 +2,10 @@ package factionmod.manager.instanciation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 
-import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import factionmod.manager.IChunkManager;
 import factionmod.utils.ServerUtils;
+import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 
 /**
  * Reprensents a type of {@link IChunkManager}. A zone should be added through a
@@ -41,103 +40,79 @@ import factionmod.utils.ServerUtils;
  */
 public class Zone {
 
-	private String			name;
-	private boolean			standalone;
-	private IChunkManager	instance;
-	private Class<?>		clazz;
+    private String        name;
+    private boolean       standalone;
+    private IChunkManager instance;
+    private Class<?>      clazz;
 
-	public Zone(String name, String className) throws Exception {
-		ServerUtils.getProfiler().startSection("zoneCreation");
+    public Zone(String name, String className) throws Exception {
+        ServerUtils.getProfiler().startSection("zoneCreation");
 
-		this.name = name;
-		this.clazz = Class.forName(className);
-		ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>();
-		Class<?> superClass = this.clazz;
+        this.name = name;
+        this.clazz = Class.forName(className);
 
-		ServerUtils.getProfiler().startSection("interfacesParsing");
+        if (!IChunkManager.class.isAssignableFrom(this.clazz)) {
+            throw new Exception("The class " + this.clazz.getName() + " doesn't implements " + IChunkManager.class.getName() + ".");
+        }
+        if (this.clazz.getConstructors().length > 1) {
+            throw new Exception("The class " + this.clazz.getName() + " has multiple constructors.");
+        }
+        this.standalone = false;
 
-		do {
-			for(Class<?> c : superClass.getInterfaces()) {
-				interfaces.add(c);
-			}
-		} while ((superClass = superClass.getSuperclass()) != null);
+        ServerUtils.getProfiler().endSection();
+    }
 
-		ServerUtils.getProfiler().endSection();
+    public Zone(String name, String className, String instanceField) throws Exception {
+        ServerUtils.getProfiler().startSection("zoneCreation");
 
-		if (!interfaces.contains(IChunkManager.class)) {
-			throw new Exception("The class " + this.clazz.getName() + " doesn't implements " + IChunkManager.class.getName() + ".");
-		}
-		if (this.clazz.getConstructors().length > 1) {
-			throw new Exception("The class " + this.clazz.getName() + " has multiple constructors.");
-		}
-		this.standalone = false;
+        this.name = name;
+        Class<?> c = Class.forName(className);
+        Field f = c.getField(instanceField);
+        
+        if (!IChunkManager.class.isAssignableFrom(f.getType())) {
+            throw new Exception("The class " + f.getType().getName() + " doesn't implements " + IChunkManager.class.getName() + ".");
+        }
+        this.instance = (IChunkManager) f.get(null);
+        this.standalone = true;
 
-		ServerUtils.getProfiler().endSection();
-	}
+        ServerUtils.getProfiler().endSection();
+    }
 
-	public Zone(String name, String className, String instanceField) throws Exception {
-		ServerUtils.getProfiler().startSection("zoneCreation");
+    public String getName() {
+        return this.name;
+    }
 
-		this.name = name;
-		Class<?> c = Class.forName(className);
-		Field f = c.getField(instanceField);
-		ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>();
-		Class<?> superClass = f.getType();
+    /**
+     * Must be called only if {@link Zone#isStandAlone()} returns true.
+     * 
+     * @return The pre-instanciated IChunkManager
+     */
+    public IChunkManager getInstance() {
+        return this.instance;
+    }
 
-		ServerUtils.getProfiler().startSection("interfacesParsing");
+    /**
+     * Creates an instance of {@link IChunkManager} with the given arguments.
+     * Must be called only if {@link Zone#isStandAlone()} returns false.
+     * 
+     * @param args
+     *            The arguments to instanciate the IChunkManager
+     * @return A instance of an IChunkManager
+     * @throws Exception
+     */
+    public IChunkManager createInstance(String[] args) throws Exception {
+        Constructor<?> constructor = this.clazz.getConstructor(Class.forName("[Ljava.lang.String;"));
+        IChunkManager instance = (IChunkManager) constructor.newInstance(new Object[] { args });
+        return instance;
+    }
 
-		do {
-			for(Class<?> cl : superClass.getInterfaces()) {
-				interfaces.add(cl);
-			}
-		} while ((superClass = superClass.getSuperclass()) != null);
-
-		ServerUtils.getProfiler().endSection();
-
-		if (!interfaces.contains(IChunkManager.class)) {
-			throw new Exception("The class " + f.getType().getName() + " doesn't implements " + IChunkManager.class.getName() + ".");
-		}
-		this.instance = (IChunkManager) f.get(null);
-		this.standalone = true;
-
-		ServerUtils.getProfiler().endSection();
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	/**
-	 * Must be called only if {@link Zone#isStandAlone()} returns true.
-	 * 
-	 * @return The pre-instanciated IChunkManager
-	 */
-	public IChunkManager getInstance() {
-		return this.instance;
-	}
-
-	/**
-	 * Creates an instance of {@link IChunkManager} with the given arguments.
-	 * Must be called only if {@link Zone#isStandAlone()} returns false.
-	 * 
-	 * @param args
-	 *            The arguments to instanciate the IChunkManager
-	 * @return A instance of an IChunkManager
-	 * @throws Exception
-	 */
-	public IChunkManager createInstance(String[] args) throws Exception {
-		Constructor<?> constructor = this.clazz.getConstructor(Class.forName("[Ljava.lang.String;"));
-		IChunkManager instance = (IChunkManager) constructor.newInstance(new Object[] { args });
-		return instance;
-	}
-
-	/**
-	 * Indicates if the zone has a pre-instanciated {@link IChunkManager}.
-	 * 
-	 * @return true if the IChunkManager is pre-instanciated
-	 */
-	public boolean isStandAlone() {
-		return this.standalone;
-	}
+    /**
+     * Indicates if the zone has a pre-instanciated {@link IChunkManager}.
+     * 
+     * @return true if the IChunkManager is pre-instanciated
+     */
+    public boolean isStandAlone() {
+        return this.standalone;
+    }
 
 }

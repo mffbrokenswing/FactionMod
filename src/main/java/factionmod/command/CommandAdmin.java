@@ -1,14 +1,15 @@
 package factionmod.command;
 
+import factionmod.config.ConfigLang;
+import factionmod.handler.EventHandlerAdmin;
+import factionmod.utils.MessageHelper;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import factionmod.config.ConfigLanguage;
-import factionmod.handler.EventHandlerAdmin;
-import factionmod.utils.MessageHelper;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 /**
  * This command is only executable by the operators. It allows to become an
@@ -25,6 +26,13 @@ public class CommandAdmin extends CommandBase {
 	}
 
 	@Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+	    if (sender instanceof EntityPlayerMP)
+            return PermissionAPI.hasPermission((EntityPlayerMP) sender, "factionmod.command.admin");
+        return true;
+    }
+
+    @Override
 	public String getUsage(ICommandSender sender) {
 		return "/admin [on/off] [player]";
 	}
@@ -36,10 +44,10 @@ public class CommandAdmin extends CommandBase {
 			if (args.length == 0) {
 				if (EventHandlerAdmin.isAdmin(player)) {
 					EventHandlerAdmin.removeAdmin(player);
-					player.sendMessage(MessageHelper.info(ConfigLanguage.noLongerAdmin));
+					player.sendMessage(MessageHelper.info(ConfigLang.translate("player.self.admin.nolonger")));
 				} else {
 					EventHandlerAdmin.addAdmin(player);
-					player.sendMessage(MessageHelper.info(ConfigLanguage.nowAdmin));
+					player.sendMessage(MessageHelper.info(ConfigLang.translate("player.self.admin.became")));
 				}
 			} else if (args.length >= 1) {
 				boolean otherPlayer = args.length > 1;
@@ -52,15 +60,15 @@ public class CommandAdmin extends CommandBase {
 				if (args[0].equalsIgnoreCase("on")) {
 					EventHandlerAdmin.addAdmin(target);
 					if (target != player) {
-						player.sendMessage(MessageHelper.info(String.format(ConfigLanguage.playerNowAdmin, target.getName())));
+						player.sendMessage(MessageHelper.info(String.format(ConfigLang.translate("player.other.admin.became"), target.getName())));
 					}
-					target.sendMessage(MessageHelper.info(ConfigLanguage.nowAdmin));
+					target.sendMessage(MessageHelper.info(ConfigLang.translate("player.self.admin.became")));
 				} else if (args[0].equalsIgnoreCase("off")) {
 					EventHandlerAdmin.removeAdmin(target);
 					if (target != player) {
-						player.sendMessage(MessageHelper.info(String.format(ConfigLanguage.playerNoLongerAdmin, target.getName())));
+						player.sendMessage(MessageHelper.info(String.format(ConfigLang.translate("player.other.admin.nolonger"), target.getName())));
 					}
-					target.sendMessage(MessageHelper.info(ConfigLanguage.noLongerAdmin));
+					target.sendMessage(MessageHelper.info(ConfigLang.translate("player.self.admin.nolonger")));
 				} else {
 					throw new WrongUsageException("/admin [on/off] [player]", new Object[0]);
 				}

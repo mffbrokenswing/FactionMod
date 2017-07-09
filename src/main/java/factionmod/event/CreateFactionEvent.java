@@ -2,9 +2,9 @@ package factionmod.event;
 
 import java.util.UUID;
 
+import factionmod.config.ConfigLang;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import factionmod.config.ConfigLanguage;
 
 /**
  * Event called when a player tries to create a faction. The disponibility of
@@ -26,7 +26,7 @@ public class CreateFactionEvent extends Event {
 		this.name = name;
 		this.owner = owner;
 		this.description = description;
-		this.message = ConfigLanguage.missingPermission;
+		this.message = ConfigLang.translate("player.self.permission.hasnt");
 	}
 
 	/**

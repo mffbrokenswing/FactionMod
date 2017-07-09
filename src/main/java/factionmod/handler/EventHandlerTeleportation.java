@@ -5,6 +5,11 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import factionmod.FactionMod;
+import factionmod.config.ConfigLang;
+import factionmod.utils.MessageHelper;
+import factionmod.utils.ServerUtils;
+import factionmod.utils.TeleportationHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -12,11 +17,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
-import factionmod.FactionMod;
-import factionmod.config.ConfigLanguage;
-import factionmod.utils.MessageHelper;
-import factionmod.utils.ServerUtils;
-import factionmod.utils.TeleportationHelper;
 
 /**
  * Handles the teleportations delays.
@@ -92,7 +92,7 @@ public class EventHandlerTeleportation {
 	private static void sendPlayerMessage(UUID uuid, int remainingTime) {
 		EntityPlayer player = ServerUtils.getPlayer(uuid);
 		if (player != null) {
-			player.sendMessage(MessageHelper.info(String.format(ConfigLanguage.teleportionTimeRemaining, remainingTime + 1)));
+			player.sendMessage(MessageHelper.info(String.format(ConfigLang.translate("teleportation.time.remaining"), remainingTime + 1)));
 		}
 	}
 
@@ -128,7 +128,7 @@ public class EventHandlerTeleportation {
 			standingPositions.remove(uuid);
 			EntityPlayer player = ServerUtils.getPlayer(uuid);
 			if (player != null) {
-				player.sendMessage(MessageHelper.warn(ConfigLanguage.teleportationCanceled));
+				player.sendMessage(MessageHelper.warn(ConfigLang.translate("teleportation.canceled")));
 			}
 		}
 	}

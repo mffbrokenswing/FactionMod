@@ -2,11 +2,11 @@ package factionmod.event;
 
 import java.util.UUID;
 
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import factionmod.config.ConfigLanguage;
+import factionmod.config.ConfigLang;
 import factionmod.faction.Faction;
 import factionmod.utils.DimensionalPosition;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * This event is fired when a player claims a chunk for a chunk. Cancel this
@@ -27,7 +27,7 @@ public class ClaimChunkEvent extends Event {
 		this.faction = faction;
 		this.playerUUID = playerUUID;
 		this.position = position;
-		this.message = ConfigLanguage.missingPermission;
+		this.message = ConfigLang.translate("player.self.permission.hasnt");
 	}
 
 	/**
