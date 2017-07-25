@@ -28,8 +28,9 @@ import net.minecraftforge.common.util.Constants.NBT;
  */
 public class FactionModDatas extends WorldSavedData {
 
-    public static final String     NAME = FactionMod.MODID;
-    private static FactionModDatas SAVE = new FactionModDatas(NAME);
+    public static final String     DATA_VERSION = "1";
+    public static final String     NAME         = FactionMod.MODID;
+    private static FactionModDatas SAVE         = new FactionModDatas(NAME);
 
     public static void save() {
         SAVE.markDirty();
@@ -104,6 +105,7 @@ public class FactionModDatas extends WorldSavedData {
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+        nbt.setString("version", DATA_VERSION);
         NBTTagList managersList = new NBTTagList();
         for(Entry<DimensionalPosition, ZoneInstance> entry : EventHandlerChunk.getZonesInstances().entrySet()) {
             NBTTagCompound compound = new NBTTagCompound();

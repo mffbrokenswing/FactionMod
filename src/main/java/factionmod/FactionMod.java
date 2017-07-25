@@ -10,6 +10,7 @@ import factionmod.command.CommandWarZone;
 import factionmod.config.Config;
 import factionmod.data.FactionModDatas;
 import factionmod.handler.EventHandlerChunk;
+import factionmod.network.ModNetwork;
 import factionmod.utils.ServerUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -18,8 +19,6 @@ import net.minecraftforge.fml.common.event.FMLInterModComms.IMCEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
 
@@ -36,17 +35,6 @@ public class FactionMod {
 
     private static String               configDir;
     private static Logger               logger = null;
-    private static SimpleNetworkWrapper network;
-
-    /**
-     * Returns the network of the mod. Its name is the same as the mod ID of the
-     * mod.
-     * 
-     * @return the network
-     */
-    public static SimpleNetworkWrapper getNetwork() {
-        return network;
-    }
 
     /**
      * Returns the logger of the mod.
@@ -95,8 +83,8 @@ public class FactionMod {
         Config.loadZones("zones.json");
 
         ServerUtils.getProfiler().endSection();
-
-        network = NetworkRegistry.INSTANCE.newSimpleChannel(FactionMod.MODID);
+        
+        ModNetwork.registerPackets();
 
         ServerUtils.getProfiler().endSection();
     }
