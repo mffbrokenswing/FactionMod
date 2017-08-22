@@ -833,12 +833,12 @@ public class EventHandlerFaction {
         if (manager instanceof ManagerFaction) {
             ManagerFaction fManager = (ManagerFaction) manager;
             int i = 0;
-            int x = position.getPos().chunkXPos;
-            int z = position.getPos().chunkZPos;
+            int x = position.getPos().x;
+            int z = position.getPos().z;
             for(DimensionalPosition pos : fManager.getFaction().getChunks()) {
                 if (pos.getDimension() == position.getDimension()) {
-                    int x2 = pos.getPos().chunkXPos;
-                    int z2 = pos.getPos().chunkZPos;
+                    int x2 = pos.getPos().x;
+                    int z2 = pos.getPos().z;
                     if (x2 == x)
                         if (z2 == z - 1 || z2 == z + 1)
                             i++;

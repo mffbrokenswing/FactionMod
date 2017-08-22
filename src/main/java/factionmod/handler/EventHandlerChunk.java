@@ -360,8 +360,8 @@ public class EventHandlerChunk {
      *            The position of the chunk
      */
     private static void refreshPlayersDisplays(DimensionalPosition position) {
-        World world = ServerUtils.getServer().worldServerForDimension(position.getDimension());
-        Chunk chunk = world.getChunkFromChunkCoords(position.getPos().chunkXPos, position.getPos().chunkZPos);
+        World world = ServerUtils.getServer().getWorld(position.getDimension());
+        Chunk chunk = world.getChunkFromChunkCoords(position.getPos().x, position.getPos().z);
         ClassInheritanceMultiMap<Entity>[] list = chunk.getEntityLists();
         for(int i = 0; i < list.length; i++) {
             for(Entity entity : list[i]) {

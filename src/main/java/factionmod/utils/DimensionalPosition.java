@@ -24,7 +24,7 @@ public class DimensionalPosition implements INBTSerializable<NBTTagCompound> {
     }
 
     public DimensionalPosition(ChunkPos pos, int dimension) {
-        this.pos = new ChunkPos(pos.chunkXPos, pos.chunkZPos);
+        this.pos = new ChunkPos(pos.x, pos.z);
         this.dimension = dimension;
     }
 
@@ -85,8 +85,8 @@ public class DimensionalPosition implements INBTSerializable<NBTTagCompound> {
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setInteger("x", this.pos.chunkXPos);
-        nbt.setInteger("z", this.pos.chunkZPos);
+        nbt.setInteger("x", this.pos.x);
+        nbt.setInteger("z", this.pos.z);
         nbt.setInteger("dim", this.dimension);
         return nbt;
     }

@@ -2,16 +2,15 @@ package factionmod.config;
 
 import java.util.ArrayList;
 
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.common.registry.IForgeRegistry;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import factionmod.utils.ServerUtils;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 
 /**
  * This class contains the configuration relative to the faction chest.
@@ -36,7 +35,7 @@ public class ConfigFactionInventory {
 	public static void load(JsonArray list) {
 		ServerUtils.getProfiler().startSection("inventory");
 
-		IForgeRegistry<Item> registry = GameRegistry.findRegistry(Item.class);
+		IForgeRegistry<Item> registry = ForgeRegistries.ITEMS;
 		for(int i = 0; i < list.size(); i++) {
 			JsonElement el = list.get(i);
 			if (el.isJsonPrimitive()) {

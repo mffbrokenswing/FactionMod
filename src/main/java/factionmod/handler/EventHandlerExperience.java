@@ -37,7 +37,7 @@ public class EventHandlerExperience {
     @SubscribeEvent
     public static void playerKillEntity(LivingDeathEvent event) {
         if (event.getSource().getDamageType().equals("player")) {
-            EntityPlayerMP player = (EntityPlayerMP) event.getSource().getEntity();
+            EntityPlayerMP player = (EntityPlayerMP) event.getSource().getTrueSource();
             if (!EventHandlerFaction.hasUserFaction(player.getUniqueID()))
                 return;
             Faction faction = EventHandlerFaction.getFaction(EventHandlerFaction.getFactionOf(player.getUniqueID()));
