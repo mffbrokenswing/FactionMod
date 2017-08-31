@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 
 import factionmod.command.utils.AutoCompleter;
 import factionmod.command.utils.UUIDHelper;
-import factionmod.config.Config;
+import factionmod.config.ConfigGeneral;
 import factionmod.config.ConfigLang;
 import factionmod.enums.EnumPermission;
 import factionmod.faction.Faction;
@@ -125,17 +125,17 @@ public class CommandFaction extends CommandBase {
                     desc += args[i] + " ";
                 }
                 boolean descCutted = false;
-                if (desc.length() > Config.factionDescriptionMaxLength) {
+                if (desc.length() > ConfigGeneral.getInt("faction_description_max_length")) {
                     descCutted = true;
-                    desc.substring(0, Config.factionDescriptionMaxLength);
+                    desc.substring(0, ConfigGeneral.getInt("faction_description_max_length"));
                 }
-                if (name.length() > Config.factionNameMaxLength) {
-                    sender.sendMessage(MessageHelper.error(String.format(ConfigLang.translate("faction.create.name.error.length"), Config.factionNameMaxLength)));
+                if (name.length() > ConfigGeneral.getInt("faction_name_max_length")) {
+                    sender.sendMessage(MessageHelper.error(String.format(ConfigLang.translate("faction.create.name.error.length"), ConfigGeneral.getInt("faction_name_max_length"))));
                     return;
                 }
                 ActionResult<String> ret = EventHandlerFaction.createFaction(name, desc, ((EntityPlayer) sender).getPersistentID());
                 if (ret.getType().equals(EnumActionResult.SUCCESS) && descCutted) {
-                    sender.sendMessage(MessageHelper.warn(String.format(ConfigLang.translate("faction.desc.warn.length"), Config.factionDescriptionMaxLength)));
+                    sender.sendMessage(MessageHelper.warn(String.format(ConfigLang.translate("faction.desc.warn.length"), ConfigGeneral.getInt("faction_description_max_length"))));
                     sender.sendMessage(MessageHelper.info(ret.getResult()));
                 }
                 handleResponse(ret, player);
@@ -271,13 +271,13 @@ public class CommandFaction extends CommandBase {
                     desc += args[i] + " ";
                 }
                 boolean descCutted = false;
-                if (desc.length() > Config.factionDescriptionMaxLength) {
+                if (desc.length() > ConfigGeneral.getInt("faction_description_max_length")) {
                     descCutted = true;
-                    desc.substring(0, Config.factionDescriptionMaxLength);
+                    desc.substring(0, ConfigGeneral.getInt("faction_description_max_length"));
                 }
                 ActionResult<String> ret = EventHandlerFaction.changeDescriptionOfFaction(target, desc, player.getUniqueID());
                 if (ret.getType().equals(EnumActionResult.SUCCESS) && descCutted) {
-                    sender.sendMessage(MessageHelper.warn(String.format(ConfigLang.translate("faction.desc.warn.length"), Config.factionDescriptionMaxLength)));
+                    sender.sendMessage(MessageHelper.warn(String.format(ConfigLang.translate("faction.desc.warn.length"), ConfigGeneral.getInt("faction_description_max_length"))));
                     sender.sendMessage(MessageHelper.info(ret.getResult()));
                 }
                 handleResponse(result, player);

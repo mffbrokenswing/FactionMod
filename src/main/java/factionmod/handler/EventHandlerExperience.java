@@ -45,14 +45,14 @@ public class EventHandlerExperience {
             if (target instanceof EntityPlayerMP) {
                 if (EventHandlerFaction.hasUserFaction(target.getUniqueID())) {
                     FactionAPI.getFactionOf(target.getUniqueID()).damageFaction(1);
-                    addExp(faction, ConfigExperience.killEnemy, player.getUniqueID());
+                    addExp(faction, ConfigExperience.getExpFor("kill_enemy"), player.getUniqueID());
                 }
             } else if (target instanceof EntityWitherSkeleton) {
-                addExp(faction, ConfigExperience.killWitherSkeleton, player.getUniqueID());
+                addExp(faction, ConfigExperience.getExpFor("kill_wither_skeleton"), player.getUniqueID());
             } else if (target instanceof EntityWither) {
-                addExp(faction, ConfigExperience.killWither, player.getUniqueID());
+                addExp(faction, ConfigExperience.getExpFor("kill_wither"), player.getUniqueID());
             } else if (target instanceof EntityDragon) {
-                addExp(faction, ConfigExperience.killDragon, player.getUniqueID());
+                addExp(faction, ConfigExperience.getExpFor("kill_dragon"), player.getUniqueID());
             }
         }
     }

@@ -7,7 +7,7 @@ import factionmod.command.CommandFaction;
 import factionmod.command.CommandReloadConfig;
 import factionmod.command.CommandSafeZone;
 import factionmod.command.CommandWarZone;
-import factionmod.config.Config;
+import factionmod.config.ConfigLoader;
 import factionmod.data.FactionModDatas;
 import factionmod.handler.EventHandlerChunk;
 import factionmod.network.ModNetwork;
@@ -63,8 +63,8 @@ public class FactionMod {
 
         ServerUtils.getProfiler().startSection(MODID);
 
-        Config.initDirectory();
-        Config.loadConfigFile();
+        ConfigLoader.initDirectory();
+        ConfigLoader.loadConfigFile();
 
         ServerUtils.getProfiler().endSection();
     }
@@ -80,7 +80,7 @@ public class FactionMod {
         PermissionAPI.registerNode("factionmod.command.safezone", DefaultPermissionLevel.OP, "Permission to execute the command /safezone");
         PermissionAPI.registerNode("factionmod.command.warzone", DefaultPermissionLevel.OP, "Permission to execute the command /warzone");
 
-        Config.loadZones("zones.json");
+        ConfigLoader.loadZones("zones.json");
 
         ServerUtils.getProfiler().endSection();
         
@@ -99,7 +99,7 @@ public class FactionMod {
                 String fileName = message.getStringValue();
                 if (!fileName.contains("\\") && !fileName.contains("/")) {
                     ServerUtils.getProfiler().startSection("configuration");
-                    Config.loadZones(fileName);
+                    ConfigLoader.loadZones(fileName);
                     ServerUtils.getProfiler().endSection();
                 } else {
                     FactionMod.getLogger().warn("The file containing the zones have to be directly in the config directory.");

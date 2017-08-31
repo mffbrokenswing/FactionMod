@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import factionmod.config.Config;
+import factionmod.config.ConfigGeneral;
 import factionmod.data.FactionModDatas;
 import factionmod.event.FactionLevelUpEvent;
 import factionmod.event.GradeChangeEvent;
@@ -81,8 +81,8 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
         if (damage <= 0)
             return;
         this.damages += damage;
-        if (damages > Config.maxFactionDamages)
-            damages = Config.maxFactionDamages;
+        if (damages > ConfigGeneral.getInt("max_faction_damages"))
+            damages = ConfigGeneral.getInt("max_faction_damages");
         FactionModDatas.save();
     }
 

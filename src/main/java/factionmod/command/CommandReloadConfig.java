@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import factionmod.config.Config;
+import factionmod.config.ConfigLoader;
 import factionmod.utils.MessageHelper;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -38,7 +38,7 @@ public class CommandReloadConfig implements ICommand {
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-        Config.loadConfigFile();
+        ConfigLoader.loadConfigFile();
         sender.sendMessage(MessageHelper.info("Configuration reloaded !"));
     }
 

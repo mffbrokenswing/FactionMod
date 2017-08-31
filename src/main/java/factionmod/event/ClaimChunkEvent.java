@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
- * This event is fired when a player claims a chunk for a chunk. Cancel this
+ * This event is fired when a player claims a chunk for a faction. Cancel this
  * event will prevent the claim.
  * 
  * @author BrokenSwing

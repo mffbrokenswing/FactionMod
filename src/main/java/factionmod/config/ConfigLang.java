@@ -8,11 +8,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import factionmod.utils.ServerUtils;
+import net.minecraftforge.common.config.Configuration;
 
 public class ConfigLang {
 
-    private static final HashMap<String, String> translations = new HashMap<String, String>();
-    static {
+    private static final HashMap<String, String> TRANSLATIONS = new HashMap<String, String>();
+
+    private static HashMap<String, String> init() {
+        HashMap<String, String> translations = new HashMap<>();
         translations.put("admin.prefix", "[F-ADMIN]");
 
         translations.put("faction.levelup", "Your faction reached the level %s. Now you can have %s chunks claimed.");
@@ -79,23 +82,60 @@ public class ConfigLang {
 
         translations.put("teleportation.time.remaining", "You will be teleported in %s seconds.");
         translations.put("teleportation.canceled", "Your teleportation was canceled.");
+
+        return translations;
     }
 
+    /**
+     * Translates the given key. If it doesn't exist, it returns the key.
+     * 
+     * @param key
+     *            The key to translate
+     * @return the translation
+     */
     public static String translate(String key) {
-        return translations.containsKey(key) ? translations.get(key) : key;
+        return TRANSLATIONS.containsKey(key) ? TRANSLATIONS.get(key) : key;
     }
 
+    /**
+     * Loads the configuratio of the language from the JSON configuration file.
+     * 
+     * @param obj
+     *            The language JSON object
+     */
     public static void loadFromJson(JsonObject obj) {
         ServerUtils.getProfiler().startSection("language");
+
+        TRANSLATIONS.clear();
+        init().forEach(TRANSLATIONS::put);
 
         for(Entry<String, JsonElement> entry : obj.entrySet()) {
             if (entry.getValue().isJsonPrimitive()) {
                 JsonPrimitive prim = entry.getValue().getAsJsonPrimitive();
                 if (prim.isString()) {
-                    translations.put(entry.getKey(), prim.getAsString());
+                    TRANSLATIONS.put(entry.getKey(), prim.getAsString());
                 }
             }
         }
+
+        ServerUtils.getProfiler().endSection();
+    }
+
+    private static final String CAT = "language";
+
+    /**
+     * Loads the configuration for the language from the configuration provided
+     * by Forge system.
+     * 
+     * @param config
+     *            The configuration
+     */
+    public static void loadFromConfig(Configuration config) {
+        ServerUtils.getProfiler().startSection("language");
+
+        TRANSLATIONS.clear();
+        HashMap<String, String> temp = init();
+        temp.forEach((key, value) -> TRANSLATIONS.put(key, config.get(CAT, key, value).getString()));
 
         ServerUtils.getProfiler().endSection();
     }

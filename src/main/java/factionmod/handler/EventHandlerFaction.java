@@ -12,7 +12,8 @@ import com.google.common.collect.Lists;
 import akka.japi.Pair;
 import factionmod.FactionMod;
 import factionmod.command.utils.UUIDHelper;
-import factionmod.config.Config;
+import factionmod.config.ConfigLoader;
+import factionmod.config.ConfigGeneral;
 import factionmod.config.ConfigLang;
 import factionmod.data.FactionModDatas;
 import factionmod.enums.EnumPermission;
@@ -101,7 +102,7 @@ public class EventHandlerFaction {
     // ------------ Fonctions returning informations about Maps ------------
 
     /**
-     * Should not be used from an other class than {@link Config} !
+     * Should not be used from an other class than {@link ConfigLoader} !
      * 
      * @return
      */
@@ -548,7 +549,7 @@ public class EventHandlerFaction {
         ManagerFaction m = (ManagerFaction) manager;
         Faction faction = m.getFaction();
         boolean isMember = faction.isMember(member);
-        boolean overClaim = faction.getDamages() >= Config.damagesNeededToCounterClaim && isChunkAtEdge(position);
+        boolean overClaim = faction.getDamages() >= ConfigGeneral.getInt("damages_needed_to_counter_claim") && isChunkAtEdge(position) && !isMember;
         if (!isAdmin && !overClaim && !isMember)
             return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLang.translate("player.self.member.isnt"), faction.getName()));
         if (!isAdmin && isMember && !faction.getMember(member).hasPermission(EnumPermission.CLAIM_CHUNK))
@@ -556,7 +557,7 @@ public class EventHandlerFaction {
         EventHandlerChunk.unregisterChunkManager(position, true);
         faction.removeChunk(position);
         if (overClaim)
-            faction.decreaseDamages(Config.damagesNeededToCounterClaim);
+            faction.decreaseDamages(ConfigGeneral.getInt("damages_needed_to_counter_claim"));
         MinecraftForge.EVENT_BUS.post(new UnclaimChunkEvent(faction, member, position));
         return new ActionResult<String>(EnumActionResult.SUCCESS, ConfigLang.translate("faction.unclaim.success"));
     }
@@ -674,7 +675,7 @@ public class EventHandlerFaction {
         HomeTeleportationEvent event = new HomeTeleportationEvent(faction, player);
         if (MinecraftForge.EVENT_BUS.post(event))
             return new ActionResult<String>(EnumActionResult.FAIL, event.getMessage());
-        TeleportationHelper.teleport(player, pos.getPosition(), Config.teleportationDelay);
+        TeleportationHelper.teleport(player, pos.getPosition(), ConfigGeneral.getInt("teleportation_delay"));
         return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLang.translate("faction.home.success.start"), faction.getName()));
     }
 

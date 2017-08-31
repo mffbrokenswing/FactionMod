@@ -6,6 +6,12 @@ import factionmod.faction.Faction;
 import factionmod.faction.Grade;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
+/**
+ * This event is fired when the grade of a player changes.
+ * 
+ * @author BrokenSwing
+ *
+ */
 public class GradeChangeEvent extends Event {
 
     private Faction faction;
