@@ -41,13 +41,19 @@ import net.minecraftforge.server.permission.PermissionAPI;
  */
 public class CommandFaction extends CommandBase {
 
+    private static final String[] IN_FACTION_COMMANDS  = { "disband", "invite", "leave", "open", "claim", "unclaim", "sethome", "info", "home", "kick", "set-grade", "remove-grade", "list-grade", "promote", "chest", "desc" };
+    private static final String   USAGE_IN_FACTION     = "<" + String.join(" ", IN_FACTION_COMMANDS) + ">";
+
+    private static final String[] OUT_FACTION_COMMANDS = { "create", "join", "info" };
+    private static final String   USAGE_OUT_FACTION    = "<" + String.join(" ", OUT_FACTION_COMMANDS) + ">";
+
     @Override
     public int getRequiredPermissionLevel() {
         return 0;
     }
 
     @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+    public boolean checkPermission(final MinecraftServer server, final ICommandSender sender) {
         if (sender instanceof EntityPlayerMP)
             return PermissionAPI.hasPermission((EntityPlayerMP) sender, "factionmod.command.faction");
         return true;
@@ -59,14 +65,14 @@ public class CommandFaction extends CommandBase {
     }
 
     @Override
-    public String getUsage(ICommandSender sender) {
+    public String getUsage(final ICommandSender sender) {
         if (sender instanceof EntityPlayerMP) {
-            EntityPlayerMP player = (EntityPlayerMP) sender;
+            final EntityPlayerMP player = (EntityPlayerMP) sender;
             if (EventHandlerAdmin.isAdmin(player.getUniqueID()))
-                return "/faction <faction> <disband | invite | leave | open | claim | sethome | info | home | kick | set-grade | chest | desc>";
+                return "/faction <faction> " + USAGE_IN_FACTION;
             if (EventHandlerFaction.hasUserFaction(player.getUniqueID()))
-                return "/faction <disband | invite | leave | open | claim | sethome | info | home | kick | set-grade | chest | desc>";
-            return "/faction <create | join | info>";
+                return "/faction " + USAGE_IN_FACTION;
+            return "/faction " + USAGE_OUT_FACTION;
         }
         return "You have to be player.";
     }
@@ -91,15 +97,16 @@ public class CommandFaction extends CommandBase {
      * <li>{@code /faction remove-grade <grade>}</li>
      * <li>{@code /faction chest}</li>
      * <li>{@code /faction desc <description>}</li>
+     * <li>{@code /faction list-grade}</li>
      * </ul>
      */
     @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+    public void execute(final MinecraftServer server, final ICommandSender sender, String[] args) throws CommandException {
         if (!(sender instanceof EntityPlayerMP))
             throw new WrongUsageException(this.getUsage(sender));
 
-        EntityPlayerMP player = (EntityPlayerMP) sender;
-        boolean admin = EventHandlerAdmin.isAdmin(player.getUniqueID());
+        final EntityPlayerMP player = (EntityPlayerMP) sender;
+        final boolean admin = EventHandlerAdmin.isAdmin(player.getUniqueID());
 
         if (admin && args.length < 2 || args.length < 1)
             throw new WrongUsageException(this.getUsage(sender));
@@ -286,6 +293,18 @@ public class CommandFaction extends CommandBase {
             }
         }
 
+        // Faction grades listing
+        else if (args[0].equalsIgnoreCase("list-grade")) {
+            ActionResult<List<String>> ret = EventHandlerFaction.getGradesListFor(target);
+            if (ret.getType() == EnumActionResult.FAIL) {
+                player.sendMessage(MessageHelper.error(ret.getResult().get(0)));
+            } else {
+                for(String message : ret.getResult()) {
+                    player.sendMessage(new TextComponentString(message));
+                }
+            }
+        }
+
         else {
             throw new WrongUsageException(this.getUsage(sender));
         }
@@ -315,7 +334,7 @@ public class CommandFaction extends CommandBase {
 
         if (!hasUserFaction(player.getUniqueID())) {
             if (args.length == 1)
-                return AutoCompleter.complete(args[0], new String[] { "create", "join", "info" });
+                return AutoCompleter.complete(args[0], OUT_FACTION_COMMANDS);
 
             if (args.length == 2)
                 if (args[0].equalsIgnoreCase("join") || args[0].equalsIgnoreCase("info"))
@@ -333,7 +352,7 @@ public class CommandFaction extends CommandBase {
             Faction faction = getFaction(getFactionOf(player.getUniqueID()));
 
             if (args.length == 1)
-                return AutoCompleter.complete(args[0], new String[] { "desc", "disband", "invite", "open", "leave", "kick", "claim", "unclaim", "sethome", "home", "set-grade", "remove-grade", "promote", "info", "chest" });
+                return AutoCompleter.complete(args[0], IN_FACTION_COMMANDS);
             if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("remove-grade")) {
                     List<Grade> grades = faction.getGrades();

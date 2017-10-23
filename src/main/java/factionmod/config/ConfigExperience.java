@@ -6,9 +6,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import factionmod.FactionMod;
 import factionmod.utils.ServerUtils;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 
 /**
  * It's the configuration of the experience earned when doing specific actions.
@@ -18,7 +23,8 @@ import net.minecraftforge.common.config.Property;
  */
 public class ConfigExperience {
 
-    private static final HashMap<String, Integer> EXP_VALUES = new HashMap<>();
+    private static final HashMap<String, Integer> EXP_VALUES    = new HashMap<>();
+    private static final HashMap<String, String>  STRING_VALUES = new HashMap<>();
 
     /**
      * Loads all the values from a {@link JsonObject}.
@@ -26,9 +32,9 @@ public class ConfigExperience {
      * @param element
      *            The JsonObject
      */
-    public static void loadFromJson(JsonObject element) {
+    public static void loadFromJson(final JsonObject element) {
         ServerUtils.getProfiler().startSection("experience");
-        
+
         EXP_VALUES.clear();
 
         EXP_VALUES.put("kill_dragon", getInt("kill_dragon", element, 2000));
@@ -48,28 +54,45 @@ public class ConfigExperience {
      * @param config
      *            The configuration
      */
-    public static void loadFromConfig(Configuration config) {
+    public static void loadFromConfig(final Configuration config) {
         ServerUtils.getProfiler().startSection("experience");
-        
+
         EXP_VALUES.clear();
+        STRING_VALUES.clear();
 
         Property p;
-
-        p = config.get(CAT, "kill_dragon", 2000);
-        p.setComment("Experience earned when a player kills the Ender Dragon");
-        EXP_VALUES.put("kill_dragon", p.getInt());
-
-        p = config.get(CAT, "kill_wither_skeleton", 3);
-        p.setComment("Experience earned when a player kills a Wither Skeleton");
-        EXP_VALUES.put("kill_wither_skeleton", p.getInt());
-
-        p = config.get(CAT, "kill_wither", 400);
-        p.setComment("Experience earned when a player kills a Wither Boss");
-        EXP_VALUES.put("kill_wither", p.getInt());
 
         p = config.get(CAT, "kill_enemy", 7);
         p.setComment("Experience earned when a player kills a player of an other faction");
         EXP_VALUES.put("kill_enemy", p.getInt());
+
+        final IForgeRegistry<EntityEntry> registry = ForgeRegistries.ENTITIES;
+
+        config.getCategory(CAT).forEach((name, prop) -> {
+            if (name.startsWith("kill_") && !name.equals("kill_enemy")) {
+                final String value = name.substring(5).replaceFirst("_", ":");
+
+                if (value.trim().isEmpty())
+                    return;
+
+                if (registry.containsKey(new ResourceLocation(value))) {
+                    prop.setComment("Experience earned when killing " + value);
+                    EXP_VALUES.put("kill_" + value, prop.getInt());
+                    FactionMod.getLogger().debug("The amount of experience earned when killing " + value + " is set to " + prop.getInt());
+                } else {
+                    prop.setComment("Warning : " + value + " is not a valid entity");
+                    FactionMod.getLogger().warn("The entity " + value + " doesn't exists. Remember to indicate the modid");
+                }
+            }
+        });
+
+        p = config.get(CAT, "experience_from_level", "100 + (%1$s * %1$s * LOG(%1$s)) / 8");
+        p.setComment("The expression for the amount of experience needed to reach the level which is represented by %1$s");
+        STRING_VALUES.put("experience_from_level", p.getString());
+
+        p = config.get(CAT, "chunk_count_from_level", "1.3 * %1$s + 3");
+        p.setComment("The maximum of chunk a faction can have at the level which is represented by %1$s");
+        STRING_VALUES.put("chunk_count_from_level", p.getString());
 
         ServerUtils.getProfiler().endSection();
     }
@@ -81,8 +104,19 @@ public class ConfigExperience {
      *            The action
      * @return the amount of experience earned
      */
-    public static int getExpFor(String action) {
+    public static int getExpFor(final String action) {
         return EXP_VALUES.containsKey(action) ? EXP_VALUES.get(action).intValue() : 0;
+    }
+
+    /**
+     * Returns the expression with the specified name
+     * 
+     * @param name
+     *            The name of the expression
+     * @return the expression
+     */
+    public static String getExpression(final String name) {
+        return STRING_VALUES.containsKey(name) ? STRING_VALUES.get(name) : "";
     }
 
     /**
@@ -97,11 +131,11 @@ public class ConfigExperience {
      *            The default value
      * @return the readed value or the default value
      */
-    public static int getInt(String name, JsonObject element, int defaultValue) {
+    public static int getInt(final String name, final JsonObject element, final int defaultValue) {
         if (element.has(name)) {
-            JsonElement el = element.get(name);
+            final JsonElement el = element.get(name);
             if (el.isJsonPrimitive()) {
-                JsonPrimitive prim = el.getAsJsonPrimitive();
+                final JsonPrimitive prim = el.getAsJsonPrimitive();
                 if (prim.isNumber()) {
                     return prim.getAsInt();
                 }

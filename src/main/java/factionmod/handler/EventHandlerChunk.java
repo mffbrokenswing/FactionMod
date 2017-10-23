@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import factionmod.FactionMod;
@@ -21,6 +22,7 @@ import factionmod.utils.ServerUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -58,18 +60,18 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 public class EventHandlerChunk {
 
     /** Links all chunks to its manager */
-    private static final HashMap<DimensionalPosition, IChunkManager> managers        = new HashMap<DimensionalPosition, IChunkManager>();
+    private static final HashMap<DimensionalPosition, IChunkManager> MANAGERS         = new HashMap<DimensionalPosition, IChunkManager>();
     /**
      * Links all chunks to a {@link ZoneInstance} to recreate the manager when
      * reloading the server
      */
-    private static final HashMap<DimensionalPosition, ZoneInstance>  zoneInstances   = new HashMap<DimensionalPosition, ZoneInstance>();
+    private static final HashMap<DimensionalPosition, ZoneInstance>  ZONE_INSTANCES   = new HashMap<DimensionalPosition, ZoneInstance>();
     /**
      * Links all the players with the name of the last manager which handled him
      */
-    private static final HashMap<UUID, String>                       chunkNamesCache = new HashMap<UUID, String>();
+    private static final HashMap<UUID, String>                       CHUNK_NAME_CACHE = new HashMap<UUID, String>();
     /** Links each {@link Zone} with his name */
-    private static final HashMap<String, Zone>                       zoneMapping     = new HashMap<String, Zone>();
+    private static final HashMap<String, Zone>                       ZONE_MAPPING     = new HashMap<String, Zone>();
 
     /**
      * Registers a {@link Zone}.
@@ -78,7 +80,16 @@ public class EventHandlerChunk {
      *            The zone to register
      */
     public static void registerZone(Zone zone) {
-        zoneMapping.put(zone.getName(), zone);
+        ZONE_MAPPING.put(zone.getName(), zone);
+    }
+
+    /**
+     * Returns a set containing all the names of the zones.
+     * 
+     * @return an unmodifiable set of String
+     */
+    public static Set<String> getZonesNames() {
+        return Collections.unmodifiableSet(ZONE_MAPPING.keySet());
     }
 
     /**
@@ -89,7 +100,7 @@ public class EventHandlerChunk {
      * @return The instance of the zone
      */
     public static Zone getZone(String name) {
-        return zoneMapping.get(name);
+        return ZONE_MAPPING.get(name);
     }
 
     /**
@@ -105,8 +116,8 @@ public class EventHandlerChunk {
      *            Set it to true if the name of the chunk should be refresh
      */
     public static void registerChunkManager(IChunkManager manager, DimensionalPosition pos, ZoneInstance instance, boolean refreshPlayers) {
-        managers.put(pos, manager);
-        zoneInstances.put(pos, instance);
+        MANAGERS.put(pos, manager);
+        ZONE_INSTANCES.put(pos, instance);
         if (refreshPlayers) {
             refreshPlayersDisplays(pos);
             sendChunkDatasToPlayers(pos, manager, instance);
@@ -123,8 +134,8 @@ public class EventHandlerChunk {
      *            Set it to true if the name of the chunk should be refresh
      */
     public static void unregisterChunkManager(DimensionalPosition pos, boolean refreshPlayers) {
-        managers.remove(pos);
-        zoneInstances.remove(pos);
+        MANAGERS.remove(pos);
+        ZONE_INSTANCES.remove(pos);
         if (refreshPlayers) {
             refreshPlayersDisplays(pos);
             sendChunkDatasToPlayers(pos, null, null);
@@ -133,7 +144,7 @@ public class EventHandlerChunk {
     }
 
     public static Map<DimensionalPosition, ZoneInstance> getZonesInstances() {
-        return Collections.unmodifiableMap(zoneInstances);
+        return Collections.unmodifiableMap(ZONE_INSTANCES);
     }
 
     /**
@@ -158,7 +169,7 @@ public class EventHandlerChunk {
      * @return the associated {@link IChunkManager}, can be null
      */
     public static IChunkManager getManagerFor(DimensionalPosition position) {
-        return managers.get(position);
+        return MANAGERS.get(position);
     }
 
     /**
@@ -174,22 +185,18 @@ public class EventHandlerChunk {
 
     /**
      * Updates map of the client
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void playerLoggedIn(PlayerLoggedInEvent event) {
-        for(DimensionalPosition pos : zoneInstances.keySet()) {
-            ZoneInstance instance = zoneInstances.get(pos);
-            IChunkManager manager = managers.get(pos);
+        for(DimensionalPosition pos : ZONE_INSTANCES.keySet()) {
+            ZoneInstance instance = ZONE_INSTANCES.get(pos);
+            IChunkManager manager = MANAGERS.get(pos);
             ModNetwork.NETWORK.sendTo(new PacketUpdateChunkDatas(manager, pos, instance.getZoneName()), (EntityPlayerMP) event.player);
         }
     }
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onBreakBlock(BreakEvent event) {
@@ -201,21 +208,21 @@ public class EventHandlerChunk {
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onPlaceBlock(PlaceEvent event) {
         final IChunkManager manager = getManagerFor(event.getWorld(), event.getPos());
         if (manager != null) {
             manager.onPlaceBlock(event);
+            if (event.isCanceled()) {
+                // Should fix a sync bug
+                ((EntityPlayerMP) event.getPlayer()).connection.sendPacket(new SPacketSetSlot(-2, event.getPlayer().inventory.currentItem, event.getPlayer().getHeldItem(event.getHand())));
+            }
         }
     }
 
     /**
      * Each block is sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onExplosion(ExplosionEvent.Detonate event) {
@@ -241,12 +248,10 @@ public class EventHandlerChunk {
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onEntityHurt(LivingHurtEvent event) {
-        final IChunkManager manager = managers.get(DimensionalPosition.from(event.getEntity()));
+        final IChunkManager manager = MANAGERS.get(DimensionalPosition.from(event.getEntity()));
         if (manager != null) {
             manager.onEntityHurt(event);
         }
@@ -254,8 +259,6 @@ public class EventHandlerChunk {
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onPlayerRightClickBlock(RightClickBlock event) {
@@ -267,8 +270,6 @@ public class EventHandlerChunk {
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onPlayerRightClickEntity(EntityInteract event) {
@@ -280,8 +281,6 @@ public class EventHandlerChunk {
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onPlayerRightClickItem(RightClickItem event) {
@@ -293,8 +292,6 @@ public class EventHandlerChunk {
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onEntityJoin(EntityJoinWorldEvent event) {
@@ -306,8 +303,6 @@ public class EventHandlerChunk {
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onEnchantmentLevelSet(EnchantmentLevelSetEvent event) {
@@ -319,8 +314,6 @@ public class EventHandlerChunk {
 
     /**
      * Used to send the name of the chunk to the player.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onEnteringChunk(EntityEvent.EnteringChunk event) {
@@ -345,8 +338,8 @@ public class EventHandlerChunk {
         } else {
             message = new TextComponentString("* Wilderness *").setStyle(new Style().setColor(TextFormatting.LIGHT_PURPLE));
         }
-        if (!chunkNamesCache.containsKey(uuid) || !chunkNamesCache.get(uuid).equals(message.getFormattedText())) {
-            chunkNamesCache.put(uuid, message.getFormattedText());
+        if (!CHUNK_NAME_CACHE.containsKey(uuid) || !CHUNK_NAME_CACHE.get(uuid).equals(message.getFormattedText())) {
+            CHUNK_NAME_CACHE.put(uuid, message.getFormattedText());
             entity.sendMessage(message);
         }
     }
@@ -392,18 +385,14 @@ public class EventHandlerChunk {
 
     /**
      * Used to remove the cache of the player disconnecting.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onLeavingServer(PlayerLoggedOutEvent event) {
-        chunkNamesCache.remove(event.player.getUniqueID());
+        CHUNK_NAME_CACHE.remove(event.player.getUniqueID());
     }
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onItemToss(ItemTossEvent event) {
@@ -415,8 +404,6 @@ public class EventHandlerChunk {
 
     /**
      * Sended to the attached manager.
-     * 
-     * @param event
      */
     @SubscribeEvent
     public static void onBucketFill(FillBucketEvent event) {

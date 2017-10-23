@@ -4,6 +4,10 @@ import factionmod.FactionMod;
 import factionmod.config.ConfigGeneral;
 import factionmod.faction.Faction;
 import factionmod.handler.EventHandlerFaction;
+import factionmod.utils.OptionHelper;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -71,13 +75,31 @@ public class ManagerFaction extends ChunkManager {
         }
     }
 
+    private String displayedName = "--- %s ---";
+
     @Override
     public ITextComponent getName() {
-        return new TextComponentString("--- " + this.faction.getName() + " ---");
+        return new TextComponentString(String.format(displayedName, this.faction.getName()));
     }
 
     private boolean isInFaction(EntityPlayer player) {
         return faction.isMember(player.getUniqueID());
+    }
+
+    @Override
+    public void handleParameters(String parameters) {
+        final OptionParser parser = new OptionParser();
+        final OptionSpec<String> nameOpt = parser.accepts("name", "The displayed text when entering in the chunk").withRequiredArg();
+
+        try {
+            final OptionSet options = parser.parse(OptionHelper.separateOptions(parameters));
+            if (options.has(nameOpt)) {
+                displayedName = options.valueOf(nameOpt);
+            }
+        } catch (Exception e) {
+            FactionMod.getLogger().error("Error while handling parameters");
+            e.printStackTrace();
+        }
     }
 
 }

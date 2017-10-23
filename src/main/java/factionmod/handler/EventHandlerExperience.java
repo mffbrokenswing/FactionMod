@@ -11,13 +11,13 @@ import factionmod.faction.Faction;
 import factionmod.faction.Levels;
 import factionmod.utils.MessageHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.boss.EntityDragon;
-import net.minecraft.entity.boss.EntityWither;
-import net.minecraft.entity.monster.EntityWitherSkeleton;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 
 /**
  * It handles everything which is relative to the experience of the factions.
@@ -28,31 +28,35 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @EventBusSubscriber(modid = FactionMod.MODID)
 public class EventHandlerExperience {
 
+    private static final IForgeRegistry<EntityEntry> ENTITIES = ForgeRegistries.ENTITIES;
+
     /**
      * Used to give experience to factions when their members kills monsters or
      * players.
-     * 
-     * @param event
      */
     @SubscribeEvent
-    public static void playerKillEntity(LivingDeathEvent event) {
+    public static void playerKillEntity(final LivingDeathEvent event) {
         if (event.getSource().getDamageType().equals("player")) {
-            EntityPlayerMP player = (EntityPlayerMP) event.getSource().getTrueSource();
+            final EntityPlayerMP player = (EntityPlayerMP) event.getSource().getTrueSource();
             if (!EventHandlerFaction.hasUserFaction(player.getUniqueID()))
                 return;
-            Faction faction = EventHandlerFaction.getFaction(EventHandlerFaction.getFactionOf(player.getUniqueID()));
-            Entity target = event.getEntity();
+            final Faction faction = EventHandlerFaction.getFaction(EventHandlerFaction.getFactionOf(player.getUniqueID()));
+            final Entity target = event.getEntity();
             if (target instanceof EntityPlayerMP) {
                 if (EventHandlerFaction.hasUserFaction(target.getUniqueID())) {
                     FactionAPI.getFactionOf(target.getUniqueID()).damageFaction(1);
-                    addExp(faction, ConfigExperience.getExpFor("kill_enemy"), player.getUniqueID());
+                    final int exp = ConfigExperience.getExpFor("kill_enemy");
+                    addExp(faction, exp, player.getUniqueID());
+                    FactionMod.getLogger().debug("The player " + player.getName() + " killed an enemy and earned " + exp + " experience for faction " + faction.getName());
                 }
-            } else if (target instanceof EntityWitherSkeleton) {
-                addExp(faction, ConfigExperience.getExpFor("kill_wither_skeleton"), player.getUniqueID());
-            } else if (target instanceof EntityWither) {
-                addExp(faction, ConfigExperience.getExpFor("kill_wither"), player.getUniqueID());
-            } else if (target instanceof EntityDragon) {
-                addExp(faction, ConfigExperience.getExpFor("kill_dragon"), player.getUniqueID());
+            } else {
+                ENTITIES.getEntries().forEach(entry -> {
+                    if (entry.getValue().getEntityClass().equals(target.getClass())) {
+                        final int exp = ConfigExperience.getExpFor("kill_" + entry.getKey().toString());
+                        addExp(faction, exp, player.getUniqueID());
+                        FactionMod.getLogger().debug("The player " + player.getName() + " killed " + entry.getKey() + " and earned " + exp + " experience for faction " + faction.getName());
+                    }
+                });
             }
         }
     }
@@ -68,7 +72,7 @@ public class EventHandlerExperience {
      * @param member
      *            The UUID of the player who made the faction win the experience
      */
-    public static void addExp(Faction faction, int amount, UUID member) {
+    public static void addExp(final Faction faction, final int amount, final UUID member) {
         if (amount > 0) {
             faction.increaseExp(amount, member);
         }
@@ -76,11 +80,9 @@ public class EventHandlerExperience {
 
     /**
      * Used to broadcast a message to the faction when the faction levels up.
-     * 
-     * @param event
      */
     @SubscribeEvent
-    public static void onLevelUp(FactionLevelUpEvent event) {
+    public static void onLevelUp(final FactionLevelUpEvent event) {
         EventHandlerFaction.broadcastToFaction(event.getFaction(), String.format(ConfigLang.translate("faction.levelup"), event.getFaction().getLevel(), Levels.getMaximumChunksForLevel(event.getFaction().getLevel())), MessageHelper.INFO);
     }
 

@@ -28,47 +28,55 @@ import factionmod.handler.EventHandlerChunk;
  */
 public interface IChunkManager {
 
-	/**
-	 * Returns the component sended to the player when entering in the chunk
-	 * managed by this instance.
-	 * 
-	 * @return the component
-	 */
-	public ITextComponent getName();
+    /**
+     * Returns the component sended to the player when entering in the chunk
+     * managed by this instance.
+     * 
+     * @return the component
+     */
+    public ITextComponent getName();
 
-	public void onBreakBlock(final BreakEvent event);
+    /**
+     * Handles the parameters specified in the zone.json file.
+     * 
+     * @param parameters
+     *            The string representing the parameters
+     */
+    public void handleParameters(String parameters);
 
-	public void onPlaceBlock(final PlaceEvent event);
+    public void onBreakBlock(final BreakEvent event);
 
-	/**
-	 * This is called when blocks of the chunk explode. If you want to cancel
-	 * the blocks to explode, remove their positions from the list.
-	 * 
-	 * @param world
-	 *            The world the explosion happenned
-	 * @param blocks
-	 *            The positions of the blocks which exploded
-	 */
-	public void onBlocksExplode(final World world, final List<BlockPos> blocks);
+    public void onPlaceBlock(final PlaceEvent event);
 
-	public void onEntityHurt(final LivingHurtEvent event);
+    /**
+     * This is called when blocks of the chunk explode. If you want to cancel
+     * the blocks to explode, remove their positions from the list.
+     * 
+     * @param world
+     *            The world the explosion happenned
+     * @param blocks
+     *            The positions of the blocks which exploded
+     */
+    public void onBlocksExplode(final World world, final List<BlockPos> blocks);
 
-	public void onPlayerRightClickBlock(final RightClickBlock event);
+    public void onEntityHurt(final LivingHurtEvent event);
 
-	public void onPlayerRightClickEntity(final EntityInteract event);
+    public void onPlayerRightClickBlock(final RightClickBlock event);
 
-	public void onPlayerRightClickItem(final RightClickItem event);
+    public void onPlayerRightClickEntity(final EntityInteract event);
 
-	public void onEntityJoin(final EntityJoinWorldEvent event);
+    public void onPlayerRightClickItem(final RightClickItem event);
 
-	public void onEnchantmentLevelSet(final EnchantmentLevelSetEvent event);
+    public void onEntityJoin(final EntityJoinWorldEvent event);
 
-	public void onItemToss(final ItemTossEvent event);
+    public void onEnchantmentLevelSet(final EnchantmentLevelSetEvent event);
 
-	public void onEntityUseItem(final LivingEntityUseItemEvent event);
+    public void onItemToss(final ItemTossEvent event);
 
-	public void onBucketFill(final FillBucketEvent event);
+    public void onEntityUseItem(final LivingEntityUseItemEvent event);
 
-	public void onPlayerAttack(final AttackEntityEvent event);
+    public void onBucketFill(final FillBucketEvent event);
+
+    public void onPlayerAttack(final AttackEntityEvent event);
 
 }

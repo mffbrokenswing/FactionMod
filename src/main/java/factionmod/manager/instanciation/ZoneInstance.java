@@ -1,14 +1,11 @@
 package factionmod.manager.instanciation;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
 import factionmod.manager.IChunkManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * Used to instanciate an {@link IChunkManager} from the name of the
@@ -37,16 +34,6 @@ public class ZoneInstance implements INBTSerializable<NBTTagCompound> {
 
     public String[] getArgs() {
         return args;
-    }
-
-    public static ZoneInstance fromJson(JsonObject obj) {
-        String name = obj.get("name").getAsString();
-        JsonArray array = obj.get("args").getAsJsonArray();
-        String[] args = new String[array.size()];
-        for(int i = 0; i < array.size(); i++) {
-            args[i] = array.get(i).getAsString();
-        }
-        return new ZoneInstance(name, args);
     }
 
     @Override

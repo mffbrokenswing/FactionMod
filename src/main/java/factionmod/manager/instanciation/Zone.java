@@ -44,12 +44,14 @@ public class Zone {
     private boolean       standalone;
     private IChunkManager instance;
     private Class<?>      clazz;
+    private String        parameters;
 
-    public Zone(String name, String className) throws Exception {
+    public Zone(String name, String className, String parameters) throws Exception {
         ServerUtils.getProfiler().startSection("zoneCreation");
 
         this.name = name;
         this.clazz = Class.forName(className);
+        this.parameters = parameters;
 
         if (!IChunkManager.class.isAssignableFrom(this.clazz)) {
             throw new Exception("The class " + this.clazz.getName() + " doesn't implements " + IChunkManager.class.getName() + ".");
@@ -62,18 +64,21 @@ public class Zone {
         ServerUtils.getProfiler().endSection();
     }
 
-    public Zone(String name, String className, String instanceField) throws Exception {
+    public Zone(String name, String className, String instanceField, String parameters) throws Exception {
         ServerUtils.getProfiler().startSection("zoneCreation");
 
         this.name = name;
+        this.parameters = parameters;
         Class<?> c = Class.forName(className);
         Field f = c.getField(instanceField);
-        
+
         if (!IChunkManager.class.isAssignableFrom(f.getType())) {
             throw new Exception("The class " + f.getType().getName() + " doesn't implements " + IChunkManager.class.getName() + ".");
         }
         this.instance = (IChunkManager) f.get(null);
         this.standalone = true;
+        
+        this.instance.handleParameters(this.parameters);
 
         ServerUtils.getProfiler().endSection();
     }
@@ -103,6 +108,7 @@ public class Zone {
     public IChunkManager createInstance(String[] args) throws Exception {
         Constructor<?> constructor = this.clazz.getConstructor(Class.forName("[Ljava.lang.String;"));
         IChunkManager instance = (IChunkManager) constructor.newInstance(new Object[] { args });
+        instance.handleParameters(this.parameters);
         return instance;
     }
 

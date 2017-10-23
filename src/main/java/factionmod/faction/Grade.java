@@ -14,12 +14,12 @@ import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.INBTSerializable;
 
 /**
- * A grade of a faction member, a grade has permissions associated to it.
+ * A {@link Grade} of a {@link Faction} {@link Member}, a {@link Grade} has {@link EnumPermission}s associated to it.
  * 
  * @author BrokenSwing
  *
  */
-public class Grade implements INBTSerializable<NBTTagCompound> {
+public class Grade implements INBTSerializable<NBTTagCompound>, Comparable<Grade> {
 
     public static final Grade    OWNER  = new Grade("Owner", 0, EnumPermission.values());
     public static final Grade    MEMBER = new Grade("Member", -1, new EnumPermission[0]);
@@ -140,6 +140,11 @@ public class Grade implements INBTSerializable<NBTTagCompound> {
         if (executed.getPriority() == Grade.MEMBER.getPriority())
             return true;
         return executor.getPriority() < executed.getPriority();
+    }
+
+    @Override
+    public int compareTo(Grade g) {
+        return g.priority > this.priority ? -1 : this.priority > g.priority ? 1 : this.name.compareTo(g.getName());
     }
 
 }

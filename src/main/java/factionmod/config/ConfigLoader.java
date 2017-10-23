@@ -18,6 +18,7 @@ import factionmod.manager.ManagerSafeZone;
 import factionmod.manager.ManagerWarZone;
 import factionmod.manager.instanciation.Zone;
 import factionmod.utils.ServerUtils;
+import net.minecraft.util.JsonUtils;
 import net.minecraftforge.common.config.Configuration;
 
 /**
@@ -38,20 +39,20 @@ public class ConfigLoader {
         ServerUtils.getProfiler().startSection("loadZones");
 
         Zone z;
-        JsonElement file = getFile(fileName);
+        final JsonElement file = getFile(fileName, false);
         if (file != null) {
-            JsonArray zones = file.getAsJsonArray();
+            final JsonArray zones = file.getAsJsonArray();
             for(int i = 0; i < zones.size(); i++) {
-                JsonObject zone = zones.get(i).getAsJsonObject();
-                String name = zone.get("name").getAsString();
-                String clazz = zone.get("class").getAsString();
-                JsonElement element = zone.get("instance");
+                final JsonObject zone = zones.get(i).getAsJsonObject();
+                final String name = JsonUtils.getString(zone, "name");
+                final String clazz = JsonUtils.getString(zone, "class");
+                final String instance = JsonUtils.getString(zone, "instance", "");
+                final String parameters = JsonUtils.getString(zone, "parameters", "");
                 try {
-                    if (element != null) {
-                        String instance = element.getAsString();
-                        z = new Zone(name, clazz, instance);
+                    if (!instance.isEmpty()) {
+                        z = new Zone(name, clazz, instance, parameters);
                     } else {
-                        z = new Zone(name, clazz);
+                        z = new Zone(name, clazz, parameters);
                     }
                     EventHandlerChunk.registerZone(z);
                 } catch (Exception e) {
@@ -86,7 +87,7 @@ public class ConfigLoader {
     public static void loadConfigFile() {
         ServerUtils.getProfiler().startSection("loadConfiguration");
 
-        JsonElement element = getFile("configuration.json");
+        JsonElement element = getFile("configuration.json", true);
         if (element == null) {
             loadConfigurationFile();
             return;
@@ -145,10 +146,13 @@ public class ConfigLoader {
      * 
      * @param fileName
      *            The name of the file
+     * @param fromConfigDir
+     *            Set it to true if you want the path to be relative to the
+     *            faction mod config directoru
      * @return a {@link JsonElement} or null if the file doesn't exist
      */
-    private static JsonElement getFile(String fileName) {
-        File file = new File(FactionMod.getConfigDir(), fileName);
+    private static JsonElement getFile(String fileName, boolean fromConfigDir) {
+        File file = fromConfigDir ? new File(FactionMod.getConfigDir(), fileName) : new File(fileName);
         if (file.exists()) {
             try {
                 return new JsonParser().parse(new FileReader(file));

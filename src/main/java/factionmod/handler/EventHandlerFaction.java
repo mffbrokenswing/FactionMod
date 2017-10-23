@@ -6,15 +6,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
 import akka.japi.Pair;
 import factionmod.FactionMod;
 import factionmod.command.utils.UUIDHelper;
-import factionmod.config.ConfigLoader;
 import factionmod.config.ConfigGeneral;
 import factionmod.config.ConfigLang;
+import factionmod.config.ConfigLoader;
 import factionmod.data.FactionModDatas;
 import factionmod.enums.EnumPermission;
 import factionmod.event.ClaimChunkEvent;
@@ -646,6 +647,33 @@ public class EventHandlerFaction {
         FactionInfoEvent event = new FactionInfoEvent(faction, list);
         MinecraftForge.EVENT_BUS.post(event);
         return new ActionResult<List<String>>(EnumActionResult.SUCCESS, event.getInformations());
+    }
+
+    /**
+     * Gives a list of the grades with their permissions.
+     * 
+     * @param name
+     *            The name of the faction
+     * @return the result of the action : error message if the faction doesn't
+     *         exist, else the grades
+     */
+    public static ActionResult<List<String>> getGradesListFor(String name) {
+        if (!doesFactionExist(name))
+            return new ActionResult<List<String>>(EnumActionResult.FAIL, Lists.newArrayList(String.format(ConfigLang.translate("faction.inexisting"), name)));
+
+        Faction faction = getFaction(name);
+        ArrayList<Grade> grades = new ArrayList<Grade>(faction.getGrades());
+        grades.add(Grade.MEMBER);
+        grades.add(Grade.OWNER);
+        Collections.sort(grades);
+
+        ArrayList<String> list = new ArrayList<String>();
+        list.add("****** " + faction.getName() + " ******");
+        grades.forEach(g -> {
+            list.add(String.format("%s (%d) :", g.getPermissions().stream().map(EnumPermission::name).collect(Collectors.joining(" "))));
+        });
+
+        return new ActionResult<List<String>>(EnumActionResult.SUCCESS, list);
     }
 
     /**

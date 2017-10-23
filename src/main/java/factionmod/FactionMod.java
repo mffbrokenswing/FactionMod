@@ -10,6 +10,7 @@ import factionmod.command.CommandWarZone;
 import factionmod.config.ConfigLoader;
 import factionmod.data.FactionModDatas;
 import factionmod.handler.EventHandlerChunk;
+import factionmod.imc.IMCHandler;
 import factionmod.network.ModNetwork;
 import factionmod.utils.ServerUtils;
 import net.minecraftforge.fml.common.Mod;
@@ -31,15 +32,15 @@ import net.minecraftforge.server.permission.PermissionAPI;
 @Mod(modid = FactionMod.MODID, useMetadata = true, serverSideOnly = true, acceptableRemoteVersions = "*")
 public class FactionMod {
 
-    public static final String          MODID  = "facmod";
+    public static final String MODID  = "facmod";
 
-    private static String               configDir;
-    private static Logger               logger = null;
+    private static String      configDir;
+    private static Logger      logger = null;
 
     /**
      * Returns the logger of the mod.
      * 
-     * @return ht logger
+     * @return the logger
      */
     public static Logger getLogger() {
         return logger;
@@ -56,7 +57,7 @@ public class FactionMod {
     }
 
     @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
+    public void preInit(final FMLPreInitializationEvent event) {
         logger = event.getModLog();
         configDir = event.getSuggestedConfigurationFile().getParentFile().getAbsolutePath();
         ServerUtils.init(); // Can't profile before
@@ -66,45 +67,41 @@ public class FactionMod {
         ConfigLoader.initDirectory();
         ConfigLoader.loadConfigFile();
 
+        ServerUtils.getProfiler().startSection("IMCMessagesSending");
+
+        ServerUtils.getProfiler().endSection();
+
         ServerUtils.getProfiler().endSection();
     }
 
     @EventHandler
-    public void init(FMLInitializationEvent event) {
+    public void init(final FMLInitializationEvent event) {
         ServerUtils.getProfiler().startSection(MODID);
         ServerUtils.getProfiler().startSection("configuration");
-        
+
         PermissionAPI.registerNode("factionmod.command.freload", DefaultPermissionLevel.OP, "Permission to execute the command /freload");
         PermissionAPI.registerNode("factionmod.command.admin", DefaultPermissionLevel.OP, "Permission to execute the command /admin");
         PermissionAPI.registerNode("factionmod.command.faction", DefaultPermissionLevel.ALL, "Permission to execute the command /faction");
         PermissionAPI.registerNode("factionmod.command.safezone", DefaultPermissionLevel.OP, "Permission to execute the command /safezone");
         PermissionAPI.registerNode("factionmod.command.warzone", DefaultPermissionLevel.OP, "Permission to execute the command /warzone");
+        PermissionAPI.registerNode("factionmod.command.zoneflag", DefaultPermissionLevel.OP, "Permission to execute the command /zoneflag");
 
-        ConfigLoader.loadZones("zones.json");
+        ConfigLoader.loadZones(getConfigDir() + "/zones.json");
 
         ServerUtils.getProfiler().endSection();
-        
+
         ModNetwork.registerPackets();
 
         ServerUtils.getProfiler().endSection();
     }
 
     @EventHandler
-    public void onIMCMessage(IMCEvent event) {
+    public void onIMCMessage(final IMCEvent event) {
         ServerUtils.getProfiler().startSection(MODID);
         ServerUtils.getProfiler().startSection("IMCMessagesHandling");
 
         for(IMCMessage message : event.getMessages()) {
-            if (message.isStringMessage()) {
-                String fileName = message.getStringValue();
-                if (!fileName.contains("\\") && !fileName.contains("/")) {
-                    ServerUtils.getProfiler().startSection("configuration");
-                    ConfigLoader.loadZones(fileName);
-                    ServerUtils.getProfiler().endSection();
-                } else {
-                    FactionMod.getLogger().warn("The file containing the zones have to be directly in the config directory.");
-                }
-            }
+            IMCHandler.handleMessage(message);
         }
 
         ServerUtils.getProfiler().endSection();
@@ -112,7 +109,7 @@ public class FactionMod {
     }
 
     @EventHandler
-    public void onServerStarting(FMLServerStartingEvent event) {
+    public void onServerStarting(final FMLServerStartingEvent event) {
         ServerUtils.getProfiler().startSection(MODID);
         ServerUtils.getProfiler().startSection("commandsRegistering");
 
@@ -122,6 +119,7 @@ public class FactionMod {
             event.registerServerCommand(new CommandWarZone());
         if (EventHandlerChunk.getZone("faction") != null)
             event.registerServerCommand(new CommandFaction());
+
         event.registerServerCommand(new CommandAdmin());
         event.registerServerCommand(new CommandReloadConfig());
 
