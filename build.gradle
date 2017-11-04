@@ -4,7 +4,7 @@ buildscript {
         maven { url = "http://files.minecraftforge.net/maven" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
-version = "3.3.0"
+version = "1.11.2-3.3.0"
 group = "fr.mff.brokenswing" 
 archivesBaseName = "faction-mod"
 compileJava.options.encoding = 'UTF-8'
@@ -24,9 +24,9 @@ compileJava {
 }
 
 minecraft {
-    version = "1.12.2-14.23.0.2515"
+    version = "1.11.2-13.20.1.2530"
     runDir = "run"
-    mappings = "snapshot_20171022"
+    mappings = "stable_32"
     makeObfSourceJar = false
 }
 
