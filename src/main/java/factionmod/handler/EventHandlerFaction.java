@@ -55,7 +55,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -187,12 +187,13 @@ public class EventHandlerFaction {
      * @param event
      */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onPlayerAttack(AttackEntityEvent event) {
-        if (event.getTarget() instanceof EntityPlayer) {
-            EntityPlayer target = (EntityPlayer) event.getTarget();
-            if (!hasUserFaction(target.getUniqueID()) || !hasUserFaction(event.getEntityPlayer().getUniqueID()))
+    public static void onPlayerAttack(LivingHurtEvent event) {
+        if (event.getEntity() instanceof EntityPlayer && event.getSource().getTrueSource() instanceof EntityPlayer) {
+            EntityPlayer target = (EntityPlayer) event.getEntity();
+            EntityPlayer source = (EntityPlayer) event.getSource().getTrueSource();
+            if (!hasUserFaction(target.getUniqueID()) || !hasUserFaction(source.getUniqueID()))
                 return;
-            if (getFactionOf(event.getEntityPlayer().getUniqueID()).equalsIgnoreCase(getFactionOf(target.getUniqueID())))
+            if (getFactionOf(source.getUniqueID()).equalsIgnoreCase(getFactionOf(target.getUniqueID())))
                 event.setCanceled(true);
         }
     }
@@ -461,6 +462,8 @@ public class EventHandlerFaction {
             faction.addMember(uuid);
             addUserToFaction(faction, uuid);
             return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLang.translate("player.self.member.became"), faction.getName()));
+        } else if (!faction.getRecruitLink().isEmpty()) {
+            return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLang.translate("faction.join.recruit"), faction.getRecruitLink()));
         } else {
             return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLang.translate("player.self.invitation.hasnt"), faction.getName()));
         }
@@ -855,6 +858,21 @@ public class EventHandlerFaction {
             player.displayGUIChest(faction.getInventory());
         }
         return new ActionResult<String>(EnumActionResult.SUCCESS, String.format(ConfigLang.translate("faction.chest.displayed"), faction.getName()));
+    }
+
+    public static ActionResult<String> changeRecruitLink(String name, UUID member, String newLink) {
+        boolean admin = EventHandlerAdmin.isAdmin(member);
+        if (!admin && !hasUserFaction(member))
+            return new ActionResult<String>(EnumActionResult.FAIL, ConfigLang.translate("player.self.faction.hasnot"));
+        if (!doesFactionExist(name))
+            return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLang.translate("faction.inexisting"), name));
+        Faction faction = getFaction(name);
+        if (!admin && !faction.isMember(member))
+            return new ActionResult<String>(EnumActionResult.FAIL, String.format(ConfigLang.translate("player.self.member.isnt"), faction.getName()));
+        if (!admin && !faction.getMember(member).getGrade().hasPermission(EnumPermission.INVITE_USER))
+            return new ActionResult<String>(EnumActionResult.FAIL, ConfigLang.translate("player.self.permission.hasnt"));
+        faction.setRecruitLink(newLink);
+        return new ActionResult<String>(EnumActionResult.SUCCESS, ConfigLang.translate("faction.link.recruit.changed"));
     }
 
     private static boolean isChunkAtEdge(DimensionalPosition position) {

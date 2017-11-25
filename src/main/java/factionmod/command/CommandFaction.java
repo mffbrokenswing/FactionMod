@@ -41,7 +41,7 @@ import net.minecraftforge.server.permission.PermissionAPI;
  */
 public class CommandFaction extends CommandBase {
 
-    private static final String[] IN_FACTION_COMMANDS  = { "disband", "invite", "leave", "open", "claim", "unclaim", "sethome", "info", "home", "kick", "set-grade", "remove-grade", "list-grade", "promote", "chest", "desc" };
+    private static final String[] IN_FACTION_COMMANDS  = { "disband", "invite", "leave", "open", "claim", "unclaim", "sethome", "info", "home", "kick", "set-grade", "remove-grade", "list-grade", "promote", "chest", "desc", "link" };
     private static final String   USAGE_IN_FACTION     = "<" + String.join(" ", IN_FACTION_COMMANDS) + ">";
 
     private static final String[] OUT_FACTION_COMMANDS = { "create", "join", "info" };
@@ -98,6 +98,7 @@ public class CommandFaction extends CommandBase {
      * <li>{@code /faction chest}</li>
      * <li>{@code /faction desc <description>}</li>
      * <li>{@code /faction list-grade}</li>
+     * <li>{@code /faction link recruit <link>}</li>
      * </ul>
      */
     @Override
@@ -305,6 +306,19 @@ public class CommandFaction extends CommandBase {
             }
         }
 
+        else if (args[0].equalsIgnoreCase("link")) {
+            if (args.length > 1) {
+                if (args[1].equalsIgnoreCase("recruit")) {
+                    String newLink = "";
+                    if (args.length > 2)
+                        newLink = args[2];
+                    handleResponse(EventHandlerFaction.changeRecruitLink(target, player.getUniqueID(), newLink), player);
+                }
+            } else {
+                throw new WrongUsageException("/faction " + (admin ? "<faction> " : "") + "link recruit [link]");
+            }
+        }
+
         else {
             throw new WrongUsageException(this.getUsage(sender));
         }
@@ -362,6 +376,9 @@ public class CommandFaction extends CommandBase {
                     }
                     return AutoCompleter.complete(args[1], names);
                 }
+
+                if (args[0].equalsIgnoreCase("link"))
+                    return AutoCompleter.complete(args[1], new String[] { "recruit" });
 
                 if (args[0].equalsIgnoreCase("promote") || args[0].equalsIgnoreCase("kick") || args[0].equalsIgnoreCase("invite"))
                     return AutoCompleter.completePlayer(args[1]);

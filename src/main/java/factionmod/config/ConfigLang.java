@@ -48,6 +48,8 @@ public class ConfigLang {
         translations.put("faction.grade.remove.success", "The grade %s was removed.");
         translations.put("faction.chest.displayed", "Chest of the faction %s displayed.");
         translations.put("faction.chest.name", "%s");
+        translations.put("faction.link.recruit.changed", "The recruit link was changed.");
+        translations.put("faction.join.recruit", "You're not invited in the faction, but you can follow this link to be recruited : %s");
 
         translations.put("player.self.faction.has", "You're already in a faction.");
         translations.put("player.self.faction.hasnot", "You're not in a faction.");

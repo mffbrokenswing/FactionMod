@@ -9,6 +9,7 @@ import factionmod.config.ConfigGeneral;
 import factionmod.data.FactionModDatas;
 import factionmod.event.FactionLevelUpEvent;
 import factionmod.event.GradeChangeEvent;
+import factionmod.event.RecruitLinkChanged;
 import factionmod.handler.EventHandlerExperience;
 import factionmod.inventory.FactionInventory;
 import factionmod.utils.DimensionalBlockPos;
@@ -41,6 +42,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
     private int                                  level       = 1;
     private int                                  exp         = 0;
     private int                                  damages     = 0;
+    private String                               recruitLink = "";
 
     public Faction(String name, String desc, Member owner) {
         this.name = name;
@@ -54,7 +56,30 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
     }
 
     /**
-     * Returns the inventory of the faction
+     * Returns the link for the recruitement for the {@link Faction}.
+     * 
+     * @return the link for the recruitement or an empty {@link String} if no
+     *         link was set
+     */
+    public String getRecruitLink() {
+        return this.recruitLink;
+    }
+
+    /**
+     * Sets the link for the recruitement for the {@link Faction}.
+     * 
+     * @param link
+     *            The link for the recruitement or an empty {@link String} to
+     *            remove the current link
+     */
+    public void setRecruitLink(String link) {
+        final RecruitLinkChanged event = new RecruitLinkChanged(this, link);
+        MinecraftForge.EVENT_BUS.post(event);
+        this.recruitLink = event.getNewLink();
+    }
+
+    /**
+     * Returns the inventory of the {@link Faction}
      * 
      * @return the inventory
      */
@@ -508,6 +533,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
         this.level = nbt.getInteger("level");
         this.exp = nbt.getInteger("exp");
         this.damages = nbt.getInteger("damages");
+        this.recruitLink = nbt.getString("recruitLink");
 
         NBTTagList gradesList = nbt.getTagList("grades", NBT.TAG_COMPOUND);
         for(int i = 0; i < gradesList.tagCount(); i++) {
@@ -544,6 +570,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
         nbt.setInteger("level", this.level);
         nbt.setInteger("exp", this.exp);
         nbt.setInteger("damages", this.damages);
+        nbt.setString("recruitLink", this.recruitLink);
 
         NBTTagList gradesList = new NBTTagList();
         for(Grade grade : this.grades) {
