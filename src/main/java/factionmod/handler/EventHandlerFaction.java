@@ -55,6 +55,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -187,14 +188,35 @@ public class EventHandlerFaction {
      * @param event
      */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onPlayerAttack(LivingHurtEvent event) {
-        if (event.getEntity() instanceof EntityPlayer && event.getSource().getTrueSource() instanceof EntityPlayer) {
-            EntityPlayer target = (EntityPlayer) event.getEntity();
-            EntityPlayer source = (EntityPlayer) event.getSource().getTrueSource();
-            if (!hasUserFaction(target.getUniqueID()) || !hasUserFaction(source.getUniqueID()))
-                return;
-            if (getFactionOf(source.getUniqueID()).equalsIgnoreCase(getFactionOf(target.getUniqueID())))
-                event.setCanceled(true);
+    public static void livingHurt(LivingHurtEvent event) {
+        if (ConfigGeneral.getBool("disable_friendly_fire")) {
+            if (event.getEntity() instanceof EntityPlayer && event.getSource().getTrueSource() instanceof EntityPlayer) {
+                EntityPlayer target = (EntityPlayer) event.getEntity();
+                EntityPlayer source = (EntityPlayer) event.getSource().getTrueSource();
+                if (!hasUserFaction(target.getUniqueID()) || !hasUserFaction(source.getUniqueID()))
+                    return;
+                if (getFactionOf(source.getUniqueID()).equalsIgnoreCase(getFactionOf(target.getUniqueID())))
+                    event.setCanceled(true);
+            }
+        }
+    }
+
+    /**
+     * Used to disable friendly-fire.
+     * 
+     * @param event
+     */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void livingAttack(LivingAttackEvent event) {
+        if (ConfigGeneral.getBool("disable_friendly_fire")) {
+            if (event.getEntity() instanceof EntityPlayer && event.getSource().getTrueSource() instanceof EntityPlayer) {
+                EntityPlayer target = (EntityPlayer) event.getEntity();
+                EntityPlayer source = (EntityPlayer) event.getSource().getTrueSource();
+                if (!hasUserFaction(target.getUniqueID()) || !hasUserFaction(source.getUniqueID()))
+                    return;
+                if (getFactionOf(source.getUniqueID()).equalsIgnoreCase(getFactionOf(target.getUniqueID())))
+                    event.setCanceled(true);
+            }
         }
     }
 

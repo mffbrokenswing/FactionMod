@@ -10,9 +10,10 @@ import net.minecraftforge.common.config.Property;
 
 public class ConfigGeneral {
 
-    private static final HashMap<String, Integer> INT_VALUES = new HashMap<>();
+    private static final HashMap<String, Integer> INT_VALUES  = new HashMap<>();
+    private static final HashMap<String, Boolean> BOOL_VALUES = new HashMap<>();
 
-    private static final String                   CAT        = Configuration.CATEGORY_GENERAL;
+    private static final String                   CAT         = Configuration.CATEGORY_GENERAL;
 
     /**
      * Loads the general configuration using the Forge system.
@@ -48,6 +49,10 @@ public class ConfigGeneral {
         p = config.get(CAT, "teleportation_delay", 10);
         p.setComment("The time the player has to wait before being teleported.");
         INT_VALUES.put("teleportation_delay", p.getInt());
+        
+        p = config.get(CAT, "disable_friendly_fire", true);
+        p.setComment("Set it to false if you want players of the same faction to be able to fight");
+        BOOL_VALUES.put("disable_friendly_fire", p.getBoolean());
 
         ServerUtils.getProfiler().endSection();
     }
@@ -62,6 +67,18 @@ public class ConfigGeneral {
      */
     public static int getInt(String key) {
         return INT_VALUES.containsKey(key) ? INT_VALUES.get(key).intValue() : 0;
+    }
+
+    /**
+     * Returns the boolean value linked to the specified key. Returns false by
+     * default.
+     * 
+     * @param key
+     *            The key
+     * @return the boolean value
+     */
+    public static boolean getBool(String key) {
+        return BOOL_VALUES.containsKey(key) ? BOOL_VALUES.get(key) : false;
     }
 
     /**
