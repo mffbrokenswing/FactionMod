@@ -9,7 +9,7 @@ import factionmod.config.ConfigGeneral;
 import factionmod.data.FactionModDatas;
 import factionmod.event.FactionLevelUpEvent;
 import factionmod.event.GradeChangeEvent;
-import factionmod.event.RecruitLinkChanged;
+import factionmod.event.RecruitLinkChangedEvent;
 import factionmod.handler.EventHandlerExperience;
 import factionmod.inventory.FactionInventory;
 import factionmod.utils.DimensionalBlockPos;
@@ -73,7 +73,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
      *            remove the current link
      */
     public void setRecruitLink(String link) {
-        final RecruitLinkChanged event = new RecruitLinkChanged(this, link);
+        final RecruitLinkChangedEvent event = new RecruitLinkChangedEvent(this, link);
         MinecraftForge.EVENT_BUS.post(event);
         this.recruitLink = event.getNewLink();
     }

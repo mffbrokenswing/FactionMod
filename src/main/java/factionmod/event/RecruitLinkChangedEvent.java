@@ -9,12 +9,12 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  * @author BrokenSwing
  *
  */
-public class RecruitLinkChanged extends Event {
+public class RecruitLinkChangedEvent extends Event {
 
     private final Faction faction;
     private String        link;
 
-    public RecruitLinkChanged(Faction faction, String link) {
+    public RecruitLinkChangedEvent(Faction faction, String link) {
         this.faction = faction;
         this.link = link;
     }
