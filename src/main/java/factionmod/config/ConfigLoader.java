@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -77,6 +79,7 @@ public class ConfigLoader {
         ConfigExperience.loadFromConfig(cfg);
         ConfigLang.loadFromConfig(cfg);
         ConfigFactionInventory.loadFromConfig(cfg);
+        ConfigHtml.loadFromConfig(cfg);
 
         cfg.save();
     }
@@ -186,6 +189,8 @@ public class ConfigLoader {
             e.printStackTrace();
         }
     }
+    
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     /**
      * Creates the directory containing the configuration files of the mod.
@@ -217,7 +222,7 @@ public class ConfigLoader {
             root.add(warZone);
             root.add(factionZone);
 
-            writeFile("zones.json", root.toString());
+            writeFile("zones.json", GSON.toJson(root));
             ServerUtils.getProfiler().endSection();
         }
     }

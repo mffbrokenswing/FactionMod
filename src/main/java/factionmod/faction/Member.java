@@ -2,6 +2,7 @@ package factionmod.faction;
 
 import java.util.UUID;
 
+import factionmod.command.utils.UUIDHelper;
 import factionmod.enums.EnumPermission;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -11,7 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
  * @author BrokenSwing
  *
  */
-public class Member {
+public class Member implements Comparable<Member> {
 
     private UUID  uuid;
     private Grade grade;
@@ -119,6 +120,11 @@ public class Member {
             if (this.grade == null)
                 this.grade = Grade.MEMBER;
         }
+    }
+
+    @Override
+    public int compareTo(Member m) {
+        return this.getGrade().compareTo(m.getGrade()) != 0 ? this.getGrade().compareTo(m.getGrade()) : UUIDHelper.getNameOf(this.getUUID()).compareTo(UUIDHelper.getNameOf(m.getUUID()));
     }
 
 }

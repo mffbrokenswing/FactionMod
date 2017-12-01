@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import factionmod.FactionMod;
+import factionmod.event.FactionsLoadedEvent;
 import factionmod.faction.Faction;
 import factionmod.faction.Member;
 import factionmod.handler.EventHandlerChunk;
@@ -18,6 +19,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants.NBT;
 
 /**
@@ -49,6 +51,8 @@ public class FactionModDatas extends WorldSavedData {
             SAVE = data;
         }
 
+        MinecraftForge.EVENT_BUS.post(new FactionsLoadedEvent());
+        
         ServerUtils.getProfiler().endSection();
     }
 

@@ -1,5 +1,7 @@
 package factionmod;
 
+import java.io.File;
+
 import org.apache.logging.log4j.Logger;
 
 import factionmod.command.CommandAdmin;
@@ -53,7 +55,7 @@ public class FactionMod {
      * @return the path to the configuration directory
      */
     public static String getConfigDir() {
-        return configDir + "/factionmod";
+        return configDir + File.separator + "factionmod";
     }
 
     @EventHandler
@@ -79,6 +81,8 @@ public class FactionMod {
         ServerUtils.getProfiler().startSection(MODID);
         ServerUtils.getProfiler().startSection("configuration");
 
+        /** Register mod permissions */
+        
         PermissionAPI.registerNode("factionmod.command.freload", DefaultPermissionLevel.OP, "Permission to execute the command /freload");
         PermissionAPI.registerNode("factionmod.command.admin", DefaultPermissionLevel.OP, "Permission to execute the command /admin");
         PermissionAPI.registerNode("factionmod.command.faction", DefaultPermissionLevel.ALL, "Permission to execute the command /faction");
@@ -86,7 +90,7 @@ public class FactionMod {
         PermissionAPI.registerNode("factionmod.command.warzone", DefaultPermissionLevel.OP, "Permission to execute the command /warzone");
         PermissionAPI.registerNode("factionmod.command.zoneflag", DefaultPermissionLevel.OP, "Permission to execute the command /zoneflag");
 
-        ConfigLoader.loadZones(getConfigDir() + "/zones.json");
+        ConfigLoader.loadZones(getConfigDir() + File.separator + "zones.json");
 
         ServerUtils.getProfiler().endSection();
 

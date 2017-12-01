@@ -3,9 +3,13 @@ package factionmod.handler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
@@ -61,6 +65,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 
 /**
  * It handles the factions. You can process actions on faction through this
@@ -198,6 +203,26 @@ public class EventHandlerFaction {
                 if (getFactionOf(source.getUniqueID()).equalsIgnoreCase(getFactionOf(target.getUniqueID())))
                     event.setCanceled(true);
             }
+        }
+    }
+
+    private static final IdentityHashMap<Faction, AtomicInteger> TIMERS = new IdentityHashMap<>();
+
+    /**
+     * Faction's damages decrementation
+     */
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent event) {
+        int time = ConfigGeneral.getInt("damages_persistence");
+        if (time > 0) {
+            factions.values().stream().filter(f -> !TIMERS.containsKey(f)).filter(f -> f.getDamages() > 0).forEach(f -> TIMERS.put(f, new AtomicInteger(time)));
+        }
+        Iterator<Entry<Faction, AtomicInteger>> it = TIMERS.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<Faction, AtomicInteger> entry = it.next();
+            int value = entry.getValue().decrementAndGet();
+            if (value == 0)
+                it.remove();
         }
     }
 

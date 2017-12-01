@@ -53,6 +53,12 @@ public class ConfigGeneral {
         p = config.get(CAT, "disable_friendly_fire", true);
         p.setComment("Set it to false if you want players of the same faction to be able to fight");
         BOOL_VALUES.put("disable_friendly_fire", p.getBoolean());
+        
+        p = config.get(CAT, "damages_persistence", 0);
+        p.setComment("How much time a damage is kept on a faction (in ticks). Set it to 0 will make damages persistent");
+        p.setMinValue(0);
+        p.setMaxValue(Integer.MAX_VALUE);
+        INT_VALUES.put("damages_persistence", p.getInt());
 
         ServerUtils.getProfiler().endSection();
     }
