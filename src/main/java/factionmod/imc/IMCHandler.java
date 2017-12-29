@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 
 public class IMCHandler {
 
-    public static void handleMessage(IMCMessage message) {
+    public static void handleMessage(final IMCMessage message) {
         if (message.key.trim().isEmpty())
             return;
 
@@ -23,9 +23,9 @@ public class IMCHandler {
 
     }
 
-    private static void handleStringMessage(IMCMessage message) {
-        String key = message.key.trim();
-        String value = message.getStringValue().trim();
+    private static void handleStringMessage(final IMCMessage message) {
+        final String key = message.key.trim();
+        final String value = message.getStringValue().trim();
         if (value.isEmpty())
             return;
 
@@ -37,19 +37,19 @@ public class IMCHandler {
         }
     }
 
-    private static void handleItemStackMessage(IMCMessage message) {
+    private static void handleItemStackMessage(final IMCMessage message) {
 
     }
 
-    private static void handleFunctionMessage(IMCMessage message) {
+    private static void handleFunctionMessage(final IMCMessage message) {
 
     }
 
-    private static void handleNBTMessage(IMCMessage message) {
+    private static void handleNBTMessage(final IMCMessage message) {
 
     }
 
-    private static void handleResourceLocationMessage(IMCMessage message) {
+    private static void handleResourceLocationMessage(final IMCMessage message) {
 
     }
 

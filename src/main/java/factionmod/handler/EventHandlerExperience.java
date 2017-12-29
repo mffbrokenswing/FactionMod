@@ -21,7 +21,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 /**
  * It handles everything which is relative to the experience of the factions.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -49,7 +49,7 @@ public class EventHandlerExperience {
                     addExp(faction, exp, player.getUniqueID());
                     FactionMod.getLogger().debug("The player " + player.getName() + " killed an enemy and earned " + exp + " experience for faction " + faction.getName());
                 }
-            } else {
+            } else
                 ENTITIES.getEntries().forEach(entry -> {
                     if (entry.getValue().getEntityClass().equals(target.getClass())) {
                         final int exp = ConfigExperience.getExpFor("kill_" + entry.getKey().toString());
@@ -57,14 +57,13 @@ public class EventHandlerExperience {
                         FactionMod.getLogger().debug("The player " + player.getName() + " killed " + entry.getKey() + " and earned " + exp + " experience for faction " + faction.getName());
                     }
                 });
-            }
         }
     }
 
     /**
      * Adds the specified amount of experience to the specified faction. If the
      * experience increased, it will update the modded clients.
-     * 
+     *
      * @param faction
      *            The faction
      * @param amount
@@ -73,9 +72,8 @@ public class EventHandlerExperience {
      *            The UUID of the player who made the faction win the experience
      */
     public static void addExp(final Faction faction, final int amount, final UUID member) {
-        if (amount > 0) {
+        if (amount > 0)
             faction.increaseExp(amount, member);
-        }
     }
 
     /**
@@ -83,7 +81,8 @@ public class EventHandlerExperience {
      */
     @SubscribeEvent
     public static void onLevelUp(final FactionLevelUpEvent event) {
-        EventHandlerFaction.broadcastToFaction(event.getFaction(), String.format(ConfigLang.translate("faction.levelup"), event.getFaction().getLevel(), Levels.getMaximumChunksForLevel(event.getFaction().getLevel())), MessageHelper.INFO);
+        EventHandlerFaction.broadcastToFaction(event.getFaction(),
+                String.format(ConfigLang.translate("faction.levelup"), event.getFaction().getLevel(), Levels.getMaximumChunksForLevel(event.getFaction().getLevel())), MessageHelper.INFO);
     }
 
 }

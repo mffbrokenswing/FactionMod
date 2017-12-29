@@ -10,7 +10,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * Represents a {@link ChunkPos} in a specified dimension.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -19,11 +19,11 @@ public class DimensionalPosition implements INBTSerializable<NBTTagCompound> {
     private ChunkPos pos;
     private int      dimension;
 
-    public DimensionalPosition(NBTTagCompound nbt) {
+    public DimensionalPosition(final NBTTagCompound nbt) {
         this.deserializeNBT(nbt);
     }
 
-    public DimensionalPosition(ChunkPos pos, int dimension) {
+    public DimensionalPosition(final ChunkPos pos, final int dimension) {
         this.pos = new ChunkPos(pos.x, pos.z);
         this.dimension = dimension;
     }
@@ -51,14 +51,14 @@ public class DimensionalPosition implements INBTSerializable<NBTTagCompound> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        DimensionalPosition other = (DimensionalPosition) obj;
+        final DimensionalPosition other = (DimensionalPosition) obj;
         if (dimension != other.dimension)
             return false;
         if (pos == null) {
@@ -69,22 +69,22 @@ public class DimensionalPosition implements INBTSerializable<NBTTagCompound> {
         return true;
     }
 
-    public static DimensionalPosition from(World world, BlockPos pos) {
-        ChunkPos chunkPos = world.getChunkFromBlockCoords(pos).getPos();
+    public static DimensionalPosition from(final World world, final BlockPos pos) {
+        final ChunkPos chunkPos = world.getChunkFromBlockCoords(pos).getPos();
         return new DimensionalPosition(chunkPos, world.provider.getDimension());
     }
 
-    public static DimensionalPosition from(Entity entity) {
+    public static DimensionalPosition from(final Entity entity) {
         return from(entity.getEntityWorld(), entity.getPosition());
     }
 
-    public static DimensionalPosition from(ICommandSender sender) {
+    public static DimensionalPosition from(final ICommandSender sender) {
         return from(sender.getEntityWorld(), sender.getPosition());
     }
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound nbt = new NBTTagCompound();
+        final NBTTagCompound nbt = new NBTTagCompound();
         nbt.setInteger("x", this.pos.x);
         nbt.setInteger("z", this.pos.z);
         nbt.setInteger("dim", this.dimension);
@@ -92,7 +92,7 @@ public class DimensionalPosition implements INBTSerializable<NBTTagCompound> {
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
+    public void deserializeNBT(final NBTTagCompound nbt) {
         this.pos = new ChunkPos(nbt.getInteger("x"), nbt.getInteger("z"));
         this.dimension = nbt.getInteger("dim");
     }

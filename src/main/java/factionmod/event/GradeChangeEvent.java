@@ -8,18 +8,18 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * This event is fired when the grade of a player changes.
- * 
+ *
  * @author BrokenSwing
  *
  */
 public class GradeChangeEvent extends Event {
 
-    private Faction faction;
-    private UUID    playerUUID;
-    private Grade   previousGrade;
-    private Grade   newGrade;
+    private final Faction faction;
+    private final UUID    playerUUID;
+    private final Grade   previousGrade;
+    private final Grade   newGrade;
 
-    public GradeChangeEvent(Faction faction, UUID playerUUID, Grade previousGrade, Grade newGrade) {
+    public GradeChangeEvent(final Faction faction, final UUID playerUUID, final Grade previousGrade, final Grade newGrade) {
         this.faction = faction;
         this.playerUUID = playerUUID;
         this.previousGrade = previousGrade;

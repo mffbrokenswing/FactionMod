@@ -30,7 +30,7 @@ import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 
 /**
  * Manages chunks where the players can fight without affecting the terrain.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -39,41 +39,41 @@ public class ManagerWarZone extends ChunkManager {
     public static final ManagerWarZone DEFAULT = new ManagerWarZone();
 
     @Override
-    public void onBucketFill(FillBucketEvent event) {
+    public void onBucketFill(final FillBucketEvent event) {
         if (!EventHandlerAdmin.isAdmin((EntityPlayerMP) event.getEntityPlayer()))
             event.setCanceled(true);
     }
 
     @Override
-    public void onBreakBlock(BreakEvent event) {
+    public void onBreakBlock(final BreakEvent event) {
         if (!EventHandlerAdmin.isAdmin((EntityPlayerMP) event.getPlayer()))
             event.setCanceled(true);
     }
 
     @Override
-    public void onPlaceBlock(PlaceEvent event) {
+    public void onPlaceBlock(final PlaceEvent event) {
         if (!EventHandlerAdmin.isAdmin((EntityPlayerMP) event.getPlayer()))
             event.setCanceled(true);
     }
 
     @Override
-    public void onBlocksExplode(World world, List<BlockPos> blocks) {
+    public void onBlocksExplode(final World world, final List<BlockPos> blocks) {
         blocks.clear();
     }
 
     @Override
-    public void onEntityJoin(EntityJoinWorldEvent event) {
-        Entity entity = event.getEntity();
-        if (entity instanceof EntityMob || entity instanceof EntityDragon || entity instanceof EntityAmbientCreature || entity instanceof EntityFlying || entity instanceof EntitySlime || entity instanceof EntityWaterMob) {
+    public void onEntityJoin(final EntityJoinWorldEvent event) {
+        final Entity entity = event.getEntity();
+        if (entity instanceof EntityMob || entity instanceof EntityDragon || entity instanceof EntityAmbientCreature || entity instanceof EntityFlying || entity instanceof EntitySlime
+                || entity instanceof EntityWaterMob)
             event.setCanceled(true);
-        }
     }
 
     private static int     enchantLevel           = 30;
     private static boolean enforceEnchantingLevel = true;
 
     @Override
-    public void onEnchantmentLevelSet(EnchantmentLevelSetEvent event) {
+    public void onEnchantmentLevelSet(final EnchantmentLevelSetEvent event) {
         event.setLevel(getEnchantLevel());
     }
 
@@ -93,7 +93,7 @@ public class ManagerWarZone extends ChunkManager {
     }
 
     @Override
-    public void handleParameters(String parameters) {
+    public void handleParameters(final String parameters) {
         final OptionParser parser = new OptionParser();
         final OptionSpec<String> nameOpt = parser.accepts("name", "The displayed text when entering in the chunk").withRequiredArg();
         final OptionSpec<Boolean> enforceEnchantOpt = parser.accepts("enforceEnchantmentLevel", "Indicates if the level of the enchantment should be enforced").withRequiredArg().ofType(Boolean.class);
@@ -101,18 +101,15 @@ public class ManagerWarZone extends ChunkManager {
 
         try {
             final OptionSet options = parser.parse(OptionHelper.separateOptions(parameters));
-            if (options.has(nameOpt)) {
+            if (options.has(nameOpt))
                 displayedName = options.valueOf(nameOpt);
-            }
 
-            if (options.has(enforceEnchantOpt)) {
+            if (options.has(enforceEnchantOpt))
                 enforceEnchantingLevel = options.valueOf(enforceEnchantOpt).booleanValue();
-            }
 
-            if (options.has(enchantLevelOpt)) {
+            if (options.has(enchantLevelOpt))
                 enchantLevel = options.valueOf(enchantLevelOpt).intValue();
-            }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             FactionMod.getLogger().error("Error while handling parameters");
             e.printStackTrace();
         }

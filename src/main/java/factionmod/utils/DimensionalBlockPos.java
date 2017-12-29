@@ -8,7 +8,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * Represents a {@link BlockPos} in a specified dimension.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -17,11 +17,11 @@ public class DimensionalBlockPos implements INBTSerializable<NBTTagCompound> {
     private int      dimension;
     private BlockPos pos;
 
-    public DimensionalBlockPos(NBTTagCompound nbt) {
+    public DimensionalBlockPos(final NBTTagCompound nbt) {
         this.deserializeNBT(nbt);
     }
 
-    public DimensionalBlockPos(int dimension, BlockPos pos) {
+    public DimensionalBlockPos(final int dimension, final BlockPos pos) {
         this.dimension = dimension;
         this.pos = pos;
     }
@@ -35,9 +35,9 @@ public class DimensionalBlockPos implements INBTSerializable<NBTTagCompound> {
     }
 
     /**
-     * Returns an instance of {@link DimensionalPosition} with the same
-     * dimension and where the chunk contains the position of this block.
-     * 
+     * Returns an instance of {@link DimensionalPosition} with the same dimension
+     * and where the chunk contains the position of this block.
+     *
      * @return a DimensionalPosition
      */
     public DimensionalPosition toDimensionnalPosition() {
@@ -54,14 +54,14 @@ public class DimensionalBlockPos implements INBTSerializable<NBTTagCompound> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        DimensionalBlockPos other = (DimensionalBlockPos) obj;
+        final DimensionalBlockPos other = (DimensionalBlockPos) obj;
         if (dimension != other.dimension)
             return false;
         if (pos == null) {
@@ -74,7 +74,7 @@ public class DimensionalBlockPos implements INBTSerializable<NBTTagCompound> {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound nbt = new NBTTagCompound();
+        final NBTTagCompound nbt = new NBTTagCompound();
         nbt.setInteger("dimension", this.dimension);
         nbt.setInteger("x", this.pos.getX());
         nbt.setInteger("y", this.pos.getY());
@@ -83,12 +83,12 @@ public class DimensionalBlockPos implements INBTSerializable<NBTTagCompound> {
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
+    public void deserializeNBT(final NBTTagCompound nbt) {
         this.dimension = nbt.getInteger("dimension");
         this.pos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
     }
 
-    public static DimensionalBlockPos from(Entity entity) {
+    public static DimensionalBlockPos from(final Entity entity) {
         return new DimensionalBlockPos(entity.getEntityWorld().provider.getDimension(), entity.getPosition());
     }
 

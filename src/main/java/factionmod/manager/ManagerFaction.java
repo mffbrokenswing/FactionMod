@@ -19,19 +19,18 @@ import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 
 /**
  * Manages chunks claimed by factions.
- * 
+ *
  * @author BrokenSwing
  *
  */
 public class ManagerFaction extends ChunkManager {
 
-    private Faction faction;
+    private final Faction faction;
 
-    public ManagerFaction(String[] factionName) {
+    public ManagerFaction(final String[] factionName) {
         faction = EventHandlerFaction.getFaction(factionName[0]);
-        if (faction == null) {
+        if (faction == null)
             FactionMod.getLogger().warn("The server will certainly crash.");
-        }
     }
 
     public Faction getFaction() {
@@ -39,40 +38,35 @@ public class ManagerFaction extends ChunkManager {
     }
 
     @Override
-    public void onBucketFill(FillBucketEvent event) {
-        if (!isInFaction(event.getEntityPlayer())) {
+    public void onBucketFill(final FillBucketEvent event) {
+        if (!isInFaction(event.getEntityPlayer()))
             event.setCanceled(true);
-        }
     }
 
     @Override
-    public void onBreakBlock(BreakEvent event) {
-        if (!isInFaction(event.getPlayer())) {
+    public void onBreakBlock(final BreakEvent event) {
+        if (!isInFaction(event.getPlayer()))
             event.setCanceled(true);
-        }
     }
 
     @Override
-    public void onPlaceBlock(PlaceEvent event) {
-        if (!isInFaction(event.getPlayer())) {
+    public void onPlaceBlock(final PlaceEvent event) {
+        if (!isInFaction(event.getPlayer()))
             event.setCanceled(true);
-        }
     }
 
     @Override
-    public void onPlayerRightClickBlock(RightClickBlock event) {
-        if (!isInFaction(event.getEntityPlayer())) {
+    public void onPlayerRightClickBlock(final RightClickBlock event) {
+        if (!isInFaction(event.getEntityPlayer()))
             event.setCanceled(true);
-        }
     }
 
     @Override
-    public void onPlayerAttack(AttackEntityEvent event) {
-        if (event.getTarget() instanceof EntityPlayer) {
+    public void onPlayerAttack(final AttackEntityEvent event) {
+        if (event.getTarget() instanceof EntityPlayer)
             if (faction.isMember(event.getEntityPlayer().getUniqueID()) || faction.isMember(event.getTarget().getUniqueID()))
                 if (faction.getLevel() < ConfigGeneral.getInt("immunity_level"))
                     event.setCanceled(true);
-        }
     }
 
     private String displayedName = "--- %s ---";
@@ -82,21 +76,20 @@ public class ManagerFaction extends ChunkManager {
         return new TextComponentString(String.format(displayedName, this.faction.getName()));
     }
 
-    private boolean isInFaction(EntityPlayer player) {
+    private boolean isInFaction(final EntityPlayer player) {
         return faction.isMember(player.getUniqueID());
     }
 
     @Override
-    public void handleParameters(String parameters) {
+    public void handleParameters(final String parameters) {
         final OptionParser parser = new OptionParser();
         final OptionSpec<String> nameOpt = parser.accepts("name", "The displayed text when entering in the chunk").withRequiredArg();
 
         try {
             final OptionSet options = parser.parse(OptionHelper.separateOptions(parameters));
-            if (options.has(nameOpt)) {
+            if (options.has(nameOpt))
                 displayedName = options.valueOf(nameOpt);
-            }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             FactionMod.getLogger().error("Error while handling parameters");
             e.printStackTrace();
         }

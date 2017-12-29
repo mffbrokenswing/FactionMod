@@ -4,7 +4,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * Fired once all the factions were loaded.
- * 
+ *
  * @author BrokenSwing
  *
  */

@@ -52,7 +52,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 /**
  * It handles everything which is relative to the management of the chunks of
  * the world.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -60,32 +60,32 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 public class EventHandlerChunk {
 
     /** Links all chunks to its manager */
-    private static final HashMap<DimensionalPosition, IChunkManager> MANAGERS         = new HashMap<DimensionalPosition, IChunkManager>();
+    private static final HashMap<DimensionalPosition, IChunkManager> MANAGERS         = new HashMap<>();
     /**
      * Links all chunks to a {@link ZoneInstance} to recreate the manager when
      * reloading the server
      */
-    private static final HashMap<DimensionalPosition, ZoneInstance>  ZONE_INSTANCES   = new HashMap<DimensionalPosition, ZoneInstance>();
+    private static final HashMap<DimensionalPosition, ZoneInstance>  ZONE_INSTANCES   = new HashMap<>();
     /**
      * Links all the players with the name of the last manager which handled him
      */
-    private static final HashMap<UUID, String>                       CHUNK_NAME_CACHE = new HashMap<UUID, String>();
+    private static final HashMap<UUID, String>                       CHUNK_NAME_CACHE = new HashMap<>();
     /** Links each {@link Zone} with his name */
-    private static final HashMap<String, Zone>                       ZONE_MAPPING     = new HashMap<String, Zone>();
+    private static final HashMap<String, Zone>                       ZONE_MAPPING     = new HashMap<>();
 
     /**
      * Registers a {@link Zone}.
-     * 
+     *
      * @param zone
      *            The zone to register
      */
-    public static void registerZone(Zone zone) {
+    public static void registerZone(final Zone zone) {
         ZONE_MAPPING.put(zone.getName(), zone);
     }
 
     /**
      * Returns a set containing all the names of the zones.
-     * 
+     *
      * @return an unmodifiable set of String
      */
     public static Set<String> getZonesNames() {
@@ -94,18 +94,18 @@ public class EventHandlerChunk {
 
     /**
      * Returns the {@link Zone} associated with the given name.
-     * 
+     *
      * @param name
      *            The name of the Zone
      * @return The instance of the zone
      */
-    public static Zone getZone(String name) {
+    public static Zone getZone(final String name) {
         return ZONE_MAPPING.get(name);
     }
 
     /**
      * Registers an {@link IChunkManager}.
-     * 
+     *
      * @param manager
      *            The {@link IChunkManager}
      * @param pos
@@ -115,7 +115,7 @@ public class EventHandlerChunk {
      * @param refreshPlayers
      *            Set it to true if the name of the chunk should be refresh
      */
-    public static void registerChunkManager(IChunkManager manager, DimensionalPosition pos, ZoneInstance instance, boolean refreshPlayers) {
+    public static void registerChunkManager(final IChunkManager manager, final DimensionalPosition pos, final ZoneInstance instance, final boolean refreshPlayers) {
         MANAGERS.put(pos, manager);
         ZONE_INSTANCES.put(pos, instance);
         if (refreshPlayers) {
@@ -127,13 +127,13 @@ public class EventHandlerChunk {
 
     /**
      * Unregister an {@link IChunkManager}.
-     * 
+     *
      * @param pos
      *            The position of this {@link IChunkManager}
      * @param refreshPlayers
      *            Set it to true if the name of the chunk should be refresh
      */
-    public static void unregisterChunkManager(DimensionalPosition pos, boolean refreshPlayers) {
+    public static void unregisterChunkManager(final DimensionalPosition pos, final boolean refreshPlayers) {
         MANAGERS.remove(pos);
         ZONE_INSTANCES.remove(pos);
         if (refreshPlayers) {
@@ -149,37 +149,37 @@ public class EventHandlerChunk {
 
     /**
      * Returns the manager at the {@link BlockPos} in the {@link World}.
-     * 
+     *
      * @param world
      *            The world
      * @param pos
      *            The block position
      * @return the associated {@link IChunkManager}, can be null
      */
-    public static IChunkManager getManagerFor(World world, BlockPos pos) {
+    public static IChunkManager getManagerFor(final World world, final BlockPos pos) {
         return getManagerFor(DimensionalPosition.from(world, pos));
 
     }
 
     /**
      * The manager of the chunk at the {@link DimensionalPosition}.
-     * 
+     *
      * @param position
      *            The position
      * @return the associated {@link IChunkManager}, can be null
      */
-    public static IChunkManager getManagerFor(DimensionalPosition position) {
+    public static IChunkManager getManagerFor(final DimensionalPosition position) {
         return MANAGERS.get(position);
     }
 
     /**
      * Returns the manager of the chunk where the entity is placed.
-     * 
+     *
      * @param entity
      *            The entity in the world
      * @return the associated {@link IChunkManager}, can be null
      */
-    public static IChunkManager getManagerFor(Entity entity) {
+    public static IChunkManager getManagerFor(final Entity entity) {
         return getManagerFor(entity.getEntityWorld(), entity.getPosition());
     }
 
@@ -187,10 +187,10 @@ public class EventHandlerChunk {
      * Updates map of the client
      */
     @SubscribeEvent
-    public static void playerLoggedIn(PlayerLoggedInEvent event) {
-        for(DimensionalPosition pos : ZONE_INSTANCES.keySet()) {
-            ZoneInstance instance = ZONE_INSTANCES.get(pos);
-            IChunkManager manager = MANAGERS.get(pos);
+    public static void playerLoggedIn(final PlayerLoggedInEvent event) {
+        for (final DimensionalPosition pos : ZONE_INSTANCES.keySet()) {
+            final ZoneInstance instance = ZONE_INSTANCES.get(pos);
+            final IChunkManager manager = MANAGERS.get(pos);
             ModNetwork.NETWORK.sendTo(new PacketUpdateChunkDatas(manager, pos, instance.getZoneName()), (EntityPlayerMP) event.player);
         }
     }
@@ -199,25 +199,23 @@ public class EventHandlerChunk {
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onBreakBlock(BreakEvent event) {
+    public static void onBreakBlock(final BreakEvent event) {
         final IChunkManager manager = getManagerFor(event.getWorld(), event.getPos());
-        if (manager != null) {
+        if (manager != null)
             manager.onBreakBlock(event);
-        }
     }
 
     /**
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onPlaceBlock(PlaceEvent event) {
+    public static void onPlaceBlock(final PlaceEvent event) {
         final IChunkManager manager = getManagerFor(event.getWorld(), event.getPos());
         if (manager != null) {
             manager.onPlaceBlock(event);
-            if (event.isCanceled()) {
+            if (event.isCanceled())
                 // Should fix a sync bug
                 ((EntityPlayerMP) event.getPlayer()).connection.sendPacket(new SPacketSetSlot(-2, event.getPlayer().inventory.currentItem, event.getPlayer().getHeldItem(event.getHand())));
-            }
         }
     }
 
@@ -225,19 +223,19 @@ public class EventHandlerChunk {
      * Each block is sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onExplosion(ExplosionEvent.Detonate event) {
-        HashMap<DimensionalPosition, List<BlockPos>> blocks = new HashMap<DimensionalPosition, List<BlockPos>>();
-        for(BlockPos pos : event.getAffectedBlocks()) {
-            DimensionalPosition dimPos = DimensionalPosition.from(event.getWorld(), pos);
+    public static void onExplosion(final ExplosionEvent.Detonate event) {
+        final HashMap<DimensionalPosition, List<BlockPos>> blocks = new HashMap<>();
+        for (final BlockPos pos : event.getAffectedBlocks()) {
+            final DimensionalPosition dimPos = DimensionalPosition.from(event.getWorld(), pos);
             List<BlockPos> positions = blocks.get(dimPos);
             if (positions == null) {
-                positions = new ArrayList<BlockPos>();
+                positions = new ArrayList<>();
                 blocks.put(dimPos, positions);
             }
             positions.add(pos);
         }
-        for(Entry<DimensionalPosition, List<BlockPos>> entry : blocks.entrySet()) {
-            IChunkManager manager = getManagerFor(entry.getKey());
+        for (final Entry<DimensionalPosition, List<BlockPos>> entry : blocks.entrySet()) {
+            final IChunkManager manager = getManagerFor(entry.getKey());
             if (manager != null) {
                 event.getAffectedBlocks().removeAll(entry.getValue());
                 manager.onBlocksExplode(event.getWorld(), entry.getValue());
@@ -250,94 +248,87 @@ public class EventHandlerChunk {
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onEntityHurt(LivingHurtEvent event) {
+    public static void onEntityHurt(final LivingHurtEvent event) {
         final IChunkManager manager = MANAGERS.get(DimensionalPosition.from(event.getEntity()));
-        if (manager != null) {
+        if (manager != null)
             manager.onEntityHurt(event);
-        }
     }
 
     /**
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onPlayerRightClickBlock(RightClickBlock event) {
+    public static void onPlayerRightClickBlock(final RightClickBlock event) {
         final IChunkManager manager = getManagerFor(DimensionalPosition.from(event.getWorld(), event.getPos()));
-        if (manager != null) {
+        if (manager != null)
             manager.onPlayerRightClickBlock(event);
-        }
     }
 
     /**
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onPlayerRightClickEntity(EntityInteract event) {
+    public static void onPlayerRightClickEntity(final EntityInteract event) {
         final IChunkManager manager = getManagerFor(event.getTarget());
-        if (manager != null) {
+        if (manager != null)
             manager.onPlayerRightClickEntity(event);
-        }
     }
 
     /**
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onPlayerRightClickItem(RightClickItem event) {
+    public static void onPlayerRightClickItem(final RightClickItem event) {
         final IChunkManager manager = getManagerFor(event.getEntity());
-        if (manager != null) {
+        if (manager != null)
             manager.onPlayerRightClickItem(event);
-        }
     }
 
     /**
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onEntityJoin(EntityJoinWorldEvent event) {
+    public static void onEntityJoin(final EntityJoinWorldEvent event) {
         final IChunkManager manager = getManagerFor(event.getEntity());
-        if (manager != null) {
+        if (manager != null)
             manager.onEntityJoin(event);
-        }
     }
 
     /**
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onEnchantmentLevelSet(EnchantmentLevelSetEvent event) {
-        IChunkManager manager = getManagerFor(event.getWorld(), event.getPos());
-        if (manager != null) {
+    public static void onEnchantmentLevelSet(final EnchantmentLevelSetEvent event) {
+        final IChunkManager manager = getManagerFor(event.getWorld(), event.getPos());
+        if (manager != null)
             manager.onEnchantmentLevelSet(event);
-        }
     }
 
     /**
      * Used to send the name of the chunk to the player.
      */
     @SubscribeEvent
-    public static void onEnteringChunk(EntityEvent.EnteringChunk event) {
+    public static void onEnteringChunk(final EntityEvent.EnteringChunk event) {
         refreshPlayerDisplay(event.getEntity(), new DimensionalPosition(new ChunkPos(event.getNewChunkX(), event.getNewChunkZ()), event.getEntity().getEntityWorld().provider.getDimension()));
     }
 
     /**
-     * Checks if the name of the chunk changed and send the new name to the
-     * player if needed.
-     * 
+     * Checks if the name of the chunk changed and send the new name to the player
+     * if needed.
+     *
      * @param entity
      *            The entity to send the message
      * @param position
      *            The position of the chunk
      */
-    private static void refreshPlayerDisplay(Entity entity, DimensionalPosition position) {
-        UUID uuid = entity.getUniqueID();
+    private static void refreshPlayerDisplay(final Entity entity, final DimensionalPosition position) {
+        final UUID uuid = entity.getUniqueID();
         ITextComponent message;
-        IChunkManager manager = getManagerFor(position);
-        if (manager != null) {
+        final IChunkManager manager = getManagerFor(position);
+        if (manager != null)
             message = manager.getName();
-        } else {
+        else
             message = new TextComponentString("* Wilderness *").setStyle(new Style().setColor(TextFormatting.LIGHT_PURPLE));
-        }
         if (!CHUNK_NAME_CACHE.containsKey(uuid) || !CHUNK_NAME_CACHE.get(uuid).equals(message.getFormattedText())) {
             CHUNK_NAME_CACHE.put(uuid, message.getFormattedText());
             entity.sendMessage(message);
@@ -348,46 +339,42 @@ public class EventHandlerChunk {
      * Invokes
      * {@link EventHandlerChunk#refreshPlayerDisplay(Entity, DimensionalPosition)}
      * for each entity in the given chunk.
-     * 
+     *
      * @param position
      *            The position of the chunk
      */
-    private static void refreshPlayersDisplays(DimensionalPosition position) {
-        World world = ServerUtils.getServer().getWorld(position.getDimension());
-        Chunk chunk = world.getChunkFromChunkCoords(position.getPos().x, position.getPos().z);
-        ClassInheritanceMultiMap<Entity>[] list = chunk.getEntityLists();
-        for(int i = 0; i < list.length; i++) {
-            for(Entity entity : list[i]) {
-                if (entity instanceof EntityPlayer) {
+    private static void refreshPlayersDisplays(final DimensionalPosition position) {
+        final World world = ServerUtils.getServer().getWorld(position.getDimension());
+        final Chunk chunk = world.getChunkFromChunkCoords(position.getPos().x, position.getPos().z);
+        final ClassInheritanceMultiMap<Entity>[] list = chunk.getEntityLists();
+        for (final ClassInheritanceMultiMap<Entity> element : list)
+            for (final Entity entity : element)
+                if (entity instanceof EntityPlayer)
                     refreshPlayerDisplay(entity, position);
-                }
-            }
-        }
     }
 
     /**
      * Sends a packet to players to update chunk datas.
-     * 
+     *
      * @param pos
      *            The position of the chunk
      * @param manager
      *            The chunk's manager
      */
-    private static void sendChunkDatasToPlayers(DimensionalPosition pos, IChunkManager manager, ZoneInstance zoneInstance) {
-        List<EntityPlayerMP> players = ServerUtils.getServer().getPlayerList().getPlayers();
-        for(EntityPlayerMP player : players) {
+    private static void sendChunkDatasToPlayers(final DimensionalPosition pos, final IChunkManager manager, final ZoneInstance zoneInstance) {
+        final List<EntityPlayerMP> players = ServerUtils.getServer().getPlayerList().getPlayers();
+        for (final EntityPlayerMP player : players)
             if (manager == null)
                 ModNetwork.NETWORK.sendTo(new PacketRemoveChunkData(pos), player);
             else
                 ModNetwork.NETWORK.sendTo(new PacketUpdateChunkDatas(manager, pos, zoneInstance.getZoneName()), player);
-        }
     }
 
     /**
      * Used to remove the cache of the player disconnecting.
      */
     @SubscribeEvent
-    public static void onLeavingServer(PlayerLoggedOutEvent event) {
+    public static void onLeavingServer(final PlayerLoggedOutEvent event) {
         CHUNK_NAME_CACHE.remove(event.player.getUniqueID());
     }
 
@@ -395,23 +382,21 @@ public class EventHandlerChunk {
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onItemToss(ItemTossEvent event) {
-        IChunkManager manager = getManagerFor(event.getEntity());
-        if (manager != null) {
+    public static void onItemToss(final ItemTossEvent event) {
+        final IChunkManager manager = getManagerFor(event.getEntity());
+        if (manager != null)
             manager.onItemToss(event);
-        }
     }
 
     /**
      * Sended to the attached manager.
      */
     @SubscribeEvent
-    public static void onBucketFill(FillBucketEvent event) {
+    public static void onBucketFill(final FillBucketEvent event) {
         if (event.getTarget() != null) {
-            IChunkManager manager = getManagerFor(DimensionalPosition.from(event.getWorld(), event.getTarget().getBlockPos()));
-            if (manager != null) {
+            final IChunkManager manager = getManagerFor(DimensionalPosition.from(event.getWorld(), event.getTarget().getBlockPos()));
+            if (manager != null)
                 manager.onBucketFill(event);
-            }
         }
     }
 

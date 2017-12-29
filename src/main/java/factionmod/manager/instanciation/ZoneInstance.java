@@ -10,7 +10,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 /**
  * Used to instanciate an {@link IChunkManager} from the name of the
  * {@link Zone} an its arguments.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -19,12 +19,12 @@ public class ZoneInstance implements INBTSerializable<NBTTagCompound> {
     private String   zoneName;
     private String[] args;
 
-    public ZoneInstance(String name, String[] args) {
+    public ZoneInstance(final String name, final String[] args) {
         this.zoneName = name;
         this.args = args;
     }
 
-    public ZoneInstance(NBTTagCompound nbt) {
+    public ZoneInstance(final NBTTagCompound nbt) {
         this.deserializeNBT(nbt);
     }
 
@@ -38,26 +38,24 @@ public class ZoneInstance implements INBTSerializable<NBTTagCompound> {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound nbt = new NBTTagCompound();
+        final NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString("name", this.zoneName);
 
-        NBTTagList argsList = new NBTTagList();
-        for(String arg : this.args) {
+        final NBTTagList argsList = new NBTTagList();
+        for (final String arg : this.args)
             argsList.appendTag(new NBTTagString(arg));
-        }
         nbt.setTag("args", argsList);
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
+    public void deserializeNBT(final NBTTagCompound nbt) {
         this.zoneName = nbt.getString("name");
 
-        NBTTagList argsList = nbt.getTagList("args", NBT.TAG_STRING);
+        final NBTTagList argsList = nbt.getTagList("args", NBT.TAG_STRING);
         this.args = new String[argsList.tagCount()];
-        for(int i = 0; i < argsList.tagCount(); i++) {
+        for (int i = 0; i < argsList.tagCount(); i++)
             this.args[i] = argsList.getStringTagAt(i);
-        }
     }
 
 }

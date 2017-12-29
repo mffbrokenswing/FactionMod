@@ -25,7 +25,7 @@ import net.minecraftforge.common.config.Configuration;
 
 /**
  * The configuration of the mod, it loads and saves the state of the mod.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -33,31 +33,30 @@ public class ConfigLoader {
 
     /**
      * Loads a list of {@link Zone} from a file.
-     * 
+     *
      * @param fileName
      *            The name of the file
      */
-    public static final void loadZones(String fileName) {
+    public static final void loadZones(final String fileName) {
         ServerUtils.getProfiler().startSection("loadZones");
 
         Zone z;
         final JsonElement file = getFile(fileName, false);
         if (file != null) {
             final JsonArray zones = file.getAsJsonArray();
-            for(int i = 0; i < zones.size(); i++) {
+            for (int i = 0; i < zones.size(); i++) {
                 final JsonObject zone = zones.get(i).getAsJsonObject();
                 final String name = JsonUtils.getString(zone, "name");
                 final String clazz = JsonUtils.getString(zone, "class");
                 final String instance = JsonUtils.getString(zone, "instance", "");
                 final String parameters = JsonUtils.getString(zone, "parameters", "");
                 try {
-                    if (!instance.isEmpty()) {
+                    if (!instance.isEmpty())
                         z = new Zone(name, clazz, instance, parameters);
-                    } else {
+                    else
                         z = new Zone(name, clazz, parameters);
-                    }
                     EventHandlerChunk.registerZone(z);
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     FactionMod.getLogger().error("Couldn't load zone " + name);
                     e.printStackTrace();
                 }
@@ -73,13 +72,14 @@ public class ConfigLoader {
      * Loads the configuration using the Forge system.
      */
     private static void loadConfigurationFile() {
-        Configuration cfg = new Configuration(new File(FactionMod.getConfigDir(), "configuration.cfg"), CONFIG_VERSION, false);
+        final Configuration cfg = new Configuration(new File(FactionMod.getConfigDir(), "configuration.cfg"), CONFIG_VERSION, false);
 
         ConfigGeneral.loadFromConfig(cfg);
         ConfigExperience.loadFromConfig(cfg);
         ConfigLang.loadFromConfig(cfg);
         ConfigFactionInventory.loadFromConfig(cfg);
         ConfigHtml.loadFromConfig(cfg);
+        ConfigChat.loadFromConfig(cfg);
 
         cfg.save();
     }
@@ -114,25 +114,22 @@ public class ConfigLoader {
         JsonArray chestArray = new JsonArray();
 
         JsonElement el;
-        JsonObject root = element.getAsJsonObject();
+        final JsonObject root = element.getAsJsonObject();
 
         if (root.has("exp")) {
             el = root.get("exp");
-            if (el.isJsonObject()) {
+            if (el.isJsonObject())
                 expObj = el.getAsJsonObject();
-            }
         }
         if (root.has("language")) {
             el = root.get("language");
-            if (el.isJsonObject()) {
+            if (el.isJsonObject())
                 languageObj = el.getAsJsonObject();
-            }
         }
         if (root.has("unvalidItems")) {
             el = root.get("unvalidItems");
-            if (el.isJsonArray()) {
+            if (el.isJsonArray())
                 chestArray = el.getAsJsonArray();
-            }
         }
 
         ConfigGeneral.loadFromJson(root);
@@ -144,76 +141,75 @@ public class ConfigLoader {
     }
 
     /**
-     * Loads a file from the config directory. Will return null if the file
-     * doesn't exist.
-     * 
+     * Loads a file from the config directory. Will return null if the file doesn't
+     * exist.
+     *
      * @param fileName
      *            The name of the file
      * @param fromConfigDir
-     *            Set it to true if you want the path to be relative to the
-     *            faction mod config directoru
+     *            Set it to true if you want the path to be relative to the faction
+     *            mod config directoru
      * @return a {@link JsonElement} or null if the file doesn't exist
      */
-    private static JsonElement getFile(String fileName, boolean fromConfigDir) {
-        File file = fromConfigDir ? new File(FactionMod.getConfigDir(), fileName) : new File(fileName);
-        if (file.exists()) {
+    private static JsonElement getFile(final String fileName, final boolean fromConfigDir) {
+        final File file = fromConfigDir ? new File(FactionMod.getConfigDir(), fileName) : new File(fileName);
+        if (file.exists())
             try {
                 return new JsonParser().parse(new FileReader(file));
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 FactionMod.getLogger().error("Error on loading file " + fileName);
                 e.printStackTrace();
             }
-        }
         return null;
     }
 
     /**
      * Writes text in a file.
-     * 
+     *
      * @param fileName
      *            The name of the file
      * @param contents
      *            The text to write
      */
-    private static void writeFile(String fileName, String contents) {
-        File file = new File(FactionMod.getConfigDir() + "/" + fileName);
+    private static void writeFile(final String fileName, final String contents) {
+        final File file = new File(FactionMod.getConfigDir() + "/" + fileName);
         try {
             file.createNewFile();
 
-            FileWriter writer = new FileWriter(file);
+            final FileWriter writer = new FileWriter(file);
             writer.write(contents);
             writer.flush();
             writer.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             FactionMod.getLogger().error("Error on writing file " + fileName);
             e.printStackTrace();
         }
     }
-    
+
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     /**
-     * Creates the directory containing the configuration files of the mod.
-     * Creates the files zones.json if it doesn't exist.
+     * Creates the directory containing the configuration files of the mod. Creates
+     * the files zones.json if it doesn't exist.
      */
     public static void initDirectory() {
-        File dir = new File(FactionMod.getConfigDir());
+        final File dir = new File(FactionMod.getConfigDir());
         if (!dir.exists())
             dir.mkdirs();
-        File file = new File(FactionMod.getConfigDir() + "/zones.json");
+        final File file = new File(FactionMod.getConfigDir() + "/zones.json");
         if (!file.exists()) {
             ServerUtils.getProfiler().startSection("generateDefaultZonesFile");
-            JsonArray root = new JsonArray();
-            JsonObject safeZone = new JsonObject();
+            final JsonArray root = new JsonArray();
+            final JsonObject safeZone = new JsonObject();
             safeZone.add("name", new JsonPrimitive("safe"));
             safeZone.add("class", new JsonPrimitive(ManagerSafeZone.class.getName()));
             safeZone.add("instance", new JsonPrimitive("DEFAULT"));
 
-            JsonObject factionZone = new JsonObject();
+            final JsonObject factionZone = new JsonObject();
             factionZone.add("name", new JsonPrimitive("faction"));
             factionZone.add("class", new JsonPrimitive(ManagerFaction.class.getName()));
 
-            JsonObject warZone = new JsonObject();
+            final JsonObject warZone = new JsonObject();
             warZone.add("name", new JsonPrimitive("war"));
             warZone.add("class", new JsonPrimitive(ManagerWarZone.class.getName()));
             warZone.add("instance", new JsonPrimitive("DEFAULT"));

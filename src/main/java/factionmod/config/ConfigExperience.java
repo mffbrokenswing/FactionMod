@@ -17,7 +17,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 /**
  * It's the configuration of the experience earned when doing specific actions.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -28,7 +28,7 @@ public class ConfigExperience {
 
     /**
      * Loads all the values from a {@link JsonObject}.
-     * 
+     *
      * @param element
      *            The JsonObject
      */
@@ -48,9 +48,8 @@ public class ConfigExperience {
     private static final String CAT = "experience";
 
     /**
-     * Loads the configuration of experience using the Forge configuration
-     * system.
-     * 
+     * Loads the configuration of experience using the Forge configuration system.
+     *
      * @param config
      *            The configuration
      */
@@ -59,6 +58,8 @@ public class ConfigExperience {
 
         EXP_VALUES.clear();
         STRING_VALUES.clear();
+
+        config.setCategoryComment(CAT, "This section concerns how factions earn experience and how things are calculated from experience");
 
         Property p;
 
@@ -99,7 +100,7 @@ public class ConfigExperience {
 
     /**
      * Returns the amount of experience earned for the specified action.
-     * 
+     *
      * @param action
      *            The action
      * @return the amount of experience earned
@@ -110,7 +111,7 @@ public class ConfigExperience {
 
     /**
      * Returns the expression with the specified name
-     * 
+     *
      * @param name
      *            The name of the expression
      * @return the expression
@@ -122,7 +123,7 @@ public class ConfigExperience {
     /**
      * Reads the integer with the speficied name in the given JsonObject. If it
      * doesn't exist, it returns the default value.
-     * 
+     *
      * @param name
      *            The name of the value
      * @param element
@@ -136,9 +137,8 @@ public class ConfigExperience {
             final JsonElement el = element.get(name);
             if (el.isJsonPrimitive()) {
                 final JsonPrimitive prim = el.getAsJsonPrimitive();
-                if (prim.isNumber()) {
+                if (prim.isNumber())
                     return prim.getAsInt();
-                }
             }
         }
         return defaultValue;

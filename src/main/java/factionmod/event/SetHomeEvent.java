@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  * This event is fired when a player is attempting to change the location of the
  * home of a faction. Cancel this event will prevent the changement of the home
  * position.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -24,7 +24,7 @@ public class SetHomeEvent extends Event {
     private String                    message;
     private final DimensionalBlockPos position;
 
-    public SetHomeEvent(Faction faction, UUID player, DimensionalBlockPos position) {
+    public SetHomeEvent(final Faction faction, final UUID player, final DimensionalBlockPos position) {
         this.faction = faction;
         this.playerUUID = player;
         this.position = position;
@@ -33,7 +33,7 @@ public class SetHomeEvent extends Event {
 
     /**
      * Indicates the new position of the home.
-     * 
+     *
      * @return the position
      */
     public DimensionalBlockPos getNewPosition() {
@@ -41,9 +41,9 @@ public class SetHomeEvent extends Event {
     }
 
     /**
-     * Returns the current position of the faction's home. Can be null if the
-     * home isn't set.
-     * 
+     * Returns the current position of the faction's home. Can be null if the home
+     * isn't set.
+     *
      * @return the current position
      */
     public DimensionalBlockPos getCurrentPosition() {
@@ -53,7 +53,7 @@ public class SetHomeEvent extends Event {
     /**
      * Returns the message which will be displayed to the player if the event is
      * canceled. Default : {@link ConfigLanguage#missingPermission}.
-     * 
+     *
      * @return the message
      */
     public String getMessage() {
@@ -63,17 +63,17 @@ public class SetHomeEvent extends Event {
     /**
      * Sets the message which will be displayed to the player if the event is
      * canceled. A default message exists.
-     * 
+     *
      * @param message
      *            The message to display
      */
-    public void setMessage(String message) {
+    public void setMessage(final String message) {
         this.message = message;
     }
 
     /**
      * Returns the faction which will get his home changed.
-     * 
+     *
      * @return the faction
      */
     public Faction getFaction() {
@@ -82,7 +82,7 @@ public class SetHomeEvent extends Event {
 
     /**
      * Returns the UUID of the player who is changing the home.
-     * 
+     *
      * @return the UUID of the player
      */
     public UUID getPlayerUUID() {

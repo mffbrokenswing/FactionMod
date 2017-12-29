@@ -23,43 +23,43 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * Represents a group of players.
- * 
+ *
  * @author BrokenSwing
  *
  */
 public class Faction implements INBTSerializable<NBTTagCompound> {
 
-    private final ArrayList<Member>              members     = new ArrayList<Member>();
-    private final ArrayList<UUID>                invitations = new ArrayList<UUID>();
-    private final ArrayList<DimensionalPosition> chunks      = new ArrayList<DimensionalPosition>();
+    private final ArrayList<Member>              members     = new ArrayList<>();
+    private final ArrayList<UUID>                invitations = new ArrayList<>();
+    private final ArrayList<DimensionalPosition> chunks      = new ArrayList<>();
     private DimensionalBlockPos                  homePos     = null;
-    private final ArrayList<Grade>               grades      = new ArrayList<Grade>();
+    private final ArrayList<Grade>               grades      = new ArrayList<>();
     private FactionInventory                     inventory;
 
-    private String                               name;
-    private String                               description;
-    private boolean                              opened      = false;
-    private int                                  level       = 1;
-    private int                                  exp         = 0;
-    private int                                  damages     = 0;
-    private String                               recruitLink = "";
+    private String  name;
+    private String  description;
+    private boolean opened      = false;
+    private int     level       = 1;
+    private int     exp         = 0;
+    private int     damages     = 0;
+    private String  recruitLink = "";
 
-    public Faction(String name, String desc, Member owner) {
+    public Faction(final String name, final String desc, final Member owner) {
         this.name = name;
         this.description = desc;
         this.inventory = new FactionInventory(name);
         this.members.add(owner);
     }
 
-    public Faction(NBTTagCompound nbt) {
+    public Faction(final NBTTagCompound nbt) {
         this.deserializeNBT(nbt);
     }
 
     /**
      * Returns the link for the recruitement for the {@link Faction}.
-     * 
-     * @return the link for the recruitement or an empty {@link String} if no
-     *         link was set
+     *
+     * @return the link for the recruitement or an empty {@link String} if no link
+     *         was set
      */
     public String getRecruitLink() {
         return this.recruitLink;
@@ -67,12 +67,12 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Sets the link for the recruitement for the {@link Faction}.
-     * 
+     *
      * @param link
-     *            The link for the recruitement or an empty {@link String} to
-     *            remove the current link
+     *            The link for the recruitement or an empty {@link String} to remove
+     *            the current link
      */
-    public void setRecruitLink(String link) {
+    public void setRecruitLink(final String link) {
         final RecruitLinkChangedEvent event = new RecruitLinkChangedEvent(this, link);
         MinecraftForge.EVENT_BUS.post(event);
         this.recruitLink = event.getNewLink();
@@ -80,7 +80,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Returns the inventory of the {@link Faction}
-     * 
+     *
      * @return the inventory
      */
     public FactionInventory getInventory() {
@@ -89,7 +89,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Returns a list containing each {@link Grade} created by the faction.
-     * 
+     *
      * @return all grades
      */
     public List<Grade> getGrades() {
@@ -98,11 +98,11 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Damages the faction.
-     * 
+     *
      * @param damage
      *            The amount of damage
      */
-    public void damageFaction(int damage) {
+    public void damageFaction(final int damage) {
         if (damage <= 0)
             return;
         this.damages += damage;
@@ -113,7 +113,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Returns the damages of the faction.
-     * 
+     *
      * @return
      */
     public int getDamages() {
@@ -122,15 +122,14 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Decreases the damages of the faction.
-     * 
+     *
      * @param count
      *            The amount to decrease
      */
-    public void decreaseDamages(int count) {
+    public void decreaseDamages(final int count) {
         this.damages -= count;
-        if (this.damages < 0) {
+        if (this.damages < 0)
             this.damages = 0;
-        }
         FactionModDatas.save();
     }
 
@@ -144,18 +143,16 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Adds a grade to the faction.
-     * 
+     *
      * @param grade
      *            The grade to add
      */
-    public void addGrade(Grade grade) {
-        Grade g = getGrade(grade.getName());
+    public void addGrade(final Grade grade) {
+        final Grade g = getGrade(grade.getName());
         if (g != null) {
-            for(Member m : members) {
-                if (m.getGrade().equals(g)) {
+            for (final Member m : members)
+                if (m.getGrade().equals(g))
                     m.setGrade(grade);
-                }
-            }
             grades.remove(g);
         }
         grades.add(grade);
@@ -164,34 +161,31 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Returns the grade with the given name or null if any grade has this name.
-     * 
+     *
      * @param name
      *            The name of the grade
      * @return a grade or null
      */
-    public Grade getGrade(String name) {
-        for(Grade grade : grades) {
-            if (grade.getName().equalsIgnoreCase(name)) {
+    public Grade getGrade(final String name) {
+        for (final Grade grade : grades)
+            if (grade.getName().equalsIgnoreCase(name))
                 return grade;
-            }
-        }
         return null;
     }
 
     /**
-     * Removes a grade from the faction. If members had this grade, they now
-     * have the grade {@link Grade#MEMBER}.
-     * 
+     * Removes a grade from the faction. If members had this grade, they now have
+     * the grade {@link Grade#MEMBER}.
+     *
      * @param grade
      *            The grade to remove
      */
-    public void removeGrade(Grade grade) {
-        for(Member m : members) {
+    public void removeGrade(final Grade grade) {
+        for (final Member m : members)
             if (m.getGrade().equals(grade)) {
                 MinecraftForge.EVENT_BUS.post(new GradeChangeEvent(this, m.getUUID(), m.getGrade(), grade));
                 m.setGrade(Grade.MEMBER);
             }
-        }
         this.grades.remove(grade);
         FactionModDatas.save();
     }
@@ -199,7 +193,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
     /**
      * Returns the description of the faction. If no description was set, will
      * return an empty {@link String}.
-     * 
+     *
      * @return the description or an empty {@link String}
      */
     public String getDesc() {
@@ -208,12 +202,12 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Sets the current level of the faction. Then call
-     * {@link Faction#increaseExp(0)} to change the level if the maximum
-     * experience si reached.
-     * 
+     * {@link Faction#increaseExp(0)} to change the level if the maximum experience
+     * si reached.
+     *
      * @param level
      */
-    public void setLevel(int level) {
+    public void setLevel(final int level) {
         this.level = level;
         this.increaseExp(0, null);
         FactionModDatas.save();
@@ -221,7 +215,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Returns the current level of the faction.
-     * 
+     *
      * @return the level of the faction
      */
     public int getLevel() {
@@ -230,41 +224,40 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Sets the current experience to the given amount. Then calls
-     * {@link Faction#increaseExp(0)} to change the level if the experience is
-     * too high.
-     * 
+     * {@link Faction#increaseExp(0)} to change the level if the experience is too
+     * high.
+     *
      * @param exp
      *            The new amount of experience of the faction
      */
-    public void setExp(int exp) {
+    public void setExp(final int exp) {
         this.exp = exp;
         this.increaseExp(0, null);
         FactionModDatas.save();
     }
 
     /**
-     * Increase the experience from the given amount. If the experience needed
-     * to level up is reached, the level of the faction is increased and the
-     * experience is consumed, then
-     * {@link EventHandlerExperience#onLevelUp(Faction)} is fired. If the
-     * specified amount of experience is equals to or lower than 0, the fonction
-     * will do nothing.
-     * 
+     * Increase the experience from the given amount. If the experience needed to
+     * level up is reached, the level of the faction is increased and the experience
+     * is consumed, then {@link EventHandlerExperience#onLevelUp(Faction)} is fired.
+     * If the specified amount of experience is equals to or lower than 0, the
+     * fonction will do nothing.
+     *
      * @param exp
      *            The amount of experience to add
      * @param member
      *            The UUID of the member who made the faction win the experience
      */
-    public void increaseExp(int exp, UUID member) {
+    public void increaseExp(final int exp, final UUID member) {
         if (exp < 0)
             return;
         if (member != null) {
-            Member m = getMember(member);
+            final Member m = getMember(member);
             if (m != null)
                 m.addExperience(exp);
         }
         this.exp += exp;
-        int neededXp = Levels.getExpNeededForLevel(this.level + 1);
+        final int neededXp = Levels.getExpNeededForLevel(this.level + 1);
         if (this.exp >= neededXp) {
             this.level++;
             MinecraftForge.EVENT_BUS.post(new FactionLevelUpEvent(this));
@@ -278,7 +271,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
      * Returns the current experience of the faction. See
      * {@link Levels#getExpNeededForLevel(int)} to know the experience needed to
      * level up.
-     * 
+     *
      * @return The amount of experience
      */
     public int getExp() {
@@ -287,25 +280,23 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Returns the owner of the faction.
-     * 
+     *
      * @return the owner
      */
     public Member getOwner() {
-        for(Member member : members) {
-            if (member.getGrade() == Grade.OWNER) {
+        for (final Member member : members)
+            if (member.getGrade() == Grade.OWNER)
                 return member;
-            }
-        }
         return null;
     }
 
     /**
      * Adds a chunk claimed by the faction.
-     * 
+     *
      * @param position
      *            The position of the chunk
      */
-    public void addChunk(DimensionalPosition position) {
+    public void addChunk(final DimensionalPosition position) {
         this.chunks.add(position);
         FactionModDatas.save();
     }
@@ -313,23 +304,21 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
     /**
      * Removes a chunk claimed by the faction. Removes the home if it was in the
      * given chunk.
-     * 
+     *
      * @param position
      *            The position of the chunk
      */
-    public void removeChunk(DimensionalPosition position) {
+    public void removeChunk(final DimensionalPosition position) {
         this.chunks.remove(position);
-        if (this.homePos != null) {
-            if (this.homePos.toDimensionnalPosition().equals(position)) {
+        if (this.homePos != null)
+            if (this.homePos.toDimensionnalPosition().equals(position))
                 this.homePos = null;
-            }
-        }
         FactionModDatas.save();
     }
 
     /**
      * Returns all positions of the chunks claimed by the faction.
-     * 
+     *
      * @return a {@link List}
      */
     public List<DimensionalPosition> getChunks() {
@@ -337,36 +326,34 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
     }
 
     /**
-     * Returns the {@link Member} with the given {@link UUID}, or null if not
-     * found.
-     * 
+     * Returns the {@link Member} with the given {@link UUID}, or null if not found.
+     *
      * @param uuid
      *            The {@link UUID} of the {@link Member}
      * @return the {@link Member} or null
      */
-    public Member getMember(UUID uuid) {
-        for(Member m : members) {
+    public Member getMember(final UUID uuid) {
+        for (final Member m : members)
             if (m.getUUID().equals(uuid))
                 return m;
-        }
         return null;
     }
 
     /**
      * Changes the position of the home.
-     * 
+     *
      * @param pos
      *            The position of the new home
      */
-    public void setHome(DimensionalBlockPos pos) {
+    public void setHome(final DimensionalBlockPos pos) {
         this.homePos = pos;
         FactionModDatas.save();
     }
 
     /**
-     * Returns the position of the home of the faction. It can return a null
-     * object if the home isn't set.
-     * 
+     * Returns the position of the home of the faction. It can return a null object
+     * if the home isn't set.
+     *
      * @return the position of the home or null if it isn't set
      */
     public DimensionalBlockPos getHome() {
@@ -375,18 +362,18 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Changes the description of the faction.
-     * 
+     *
      * @param desc
      *            The new decription
      */
-    public void setDesc(String desc) {
+    public void setDesc(final String desc) {
         this.description = desc;
         FactionModDatas.save();
     }
 
     /**
      * Returns the name of the faction, as written when created.
-     * 
+     *
      * @return a {@link String}
      */
     public String getName() {
@@ -399,13 +386,13 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
      * <li>The player is already invited : un-invite him</li>
      * <li>The player isn't invited : invite the player</li>
      * </ul>
-     * 
+     *
      * @param uuid
      *            The UUID of the player
      * @return true if the player is invited<br />
      *         false if he's not
      */
-    public boolean toogleInvitation(UUID uuid) {
+    public boolean toogleInvitation(final UUID uuid) {
         if (invitations.contains(uuid)) {
             invitations.remove(uuid);
             FactionModDatas.save();
@@ -418,50 +405,48 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Indicates if a player is invited.
-     * 
+     *
      * @param uuid
      *            The {@link UUID} of the player
      * @return true if the player is invited
      */
-    public boolean isInvited(UUID uuid) {
+    public boolean isInvited(final UUID uuid) {
         return invitations.contains(uuid);
     }
 
     /**
      * Indicates if a player is a member.
-     * 
+     *
      * @param uuid
      *            The {@link UUID} of the player
      * @return true if the player is a member
      */
-    public boolean isMember(UUID uuid) {
-        for(Member member : members) {
-            if (member.getUUID().equals(uuid)) {
+    public boolean isMember(final UUID uuid) {
+        for (final Member member : members)
+            if (member.getUUID().equals(uuid))
                 return true;
-            }
-        }
         return false;
     }
 
     /**
      * Adds a member in the faction. This fonction call
-     * {@link Faction#addMember(Member)}, the instance of member which is
-     * created has the {@link Grade} : {@link Grade#MEMBER}.
-     * 
+     * {@link Faction#addMember(Member)}, the instance of member which is created
+     * has the {@link Grade} : {@link Grade#MEMBER}.
+     *
      * @param uuid
      *            The {@link UUID} of the player to add
      */
-    public void addMember(UUID uuid) {
+    public void addMember(final UUID uuid) {
         this.addMember(new Member(uuid, Grade.MEMBER));
     }
 
     /**
      * Adds a member in the faction.
-     * 
+     *
      * @param member
      *            The instance of the member.
      */
-    public void addMember(Member member) {
+    public void addMember(final Member member) {
         this.members.add(member);
         this.invitations.remove(member.getUUID());
         FactionModDatas.save();
@@ -469,27 +454,25 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Removes a member from the faction.
-     * 
+     *
      * @param uuid
      *            The {@link UUID} of the player
      */
-    public void removeMember(UUID uuid) {
+    public void removeMember(final UUID uuid) {
         Member toRemove = null;
-        for(Member m : members) {
+        for (final Member m : members)
             if (m.getUUID().equals(uuid)) {
                 toRemove = m;
                 break;
             }
-        }
-        if (toRemove != null) {
+        if (toRemove != null)
             members.remove(toRemove);
-        }
         FactionModDatas.save();
     }
 
     /**
      * Returns all the members of the faction.
-     * 
+     *
      * @return a {@link List} containing all the members
      */
     public List<Member> getMembers() {
@@ -499,17 +482,17 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
     /**
      * Sets the faction opened. When the faction is opened, anyone can join it
      * without invitation.
-     * 
+     *
      * @param opened
      */
-    public void setOpened(boolean opened) {
+    public void setOpened(final boolean opened) {
         this.opened = opened;
         FactionModDatas.save();
     }
 
     /**
      * Indicates if the faction is opened.
-     * 
+     *
      * @return true if the faction si opened
      */
     public boolean isOpened() {
@@ -517,7 +500,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj == this)
             return true;
         if (!(obj instanceof Faction))
@@ -526,7 +509,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
+    public void deserializeNBT(final NBTTagCompound nbt) {
         this.name = nbt.getString("name");
         this.description = nbt.getString("description");
         this.opened = nbt.getBoolean("opened");
@@ -535,25 +518,21 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
         this.damages = nbt.getInteger("damages");
         this.recruitLink = nbt.getString("recruitLink");
 
-        NBTTagList gradesList = nbt.getTagList("grades", NBT.TAG_COMPOUND);
-        for(int i = 0; i < gradesList.tagCount(); i++) {
+        final NBTTagList gradesList = nbt.getTagList("grades", NBT.TAG_COMPOUND);
+        for (int i = 0; i < gradesList.tagCount(); i++)
             this.grades.add(new Grade(gradesList.getCompoundTagAt(i)));
-        }
 
-        NBTTagList membersList = nbt.getTagList("members", NBT.TAG_COMPOUND);
-        for(int i = 0; i < membersList.tagCount(); i++) {
+        final NBTTagList membersList = nbt.getTagList("members", NBT.TAG_COMPOUND);
+        for (int i = 0; i < membersList.tagCount(); i++)
             this.members.add(new Member(membersList.getCompoundTagAt(i), this));
-        }
 
-        NBTTagList invitationsList = nbt.getTagList("invitations", NBT.TAG_COMPOUND);
-        for(int i = 0; i < invitationsList.tagCount(); i++) {
+        final NBTTagList invitationsList = nbt.getTagList("invitations", NBT.TAG_COMPOUND);
+        for (int i = 0; i < invitationsList.tagCount(); i++)
             this.invitations.add(NBTUtil.getUUIDFromTag(invitationsList.getCompoundTagAt(i)));
-        }
 
-        NBTTagList chunksList = nbt.getTagList("chunks", NBT.TAG_COMPOUND);
-        for(int i = 0; i < chunksList.tagCount(); i++) {
+        final NBTTagList chunksList = nbt.getTagList("chunks", NBT.TAG_COMPOUND);
+        for (int i = 0; i < chunksList.tagCount(); i++)
             this.chunks.add(new DimensionalPosition(chunksList.getCompoundTagAt(i)));
-        }
 
         this.inventory = new FactionInventory(nbt.getCompoundTag("inventory"));
 
@@ -563,7 +542,7 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound nbt = new NBTTagCompound();
+        final NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString("name", this.name);
         nbt.setString("description", this.description);
         nbt.setBoolean("opened", this.opened);
@@ -572,35 +551,30 @@ public class Faction implements INBTSerializable<NBTTagCompound> {
         nbt.setInteger("damages", this.damages);
         nbt.setString("recruitLink", this.recruitLink);
 
-        NBTTagList gradesList = new NBTTagList();
-        for(Grade grade : this.grades) {
+        final NBTTagList gradesList = new NBTTagList();
+        for (final Grade grade : this.grades)
             gradesList.appendTag(grade.serializeNBT());
-        }
         nbt.setTag("grades", gradesList);
 
-        NBTTagList membersList = new NBTTagList();
-        for(Member member : this.members) {
+        final NBTTagList membersList = new NBTTagList();
+        for (final Member member : this.members)
             membersList.appendTag(member.serializeNBT());
-        }
         nbt.setTag("members", membersList);
 
-        NBTTagList invitationsList = new NBTTagList();
-        for(UUID id : this.invitations) {
+        final NBTTagList invitationsList = new NBTTagList();
+        for (final UUID id : this.invitations)
             invitationsList.appendTag(NBTUtil.createUUIDTag(id));
-        }
         nbt.setTag("invitations", invitationsList);
 
-        NBTTagList chunksList = new NBTTagList();
-        for(DimensionalPosition pos : this.chunks) {
+        final NBTTagList chunksList = new NBTTagList();
+        for (final DimensionalPosition pos : this.chunks)
             chunksList.appendTag(pos.serializeNBT());
-        }
         nbt.setTag("chunks", chunksList);
 
         nbt.setTag("inventory", this.inventory.serializeNBT());
 
-        if (this.homePos != null) {
+        if (this.homePos != null)
             nbt.setTag("home", this.homePos.serializeNBT());
-        }
 
         return nbt;
     }

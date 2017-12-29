@@ -3,6 +3,8 @@ package factionmod.data;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import com.google.common.base.Joiner;
+
 import factionmod.FactionMod;
 import factionmod.event.FactionsLoadedEvent;
 import factionmod.faction.Faction;
@@ -24,7 +26,7 @@ import net.minecraftforge.common.util.Constants.NBT;
 
 /**
  * This class is used to save the inventories of the faction.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -42,7 +44,7 @@ public class FactionModDatas extends WorldSavedData {
         ServerUtils.getProfiler().startSection("loadFactionMod");
 
         if (DimensionManager.getWorlds().length > 0) {
-            MapStorage storage = DimensionManager.getWorlds()[0].getMapStorage();
+            final MapStorage storage = DimensionManager.getWorlds()[0].getMapStorage();
             FactionModDatas data = (FactionModDatas) storage.getOrLoadData(FactionModDatas.class, NAME);
             if (data == null) {
                 data = new FactionModDatas(NAME);
@@ -52,77 +54,69 @@ public class FactionModDatas extends WorldSavedData {
         }
 
         MinecraftForge.EVENT_BUS.post(new FactionsLoadedEvent());
-        
+
         ServerUtils.getProfiler().endSection();
     }
 
-    public FactionModDatas(String name) {
+    public FactionModDatas(final String name) {
         super(name);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
+    public void readFromNBT(final NBTTagCompound nbt) {
         // Read factions first, it's necessary
-        NBTTagList factions = nbt.getTagList("factions", NBT.TAG_COMPOUND);
-        for(int i = 0; i < factions.tagCount(); i++) {
-            Faction faction = new Faction(factions.getCompoundTagAt(i));
+        final NBTTagList factions = nbt.getTagList("factions", NBT.TAG_COMPOUND);
+        for (int i = 0; i < factions.tagCount(); i++) {
+            final Faction faction = new Faction(factions.getCompoundTagAt(i));
             EventHandlerFaction.addFaction(faction);
-            for(Member member : faction.getMembers()) {
+            for (final Member member : faction.getMembers())
                 EventHandlerFaction.addUserToFaction(faction, member.getUUID());
-            }
         }
 
-        HashMap<DimensionalPosition, ZoneInstance> instances = new HashMap<DimensionalPosition, ZoneInstance>();
-        NBTTagList managersList = nbt.getTagList("managers", NBT.TAG_COMPOUND);
-        for(int i = 0; i < managersList.tagCount(); i++) {
-            NBTTagCompound compound = managersList.getCompoundTagAt(i);
+        final HashMap<DimensionalPosition, ZoneInstance> instances = new HashMap<>();
+        final NBTTagList managersList = nbt.getTagList("managers", NBT.TAG_COMPOUND);
+        for (int i = 0; i < managersList.tagCount(); i++) {
+            final NBTTagCompound compound = managersList.getCompoundTagAt(i);
             instances.put(new DimensionalPosition(compound.getCompoundTag("key")), new ZoneInstance(compound.getCompoundTag("value")));
         }
 
-        for(Entry<DimensionalPosition, ZoneInstance> entry : instances.entrySet()) {
-            DimensionalPosition pos = entry.getKey();
-            ZoneInstance instance = entry.getValue();
+        for (final Entry<DimensionalPosition, ZoneInstance> entry : instances.entrySet()) {
+            final DimensionalPosition pos = entry.getKey();
+            final ZoneInstance instance = entry.getValue();
             final Zone zone = EventHandlerChunk.getZone(instance.getZoneName());
             if (zone != null) {
                 IChunkManager manager;
-                if (zone.isStandAlone()) {
+                if (zone.isStandAlone())
                     manager = zone.getInstance();
-                } else {
+                else
                     try {
                         manager = zone.createInstance(instance.getArgs());
-                    } catch (Exception e) {
-                        String listArgs = "";
-                        for(String str : instance.getArgs()) {
-                            listArgs += str + " ";
-                        }
-                        FactionMod.getLogger().warn("Cannot instanciate the zone " + zone.getName() + " with args : " + listArgs);
+                    } catch (final Exception e) {
+                        FactionMod.getLogger().warn("Cannot instanciate the zone " + zone.getName() + " with args : " + Joiner.on(" ").join(instance.getArgs()));
                         e.printStackTrace();
                         continue;
                     }
-                }
                 EventHandlerChunk.registerChunkManager(manager, pos, instance, false);
-            } else {
+            } else
                 FactionMod.getLogger().warn("Removed chunk manager at " + pos.toString() + " because the zone associated with it doens't exist.");
-            }
         }
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(final NBTTagCompound nbt) {
         nbt.setString("version", DATA_VERSION);
-        NBTTagList managersList = new NBTTagList();
-        for(Entry<DimensionalPosition, ZoneInstance> entry : EventHandlerChunk.getZonesInstances().entrySet()) {
-            NBTTagCompound compound = new NBTTagCompound();
+        final NBTTagList managersList = new NBTTagList();
+        for (final Entry<DimensionalPosition, ZoneInstance> entry : EventHandlerChunk.getZonesInstances().entrySet()) {
+            final NBTTagCompound compound = new NBTTagCompound();
             compound.setTag("key", entry.getKey().serializeNBT());
             compound.setTag("value", entry.getValue().serializeNBT());
             managersList.appendTag(compound);
         }
         nbt.setTag("managers", managersList);
 
-        NBTTagList factions = new NBTTagList();
-        for(Faction faction : EventHandlerFaction.getFactions().values()) {
+        final NBTTagList factions = new NBTTagList();
+        for (final Faction faction : EventHandlerFaction.getFactions().values())
             factions.appendTag(faction.serializeNBT());
-        }
         nbt.setTag("factions", factions);
 
         return nbt;

@@ -13,18 +13,20 @@ public class ConfigGeneral {
     private static final HashMap<String, Integer> INT_VALUES  = new HashMap<>();
     private static final HashMap<String, Boolean> BOOL_VALUES = new HashMap<>();
 
-    private static final String                   CAT         = Configuration.CATEGORY_GENERAL;
+    private static final String CAT = Configuration.CATEGORY_GENERAL;
 
     /**
      * Loads the general configuration using the Forge system.
-     * 
+     *
      * @param config
      *            The configuration
      */
-    public static void loadFromConfig(Configuration config) {
+    public static void loadFromConfig(final Configuration config) {
         ServerUtils.getProfiler().startSection("general");
 
         Property p;
+
+        config.setCategoryComment(CAT, "This section concerns the settings for the faction system as teleportation delay, faction's name max length, etc ... ");
 
         p = config.get(CAT, "immunity_level", 5);
         p.setComment("If the level of a faction is equals to or lower than this level, nobody can take famages in their claim.");
@@ -49,11 +51,11 @@ public class ConfigGeneral {
         p = config.get(CAT, "teleportation_delay", 10);
         p.setComment("The time the player has to wait before being teleported.");
         INT_VALUES.put("teleportation_delay", p.getInt());
-        
+
         p = config.get(CAT, "disable_friendly_fire", true);
         p.setComment("Set it to false if you want players of the same faction to be able to fight");
         BOOL_VALUES.put("disable_friendly_fire", p.getBoolean());
-        
+
         p = config.get(CAT, "damages_persistence", 0);
         p.setComment("How much time a damage is kept on a faction (in ticks). Set it to 0 will make damages persistent");
         p.setMinValue(0);
@@ -64,36 +66,35 @@ public class ConfigGeneral {
     }
 
     /**
-     * Returns the integer value linked to the specified key. Returns 0 by
-     * default.
-     * 
+     * Returns the integer value linked to the specified key. Returns 0 by default.
+     *
      * @param key
      *            The key
      * @return the integer value
      */
-    public static int getInt(String key) {
+    public static int getInt(final String key) {
         return INT_VALUES.containsKey(key) ? INT_VALUES.get(key).intValue() : 0;
     }
 
     /**
      * Returns the boolean value linked to the specified key. Returns false by
      * default.
-     * 
+     *
      * @param key
      *            The key
      * @return the boolean value
      */
-    public static boolean getBool(String key) {
+    public static boolean getBool(final String key) {
         return BOOL_VALUES.containsKey(key) ? BOOL_VALUES.get(key) : false;
     }
 
     /**
      * Loads the general configuration from a JsonObject.
-     * 
+     *
      * @param obj
      *            The JSON object
      */
-    public static void loadFromJson(JsonObject obj) {
+    public static void loadFromJson(final JsonObject obj) {
         ServerUtils.getProfiler().startSection("general");
 
         INT_VALUES.put("immunity_level", ConfigExperience.getInt("immunity_level", obj, 5));

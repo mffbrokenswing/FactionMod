@@ -20,49 +20,49 @@ import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 /**
  * A simple implementation of {@link IChunkManager} to avoid developers to
  * override each methods.
- * 
+ *
  * @author BrokenSwing
  *
  */
 public abstract class ChunkManager implements IChunkManager {
 
-	@Override
-	public void onBreakBlock(BreakEvent event) {}
+    @Override
+    public void onBreakBlock(final BreakEvent event) {}
 
-	@Override
-	public void onPlaceBlock(PlaceEvent event) {}
+    @Override
+    public void onPlaceBlock(final PlaceEvent event) {}
 
-	@Override
-	public void onBlocksExplode(World world, List<BlockPos> blocks) {}
+    @Override
+    public void onBlocksExplode(final World world, final List<BlockPos> blocks) {}
 
-	@Override
-	public void onEntityHurt(LivingHurtEvent event) {}
+    @Override
+    public void onEntityHurt(final LivingHurtEvent event) {}
 
-	@Override
-	public void onPlayerRightClickBlock(RightClickBlock event) {}
+    @Override
+    public void onPlayerRightClickBlock(final RightClickBlock event) {}
 
-	@Override
-	public void onPlayerRightClickEntity(EntityInteract event) {}
+    @Override
+    public void onPlayerRightClickEntity(final EntityInteract event) {}
 
-	@Override
-	public void onPlayerRightClickItem(RightClickItem event) {}
+    @Override
+    public void onPlayerRightClickItem(final RightClickItem event) {}
 
-	@Override
-	public void onEntityJoin(EntityJoinWorldEvent event) {}
+    @Override
+    public void onEntityJoin(final EntityJoinWorldEvent event) {}
 
-	@Override
-	public void onItemToss(ItemTossEvent event) {}
+    @Override
+    public void onItemToss(final ItemTossEvent event) {}
 
-	@Override
-	public void onEntityUseItem(LivingEntityUseItemEvent event) {}
+    @Override
+    public void onEntityUseItem(final LivingEntityUseItemEvent event) {}
 
-	@Override
-	public void onBucketFill(FillBucketEvent event) {}
+    @Override
+    public void onBucketFill(final FillBucketEvent event) {}
 
-	@Override
-	public void onEnchantmentLevelSet(EnchantmentLevelSetEvent event) {}
+    @Override
+    public void onEnchantmentLevelSet(final EnchantmentLevelSetEvent event) {}
 
-	@Override
-	public void onPlayerAttack(AttackEntityEvent event) {}
+    @Override
+    public void onPlayerAttack(final AttackEntityEvent event) {}
 
 }

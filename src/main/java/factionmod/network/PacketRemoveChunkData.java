@@ -8,34 +8,34 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class PacketRemoveChunkData implements IMessage {
-    
+
     private DimensionalPosition position;
-    
+
     public PacketRemoveChunkData() {}
-    
-    public PacketRemoveChunkData(DimensionalPosition pos) {
+
+    public PacketRemoveChunkData(final DimensionalPosition pos) {
         this.position = pos;
     }
-    
+
     public DimensionalPosition getPosition() {
         return this.position;
     }
 
     @Override
-    public void fromBytes(ByteBuf buf) {}
+    public void fromBytes(final ByteBuf buf) {}
 
     @Override
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(final ByteBuf buf) {
         ByteBufUtils.writeTag(buf, this.position.serializeNBT());
     }
-    
-    public static class Handler implements IMessageHandler<PacketRemoveChunkData, IMessage>  {
+
+    public static class Handler implements IMessageHandler<PacketRemoveChunkData, IMessage> {
 
         @Override
-        public IMessage onMessage(PacketRemoveChunkData message, MessageContext ctx) {
+        public IMessage onMessage(final PacketRemoveChunkData message, final MessageContext ctx) {
             return null;
         }
-        
+
     }
 
 }

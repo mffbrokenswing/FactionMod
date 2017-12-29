@@ -21,26 +21,26 @@ public class FactionInventory implements IInventory, IInteractionObject, INBTSer
 
     private NonNullList<ItemStack> stacks = NonNullList.withSize(27, ItemStack.EMPTY);
 
-    private String                 name;
+    private String name;
 
-    public FactionInventory(String name) {
+    public FactionInventory(final String name) {
         this.name = name;
     }
 
-    public FactionInventory(NBTTagCompound nbt) {
+    public FactionInventory(final NBTTagCompound nbt) {
         this.deserializeNBT(nbt);
     }
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound nbt = new NBTTagCompound();
+        final NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString("name", this.name);
         ItemStackHelper.saveAllItems(nbt, this.stacks);
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
+    public void deserializeNBT(final NBTTagCompound nbt) {
         this.stacks = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
         this.name = nbt.getString("name");
         ItemStackHelper.loadAllItems(nbt, this.stacks);
@@ -68,33 +68,32 @@ public class FactionInventory implements IInventory, IInteractionObject, INBTSer
 
     @Override
     public boolean isEmpty() {
-        ListIterator<ItemStack> it = stacks.listIterator();
-        while (it.hasNext()) {
+        final ListIterator<ItemStack> it = stacks.listIterator();
+        while (it.hasNext())
             if (!it.next().isEmpty())
                 return false;
-        }
         return true;
     }
 
     @Override
-    public ItemStack getStackInSlot(int index) {
+    public ItemStack getStackInSlot(final int index) {
         return stacks.get(index);
     }
 
     @Override
-    public ItemStack decrStackSize(int index, int count) {
+    public ItemStack decrStackSize(final int index, final int count) {
         this.markDirty();
         return ItemStackHelper.getAndSplit(stacks, index, count);
     }
 
     @Override
-    public ItemStack removeStackFromSlot(int index) {
+    public ItemStack removeStackFromSlot(final int index) {
         this.markDirty();
         return ItemStackHelper.getAndRemove(stacks, index);
     }
 
     @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
+    public void setInventorySlotContents(final int index, final ItemStack stack) {
         this.stacks.set(index, stack);
         if (stack.getCount() > this.getInventoryStackLimit())
             stack.setCount(this.getInventoryStackLimit());
@@ -112,28 +111,28 @@ public class FactionInventory implements IInventory, IInteractionObject, INBTSer
     }
 
     @Override
-    public boolean isUsableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(final EntityPlayer player) {
         return true;
     }
 
     @Override
-    public void openInventory(EntityPlayer player) {}
+    public void openInventory(final EntityPlayer player) {}
 
     @Override
-    public void closeInventory(EntityPlayer player) {}
+    public void closeInventory(final EntityPlayer player) {}
 
     @Override
-    public boolean isItemValidForSlot(int index, ItemStack stack) {
+    public boolean isItemValidForSlot(final int index, final ItemStack stack) {
         return false;
     }
 
     @Override
-    public int getField(int id) {
+    public int getField(final int id) {
         return 0;
     }
 
     @Override
-    public void setField(int id, int value) {}
+    public void setField(final int id, final int value) {}
 
     @Override
     public int getFieldCount() {
@@ -147,7 +146,7 @@ public class FactionInventory implements IInventory, IInteractionObject, INBTSer
     }
 
     @Override
-    public Container createContainer(InventoryPlayer playerInventory, EntityPlayer player) {
+    public Container createContainer(final InventoryPlayer playerInventory, final EntityPlayer player) {
         return new FactionContainer(playerInventory, this, player);
     }
 

@@ -24,7 +24,7 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 
 /**
  * Manages safe chunks, player shouldn't be able to take damages.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -33,24 +33,23 @@ public class ManagerSafeZone extends ManagerWarZone {
     public static final ManagerSafeZone DEFAULT = new ManagerSafeZone();
 
     @Override
-    public void onEntityHurt(LivingHurtEvent event) {
-        if (event.getEntity() instanceof EntityPlayerMP) {
+    public void onEntityHurt(final LivingHurtEvent event) {
+        if (event.getEntity() instanceof EntityPlayerMP)
             event.setCanceled(true);
-        }
     }
 
     @Override
-    public void onPlayerAttack(AttackEntityEvent event) {
+    public void onPlayerAttack(final AttackEntityEvent event) {
         if (!EventHandlerAdmin.isAdmin((EntityPlayerMP) event.getEntityPlayer()))
             event.setCanceled(true);
     }
 
     @Override
-    public void onEntityJoin(EntityJoinWorldEvent event) {
-        Entity entity = event.getEntity();
-        if (entity instanceof EntityMob || entity instanceof EntityDragon || entity instanceof EntityAmbientCreature || entity instanceof EntityFlying || entity instanceof EntitySlime || entity instanceof EntityWaterMob) {
+    public void onEntityJoin(final EntityJoinWorldEvent event) {
+        final Entity entity = event.getEntity();
+        if (entity instanceof EntityMob || entity instanceof EntityDragon || entity instanceof EntityAmbientCreature || entity instanceof EntityFlying || entity instanceof EntitySlime
+                || entity instanceof EntityWaterMob)
             event.setCanceled(true);
-        }
     }
 
     private static int     enchantLevel           = 30;
@@ -74,7 +73,7 @@ public class ManagerSafeZone extends ManagerWarZone {
     }
 
     @Override
-    public void handleParameters(String parameters) {
+    public void handleParameters(final String parameters) {
         final OptionParser parser = new OptionParser();
         final OptionSpec<String> nameOpt = parser.accepts("name", "The displayed text when entering in the chunk").withRequiredArg();
         final OptionSpec<Boolean> enforceEnchantOpt = parser.accepts("enforceEnchantmentLevel", "Indicates if the level of the enchantment should be enforced").withRequiredArg().ofType(Boolean.class);
@@ -82,18 +81,15 @@ public class ManagerSafeZone extends ManagerWarZone {
 
         try {
             final OptionSet options = parser.parse(OptionHelper.separateOptions(parameters));
-            if (options.has(nameOpt)) {
+            if (options.has(nameOpt))
                 displayedName = options.valueOf(nameOpt);
-            }
 
-            if (options.has(enforceEnchantOpt)) {
+            if (options.has(enforceEnchantOpt))
                 enforceEnchantingLevel = options.valueOf(enforceEnchantOpt).booleanValue();
-            }
 
-            if (options.has(enchantLevelOpt)) {
+            if (options.has(enchantLevelOpt))
                 enchantLevel = options.valueOf(enchantLevelOpt).intValue();
-            }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             FactionMod.getLogger().error("Error while handling parameters");
             e.printStackTrace();
         }

@@ -27,21 +27,21 @@ import net.minecraftforge.server.permission.PermissionAPI;
 
 /**
  * This is the main class of the Mod.
- * 
+ *
  * @author BrokenSwing
  *
  */
 @Mod(modid = FactionMod.MODID, useMetadata = true, serverSideOnly = true, acceptableRemoteVersions = "*")
 public class FactionMod {
 
-    public static final String MODID  = "facmod";
+    public static final String MODID = "facmod";
 
-    private static String      configDir;
-    private static Logger      logger = null;
+    private static String configDir;
+    private static Logger logger = null;
 
     /**
      * Returns the logger of the mod.
-     * 
+     *
      * @return the logger
      */
     public static Logger getLogger() {
@@ -49,9 +49,9 @@ public class FactionMod {
     }
 
     /**
-     * Indicates the path to the directory containing all configuration files of
-     * the mod.
-     * 
+     * Indicates the path to the directory containing all configuration files of the
+     * mod.
+     *
      * @return the path to the configuration directory
      */
     public static String getConfigDir() {
@@ -82,7 +82,7 @@ public class FactionMod {
         ServerUtils.getProfiler().startSection("configuration");
 
         /** Register mod permissions */
-        
+
         PermissionAPI.registerNode("factionmod.command.freload", DefaultPermissionLevel.OP, "Permission to execute the command /freload");
         PermissionAPI.registerNode("factionmod.command.admin", DefaultPermissionLevel.OP, "Permission to execute the command /admin");
         PermissionAPI.registerNode("factionmod.command.faction", DefaultPermissionLevel.ALL, "Permission to execute the command /faction");
@@ -104,9 +104,8 @@ public class FactionMod {
         ServerUtils.getProfiler().startSection(MODID);
         ServerUtils.getProfiler().startSection("IMCMessagesHandling");
 
-        for(IMCMessage message : event.getMessages()) {
+        for (final IMCMessage message : event.getMessages())
             IMCHandler.handleMessage(message);
-        }
 
         ServerUtils.getProfiler().endSection();
         ServerUtils.getProfiler().endSection();

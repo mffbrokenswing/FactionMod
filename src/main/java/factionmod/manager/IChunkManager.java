@@ -2,6 +2,7 @@ package factionmod.manager;
 
 import java.util.List;
 
+import factionmod.handler.EventHandlerChunk;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -17,28 +18,27 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBloc
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
-import factionmod.handler.EventHandlerChunk;
 
 /**
  * An object which will manage everything which is happening is a chunk. You
  * have to register it to {@link EventHandlerChunk}. Methods should be explicit.
- * 
+ *
  * @author BrokenSwing
  *
  */
 public interface IChunkManager {
 
     /**
-     * Returns the component sended to the player when entering in the chunk
-     * managed by this instance.
-     * 
+     * Returns the component sended to the player when entering in the chunk managed
+     * by this instance.
+     *
      * @return the component
      */
     public ITextComponent getName();
 
     /**
      * Handles the parameters specified in the zone.json file.
-     * 
+     *
      * @param parameters
      *            The string representing the parameters
      */
@@ -49,9 +49,9 @@ public interface IChunkManager {
     public void onPlaceBlock(final PlaceEvent event);
 
     /**
-     * This is called when blocks of the chunk explode. If you want to cancel
-     * the blocks to explode, remove their positions from the list.
-     * 
+     * This is called when blocks of the chunk explode. If you want to cancel the
+     * blocks to explode, remove their positions from the list.
+     *
      * @param world
      *            The world the explosion happenned
      * @param blocks

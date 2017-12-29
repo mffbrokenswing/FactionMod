@@ -17,7 +17,7 @@ import net.minecraftforge.server.permission.PermissionAPI;
 public class CommandReloadConfig implements ICommand {
 
     @Override
-    public int compareTo(ICommand arg0) {
+    public int compareTo(final ICommand arg0) {
         return 0;
     }
 
@@ -27,7 +27,7 @@ public class CommandReloadConfig implements ICommand {
     }
 
     @Override
-    public String getUsage(ICommandSender sender) {
+    public String getUsage(final ICommandSender sender) {
         return "/freload";
     }
 
@@ -37,25 +37,25 @@ public class CommandReloadConfig implements ICommand {
     }
 
     @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+    public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) throws CommandException {
         ConfigLoader.loadConfigFile();
         sender.sendMessage(MessageHelper.info("Configuration reloaded !"));
     }
 
     @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+    public boolean checkPermission(final MinecraftServer server, final ICommandSender sender) {
         if (sender instanceof EntityPlayerMP)
             return PermissionAPI.hasPermission((EntityPlayerMP) sender, "factionmod.command.freload");
         return true;
     }
 
     @Override
-    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos targetPos) {
+    public List<String> getTabCompletions(final MinecraftServer server, final ICommandSender sender, final String[] args, final BlockPos targetPos) {
         return Lists.newArrayList();
     }
 
     @Override
-    public boolean isUsernameIndex(String[] args, int index) {
+    public boolean isUsernameIndex(final String[] args, final int index) {
         return false;
     }
 

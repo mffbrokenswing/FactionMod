@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 /**
  * Represents a member of a {@link Faction}.
- * 
+ *
  * @author BrokenSwing
  *
  */
@@ -18,19 +18,19 @@ public class Member implements Comparable<Member> {
     private Grade grade;
     private int   experience;
 
-    public Member(final UUID uuid, Grade grade) {
+    public Member(final UUID uuid, final Grade grade) {
         this.uuid = uuid;
         this.grade = grade;
         this.experience = 0;
     }
 
-    public Member(NBTTagCompound nbt, Faction faction) {
+    public Member(final NBTTagCompound nbt, final Faction faction) {
         this.deserializeNBT(nbt, faction);
     }
 
     /**
      * Returns the UUID of the member.
-     * 
+     *
      * @return an UUID
      */
     public UUID getUUID() {
@@ -39,7 +39,7 @@ public class Member implements Comparable<Member> {
 
     /**
      * Returns the {@link Grade} of the member.
-     * 
+     *
      * @return a grade
      */
     public Grade getGrade() {
@@ -48,28 +48,28 @@ public class Member implements Comparable<Member> {
 
     /**
      * Changes the {@link Grade} of the member.
-     * 
+     *
      * @param grade
      *            The new grade
      */
-    public void setGrade(Grade grade) {
+    public void setGrade(final Grade grade) {
         this.grade = grade;
     }
 
     /**
      * Adds experience to the member. The experience of a member represents the
      * total of the experience he made won to his faction.
-     * 
+     *
      * @param experience
      *            The amount of experience to add
      */
-    public void addExperience(int experience) {
+    public void addExperience(final int experience) {
         this.experience += experience;
     }
 
     /**
      * Returns the amount of experience the member made won to his faction.
-     * 
+     *
      * @return the amount of experience
      */
     public int getExperience() {
@@ -78,7 +78,7 @@ public class Member implements Comparable<Member> {
 
     /**
      * Indicates if the member has the specified permission.
-     * 
+     *
      * @param permission
      *            The permission to test
      * @return true if the member has the permission
@@ -89,11 +89,11 @@ public class Member implements Comparable<Member> {
 
     /**
      * Serializes the member in a {@link NBTTagCompound}.
-     * 
+     *
      * @return the {@link NBTTagCompound}
      */
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound nbt = new NBTTagCompound();
+        final NBTTagCompound nbt = new NBTTagCompound();
         nbt.setUniqueId("uuid", this.uuid);
         nbt.setString("grade", this.grade.getName());
         nbt.setInteger("experience", this.experience);
@@ -102,15 +102,15 @@ public class Member implements Comparable<Member> {
 
     /**
      * Deserializes the member from the {@link NBTTagCompound}.
-     * 
+     *
      * @param nbt
      *            The {@link NBTTagCompound}
      * @param faction
      *            The faction of the member
      */
-    public void deserializeNBT(NBTTagCompound nbt, Faction faction) {
+    public void deserializeNBT(final NBTTagCompound nbt, final Faction faction) {
         this.uuid = nbt.getUniqueId("uuid");
-        String gradeName = nbt.getString("grade");
+        final String gradeName = nbt.getString("grade");
         if (Grade.OWNER.getName().equalsIgnoreCase(gradeName))
             this.grade = Grade.OWNER;
         else if (Grade.MEMBER.getName().equalsIgnoreCase(gradeName))
@@ -123,7 +123,7 @@ public class Member implements Comparable<Member> {
     }
 
     @Override
-    public int compareTo(Member m) {
+    public int compareTo(final Member m) {
         return this.getGrade().compareTo(m.getGrade()) != 0 ? this.getGrade().compareTo(m.getGrade()) : UUIDHelper.getNameOf(this.getUUID()).compareTo(UUIDHelper.getNameOf(m.getUUID()));
     }
 

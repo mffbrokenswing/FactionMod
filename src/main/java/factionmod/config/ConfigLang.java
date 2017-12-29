@@ -12,10 +12,10 @@ import net.minecraftforge.common.config.Configuration;
 
 public class ConfigLang {
 
-    private static final HashMap<String, String> TRANSLATIONS = new HashMap<String, String>();
+    private static final HashMap<String, String> TRANSLATIONS = new HashMap<>();
 
     private static HashMap<String, String> init() {
-        HashMap<String, String> translations = new HashMap<>();
+        final HashMap<String, String> translations = new HashMap<>();
         translations.put("admin.prefix", "[F-ADMIN]");
 
         translations.put("faction.levelup", "Your faction reached the level %s. Now you can have %s chunks claimed.");
@@ -90,35 +90,33 @@ public class ConfigLang {
 
     /**
      * Translates the given key. If it doesn't exist, it returns the key.
-     * 
+     *
      * @param key
      *            The key to translate
      * @return the translation
      */
-    public static String translate(String key) {
+    public static String translate(final String key) {
         return TRANSLATIONS.containsKey(key) ? TRANSLATIONS.get(key) : key;
     }
 
     /**
-     * Loads the configuratio of the language from the JSON configuration file.
-     * 
+     * Loads the configuration of the language from the JSON configuration file.
+     *
      * @param obj
      *            The language JSON object
      */
-    public static void loadFromJson(JsonObject obj) {
+    public static void loadFromJson(final JsonObject obj) {
         ServerUtils.getProfiler().startSection("language");
 
         TRANSLATIONS.clear();
         init().forEach(TRANSLATIONS::put);
 
-        for(Entry<String, JsonElement> entry : obj.entrySet()) {
+        for (final Entry<String, JsonElement> entry : obj.entrySet())
             if (entry.getValue().isJsonPrimitive()) {
-                JsonPrimitive prim = entry.getValue().getAsJsonPrimitive();
-                if (prim.isString()) {
+                final JsonPrimitive prim = entry.getValue().getAsJsonPrimitive();
+                if (prim.isString())
                     TRANSLATIONS.put(entry.getKey(), prim.getAsString());
-                }
             }
-        }
 
         ServerUtils.getProfiler().endSection();
     }
@@ -126,17 +124,19 @@ public class ConfigLang {
     private static final String CAT = "language";
 
     /**
-     * Loads the configuration for the language from the configuration provided
-     * by Forge system.
-     * 
+     * Loads the configuration for the language from the configuration provided by
+     * Forge system.
+     *
      * @param config
      *            The configuration
      */
-    public static void loadFromConfig(Configuration config) {
+    public static void loadFromConfig(final Configuration config) {
         ServerUtils.getProfiler().startSection("language");
 
+        config.setCategoryComment(CAT, "This section contains all the translation keys of the mod. It permits you to modify messages sended to players");
+
         TRANSLATIONS.clear();
-        HashMap<String, String> temp = init();
+        final HashMap<String, String> temp = init();
         temp.forEach((key, value) -> TRANSLATIONS.put(key, config.get(CAT, key, value).getString()));
 
         ServerUtils.getProfiler().endSection();
