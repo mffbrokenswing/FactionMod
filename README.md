@@ -1,6 +1,6 @@
 # Faction Mod
 
-License :
+***License*** :
 
 Copyright 2017 MFFBrokenSwing
 
