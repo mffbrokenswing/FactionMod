@@ -88,7 +88,6 @@ public class FactionMod {
         PermissionAPI.registerNode("factionmod.command.faction", DefaultPermissionLevel.ALL, "Permission to execute the command /faction");
         PermissionAPI.registerNode("factionmod.command.safezone", DefaultPermissionLevel.OP, "Permission to execute the command /safezone");
         PermissionAPI.registerNode("factionmod.command.warzone", DefaultPermissionLevel.OP, "Permission to execute the command /warzone");
-        PermissionAPI.registerNode("factionmod.command.zoneflag", DefaultPermissionLevel.OP, "Permission to execute the command /zoneflag");
 
         ConfigLoader.loadZones(getConfigDir() + File.separator + "zones.json");
 
