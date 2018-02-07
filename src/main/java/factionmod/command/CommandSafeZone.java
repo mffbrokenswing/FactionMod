@@ -44,9 +44,6 @@ public class CommandSafeZone extends CommandBase {
 
     @Override
     public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) throws CommandException {
-        if (!(sender instanceof EntityPlayerMP))
-            throw new WrongUsageException("You have to be a player", new Object[0]);
-
         final DimensionalPosition position = DimensionalPosition.from(sender);
         if (args.length == 0) {
             if (EventHandlerChunk.getManagerFor(position) != null)
