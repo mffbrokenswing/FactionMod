@@ -16,9 +16,7 @@ import com.google.common.collect.Lists;
 
 import akka.japi.Pair;
 import factionmod.FactionMod;
-import factionmod.api.FactionModAPI.FactionAPI;
 import factionmod.command.utils.UUIDHelper;
-import factionmod.config.ConfigChat;
 import factionmod.config.ConfigGeneral;
 import factionmod.config.ConfigLang;
 import factionmod.config.ConfigLoader;
@@ -57,13 +55,10 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.ClickEvent.Action;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
@@ -187,25 +182,7 @@ public class EventHandlerFaction {
         if (event.getUsername().equals("BrokenSwing") && ServerUtils.getServer().isServerInOnlineMode())
             event.setDisplayname(TextFormatting.YELLOW + "[Faction's Mod Dev] " + TextFormatting.RESET + event.getDisplayname());
     }
-
-    /**
-     * Used to format chat and to create a faction chat
-     */
-    @SubscribeEvent
-    public static void chatMessageReceived(final ServerChatEvent event) {
-        final String factionChatIndicator = ConfigChat.getString("faction_chat_special_indicator");
-        if (ConfigChat.getBool("enable_faction_chat") && event.getMessage().startsWith(factionChatIndicator)) {
-            event.setCanceled(true);
-            if (FactionAPI.hasPlayerFaction(event.getPlayer().getUniqueID()))
-                broadcastToFaction(FactionAPI.getFactionOf(event.getPlayer().getUniqueID()),
-                        new TextComponentTranslation(ConfigChat.getString("faction_chat_format"), event.getPlayer().getDisplayName(),
-                                ForgeHooks.newChatWithLinks(event.getMessage().substring(factionChatIndicator.length()))));
-            else
-                event.getPlayer().sendMessage(MessageHelper.error(String.format(ConfigLang.translate("player.self.faction.hasnot"))));
-        } else
-            event.setComponent(new TextComponentTranslation(ConfigChat.getString("general_chat_format"), event.getPlayer().getDisplayName(), ForgeHooks.newChatWithLinks(event.getMessage())));
-    }
-
+    
     /**
      * Used to disable friendly-fire.
      */

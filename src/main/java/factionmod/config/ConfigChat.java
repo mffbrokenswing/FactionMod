@@ -1,8 +1,13 @@
 package factionmod.config;
 
 import java.util.HashMap;
+import java.util.function.BiFunction;
 
+import factionmod.chat.ChatChannel;
+import factionmod.chat.ChatManager;
+import factionmod.chat.Filters;
 import factionmod.utils.ServerUtils;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
@@ -22,25 +27,29 @@ public class ConfigChat {
     public static void loadFromConfig(final Configuration config) {
         ServerUtils.getProfiler().startSection("chat");
 
-        Property p;
-
         config.setCategoryComment(CAT, "This section concerns the chat system in the mod (not the translations)");
-
-        p = config.get(CAT, "general_chat_format", "%1$s > %2$s");
-        p.setComment("Permits to modify general chat format. %1$s is the player name, %2$s is the sended message");
-        STRING_VALUES.put("general_chat_format", p.getString());
-
-        p = config.get(CAT, "enable_faction_chat", true);
-        p.setComment("Set it to true to allow faction's members to send messages to other members only");
-        BOOL_VALUES.put("enable_faction_chat", p.getBoolean());
-
-        p = config.get(CAT, "faction_chat_special_indicator", "!");
-        p.setComment("If you enabled the faction chat, it's the characters to add before the message to send it in the faction chat. Example with default value '!' : !Hello my faction");
-        STRING_VALUES.put("faction_chat_special_indicator", p.getString());
-
-        p = config.get(CAT, "faction_chat_format", "%1$s > §l%2$s");
-        p.setComment("Permits to modify faction chat format. %1$s is the player name, %2$s is the sended message");
-        STRING_VALUES.put("faction_chat_format", p.getString());
+        
+        ChatManager.instance().clearChannels();
+        
+        config.getCategory(CAT).getChildren().forEach(category -> {
+            Property prop = category.get("prefix");
+            if(prop == null) return;
+            String prefix = prop.getString();
+            
+            prop = category.get("format");
+            if(prop == null) return;
+            String format = prop.getString();
+            
+            prop = category.get("filter");
+            if(prop == null) return;
+            prop.setComment("%1$s is the username of the player sending the message and %2$s is the sended message");
+            String predicate = prop.getString();
+            
+            BiFunction<EntityPlayerMP, EntityPlayerMP, Boolean> bifunc = Filters.instance().parse(predicate);
+            if(bifunc == null) return;
+            
+            ChatManager.instance().registerChannel(new ChatChannel(prefix, format, bifunc));
+        });
 
         ServerUtils.getProfiler().endSection();
     }
