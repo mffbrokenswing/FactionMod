@@ -63,7 +63,7 @@ public class LogicalParser<A> {
         }
 
         if (parsedFunctions.size() - 1 != parsedOperators.size())
-            throw new Exception("Wrong parity operator/functions");
+            throw new Exception("Wrong parity operator/functions (" + parsedOperators.size() + "/" + parsedFunctions.size() + ").");
 
         while (!parsedOperators.isEmpty()) {
             A value = parsedOperators.pop().getOperator().apply(parsedFunctions.pop(), parsedFunctions.pop());

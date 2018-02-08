@@ -55,6 +55,8 @@ public class Filters {
     @Nullable
     public BiFunction<EntityPlayerMP, EntityPlayerMP, Boolean> parse(String chain) {
         LogicalParser<BiFunction<EntityPlayerMP, EntityPlayerMP, Boolean>> parser = new LogicalParser<>(new LogicalTokenizer(chain));
+        parser.addFunctions(this.functions);
+        parser.addOperators(this.operators);
         try {
             return parser.parse();
         } catch (Exception e) {

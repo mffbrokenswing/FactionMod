@@ -5,6 +5,7 @@ import java.util.List;
 import factionmod.FactionMod;
 import factionmod.chat.ChatChannel;
 import factionmod.chat.ChatManager;
+import factionmod.config.ConfigLang;
 import factionmod.utils.MessageHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.ITextComponent;
@@ -24,7 +25,7 @@ public class EventHandlerChat {
             List<EntityPlayerMP> onlinePlayers = FMLServerHandler.instance().getServer().getPlayerList().getPlayers();
             List<EntityPlayerMP> targetedPlayers = channel.filter(event.getPlayer(), onlinePlayers);
             if (targetedPlayers.isEmpty()) {
-                event.getPlayer().sendMessage(MessageHelper.warn("You're message doesn't have any target."));
+                event.getPlayer().sendMessage(MessageHelper.warn(ConfigLang.translate("message.no.target")));
             } else {
                 ITextComponent component = channel.format(event.getUsername(), event.getMessage());
                 targetedPlayers.forEach(p -> p.sendMessage(component));

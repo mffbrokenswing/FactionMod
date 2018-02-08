@@ -84,6 +84,8 @@ public class ConfigLang {
 
         translations.put("teleportation.time.remaining", "You will be teleported in %s seconds.");
         translations.put("teleportation.canceled", "Your teleportation was canceled.");
+        
+        translations.put("message.no.target", "Your message hasn't any target.");
 
         return translations;
     }
