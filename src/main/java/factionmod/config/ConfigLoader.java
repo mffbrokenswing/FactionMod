@@ -66,7 +66,7 @@ public class ConfigLoader {
         ServerUtils.getProfiler().endSection();
     }
 
-    public static final String CONFIG_VERSION = "v1";
+    public static final String CONFIG_VERSION = "v2";
 
     /**
      * Loads the configuration using the Forge system.
