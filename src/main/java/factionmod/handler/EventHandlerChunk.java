@@ -14,9 +14,6 @@ import factionmod.data.FactionModDatas;
 import factionmod.manager.IChunkManager;
 import factionmod.manager.instanciation.Zone;
 import factionmod.manager.instanciation.ZoneInstance;
-import factionmod.network.ModNetwork;
-import factionmod.network.PacketRemoveChunkData;
-import factionmod.network.PacketUpdateChunkDatas;
 import factionmod.utils.DimensionalPosition;
 import factionmod.utils.ServerUtils;
 import net.minecraft.entity.Entity;
@@ -46,7 +43,6 @@ import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 
 /**
@@ -120,7 +116,6 @@ public class EventHandlerChunk {
         ZONE_INSTANCES.put(pos, instance);
         if (refreshPlayers) {
             refreshPlayersDisplays(pos);
-            sendChunkDatasToPlayers(pos, manager, instance);
         }
         FactionModDatas.save();
     }
@@ -138,7 +133,6 @@ public class EventHandlerChunk {
         ZONE_INSTANCES.remove(pos);
         if (refreshPlayers) {
             refreshPlayersDisplays(pos);
-            sendChunkDatasToPlayers(pos, null, null);
         }
         FactionModDatas.save();
     }
@@ -181,18 +175,6 @@ public class EventHandlerChunk {
      */
     public static IChunkManager getManagerFor(final Entity entity) {
         return getManagerFor(entity.getEntityWorld(), entity.getPosition());
-    }
-
-    /**
-     * Updates map of the client
-     */
-    @SubscribeEvent
-    public static void playerLoggedIn(final PlayerLoggedInEvent event) {
-        for (final DimensionalPosition pos : ZONE_INSTANCES.keySet()) {
-            final ZoneInstance instance = ZONE_INSTANCES.get(pos);
-            final IChunkManager manager = MANAGERS.get(pos);
-            ModNetwork.NETWORK.sendTo(new PacketUpdateChunkDatas(manager, pos, instance.getZoneName()), (EntityPlayerMP) event.player);
-        }
     }
 
     /**
@@ -351,23 +333,6 @@ public class EventHandlerChunk {
             for (final Entity entity : element)
                 if (entity instanceof EntityPlayer)
                     refreshPlayerDisplay(entity, position);
-    }
-
-    /**
-     * Sends a packet to players to update chunk datas.
-     *
-     * @param pos
-     *            The position of the chunk
-     * @param manager
-     *            The chunk's manager
-     */
-    private static void sendChunkDatasToPlayers(final DimensionalPosition pos, final IChunkManager manager, final ZoneInstance zoneInstance) {
-        final List<EntityPlayerMP> players = ServerUtils.getServer().getPlayerList().getPlayers();
-        for (final EntityPlayerMP player : players)
-            if (manager == null)
-                ModNetwork.NETWORK.sendTo(new PacketRemoveChunkData(pos), player);
-            else
-                ModNetwork.NETWORK.sendTo(new PacketUpdateChunkDatas(manager, pos, zoneInstance.getZoneName()), player);
     }
 
     /**
