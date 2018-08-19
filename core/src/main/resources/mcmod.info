@@ -1,6 +1,6 @@
 [
 {
-  "modid": "facmod",
+  "modid": "faction",
   "name": "Faction Mod",
   "description": "A mod which implements faction system",
   "version": "${version}",
