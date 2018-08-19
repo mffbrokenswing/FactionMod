@@ -7,44 +7,114 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
 
+plugins {
+    id 'com.github.johnrengelman.shadow' version '2.0.1'
+}
 
-//Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+allprojects {
+    apply plugin: 'net.minecraftforge.gradle.forge'
+    apply plugin: 'com.github.johnrengelman.shadow'
 
+    version = "0.0.0"
+    group = "com.github.mffbrokenswing"
+    archivesBaseName = "faction-mod"
 
-version = "SNAPSHOT-3.6.0"
-group = "fr.mff.brokenswing" 
-archivesBaseName = "faction-mod"
-compileJava.options.encoding = 'UTF-8'
-
-sourceCompatibility = targetCompatibility = "1.8"
-compileJava {
+    compileJava.options.encoding = 'UTF-8'
     sourceCompatibility = targetCompatibility = "1.8"
-}
-
-minecraft {
-    version = "1.12.2-14.23.2.2613"
-    runDir = "run"
-    mappings = "snapshot_20180207"
-    makeObfSourceJar = false
-}
-
-dependencies {
-
-}
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+    compileJava {
+        sourceCompatibility = targetCompatibility = "1.8"
     }
-        
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+
+    minecraft {
+        version = "1.12.2-14.23.4.2705"
+        runDir = "run"
+        mappings = "snapshot_20180719"
+        makeObfSourceJar = false
+    }
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.0'
+
+        testCompile 'org.assertj:assertj-core-java8:1.0.0m1'
+        testCompile 'junit:junit:4.12'
+        testCompile 'org.mockito:mockito-core:2.8.47'
+    }
+
+    jar {
+        classifier 'slim'
+    }
+
+    shadowJar {
+        classifier 'fat'
+        configurations = [project.configurations.shadow]
+        dependencies {
+            exclude(dependency {
+                it.moduleGroup == 'com.google.guava' || it.moduleGroup == 'org.apache.commons' || it.moduleGroup == "com.google.code.findbugs"
+            })
+        }
+    }
+
+    reobf {
+        shadowJar { mappingType = 'SEARGE'}
+    }
+
+    tasks.build.dependsOn reobfShadowJar
+
+    artifacts {
+        archives shadowJar
+    }
+
+    processResources {
+        inputs.property "version", project.version
+        inputs.property "mcversion", project.minecraft.version
+
+        from(sourceSets.main.resources.srcDirs) {
+            include 'mcmod.info'
+
+            expand 'version':project.version, 'mcversion':project.minecraft.version
+        }
+
+        from(sourceSets.main.java.srcDirs) {
+            include 'factionmod/common/FactionConstants.java'
+
+            expand 'version':project.version
+        }
+
+        from(sourceSets.main.resources.srcDirs) {
+            exclude 'mcmod.info'
+        }
+
+        from(sourceSets.main.java.srcDirs) {
+            exclude 'factionmod/common/FactionConstants.java'
+        }
+    }
+}
+
+project('core') {
+    
+}
+
+project('modules:faction') {
+    dependencies {
+        compile project(':core')
+    }
+}
+
+subprojects.each { subproject -> evaluationDependsOn(subproject.path)}
+shadowJar.dependsOn subprojects.tasks['classes']
+
+shadowJar {
+    classifier 'fat'
+    configurations = [project.configurations.shadow]
+    dependencies {
+        exclude(dependency {
+            it.moduleGroup == 'com.google.guava' || it.moduleGroup == 'org.apache.commons' ||
+                    it.moduleGroup == "com.google.code.findbugs" || it.moduleGroup == "commons-io"
+        })
+    }
+    subprojects.each { subproject ->
+        from subproject.sourceSets.main.output.classesDir
+        from subproject.sourceSets.main.output.resourcesDir
     }
 }
