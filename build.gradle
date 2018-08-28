@@ -33,12 +33,31 @@ allprojects {
         makeObfSourceJar = false
     }
 
+    repositories {
+    	maven {
+    		name = "bintray-jcenter"
+    		url = "http://jcenter.bintray.com"
+    	}
+    	maven { // TeaBeans
+            name = 'ourten'
+            url = 'http://maven.ferenyr.info/artifactory/ourten'
+        }
+        maven { // BrokkGUI
+            name = 'yggard'
+            url = 'http://maven.ferenyr.info/artifactory/yggard'
+		}
+    }
+
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.0'
 
         testCompile 'org.assertj:assertj-core-java8:1.0.0m1'
         testCompile 'junit:junit:4.12'
         testCompile 'org.mockito:mockito-core:2.8.47'
+
+        compile 'com.github.mffbrokenswing:broken-library:1.0.0'
+        compile 'org.yggard:brokkgui-binding-mc1.12:1.0.0-23-SNAPSHOT'
+		compile 'fr.ourten:teabeans:0.7.0'
     }
 
     jar {
@@ -99,6 +118,11 @@ project('modules:faction') {
     dependencies {
         compile project(':core')
     }
+}
+
+dependencies {
+    shadow 'org.yggard:brokkgui-binding-mc1.12:1.0.0-23-SNAPSHOT'
+	shadow 'fr.ourten:teabeans:0.7.0'
 }
 
 subprojects.each { subproject -> evaluationDependsOn(subproject.path)}
